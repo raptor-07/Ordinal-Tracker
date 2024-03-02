@@ -1,8 +1,6 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import TypeWriter from "./components/TypeWriter";
-import Box from "@mui/material/Box";
-import CustomButton from "./components/CustomButton";
-import { useEffect, useState } from "react";
+import LandingPage from "./pages/LandingPage";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   const theme = createTheme({
@@ -45,35 +43,15 @@ function App() {
     },
   });
 
-  
-
-  const [showButton, setShowButton] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setShowButton(true);
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
   return (
     <>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-around",
-            height: "100vh",
-            padding: "10%",
-            flexDirection: "column",
-          }}
-        >
-          <TypeWriter text="Ordinal Alerts in Real Time!" delay={100} />
-          {showButton && <CustomButton />}
-        </Box>
+        <Router>
+          <Routes>
+            <Route exact path="/" element={<LandingPage />} />
+          </Routes>
+        </Router>
       </ThemeProvider>
     </>
   );
