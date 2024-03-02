@@ -52,7 +52,7 @@ function App() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShowButton(true);
-    }, 4000);
+    }, 3000);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -67,11 +67,11 @@ function App() {
             alignItems: "center",
             justifyContent: "space-around",
             height: "100vh",
-            padding: "15%",
+            padding: "10%",
             flexDirection: "column",
           }}
         >
-          <TypeWriter text="Ordinal Alerts in Real Time!" delay={130} />
+          <TypeWriter text="Ordinal Alerts in Real Time!" delay={100} />
           {showButton && <CustomButton />}
         </Box>
       </ThemeProvider>

@@ -20,10 +20,10 @@ const TypeWriter = ({ text, delay }) => {
 
   return (
     <Typography
-      variant="h2"
+      variant="h1"
       align="center"
       sx={{
-        maxWidth: "600px",
+        maxWidth: "1000px",
         marginBottom: "10%",
       }}
     >
