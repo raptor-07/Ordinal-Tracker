@@ -1,4 +1,8 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import TypeWriter from "./components/TypeWriter";
+import Box from "@mui/material/Box";
+import CustomButton from "./components/CustomButton";
+import { useEffect, useState } from "react";
 
 function App() {
   const theme = createTheme({
@@ -41,10 +45,35 @@ function App() {
     },
   });
 
+  
+
+  const [showButton, setShowButton] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowButton(true);
+    }, 4000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   return (
     <>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-around",
+            height: "100vh",
+            padding: "15%",
+            flexDirection: "column",
+          }}
+        >
+          <TypeWriter text="Ordinal Alerts in Real Time!" delay={130} />
+          {showButton && <CustomButton />}
+        </Box>
       </ThemeProvider>
     </>
   );
