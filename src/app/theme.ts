@@ -3,6 +3,9 @@
 import { Roboto } from "next/font/google";
 import { Space_Mono } from "next/font/google";
 import { Cormorant } from "next/font/google";
+import { David_Libre } from "next/font/google";
+import { Share_Tech_Mono } from "next/font/google";
+
 import { createTheme } from "@mui/material/styles";
 
 const roboto = Roboto({
@@ -23,6 +26,18 @@ const cormorant = Cormorant({
   display: "swap",
 });
 
+const davidLibre = David_Libre({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const shareTechMono = Share_Tech_Mono({
+  weight: ["400"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
 const theme = createTheme({
   palette: {
     mode: "dark",
@@ -35,11 +50,10 @@ const theme = createTheme({
     },
     background: {
       default: "#000000",
-      paper: "#040404",
     },
   },
   typography: {
-    fontFamily: cormorant.style.fontFamily,
+    fontFamily: spaceMono.style.fontFamily,
   },
   shape: {
     borderRadius: 4,
