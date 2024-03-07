@@ -22,7 +22,8 @@ function CustomButton() {
         left: "50%",
         transform: "translateX(-50%)",
         ...(window.innerWidth <= 600 && {
-          bottom: "10%",
+          left: "53%",
+          bottom: "15%",
           minWidth: 280,
           minHeight: 70,
         }),
