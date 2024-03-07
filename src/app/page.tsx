@@ -1,9 +1,11 @@
-import Box from "@mui/material/Box";
-import CustomButton from "../components/CustomButton";
-import TypeWriter from "../components/TypeWriter";
-import { useState, useEffect } from "react";
+"use client";
 
-function LandingPage() {
+import { useState, useEffect } from "react";
+import Box from "@mui/material/Box";
+import CustomButton from "./components/CustomButton";
+import TypeWriter from "./components/TypeWriter";
+
+export default function LandingPage() {
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -32,5 +34,3 @@ function LandingPage() {
     </div>
   );
 }
-
-export default LandingPage;

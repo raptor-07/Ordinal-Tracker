@@ -57,7 +57,7 @@ function CustomButton() {
               fontWeight: 800,
             }}
           >
-            Register Now
+            Try For Free
           </Typography>
         </Button>
       </Fade>
