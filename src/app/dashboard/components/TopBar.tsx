@@ -15,7 +15,6 @@ import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import theme from "../../theme";
 
 function TopBar() {
   const initialPages = [
@@ -65,6 +64,13 @@ function TopBar() {
   };
 
   const handleAddWallet = () => {
+    // Check if the new wallet already exists
+    if (wallets.includes(newWallet)) {
+      // Handle duplicate wallet address case here, e.g., show a message
+      console.log("Wallet address already exists!");
+      return; // Don't proceed further
+    }
+
     const updatedWallets = [...wallets, newWallet];
     setWallets(updatedWallets);
     if (typeof window !== "undefined") {
@@ -279,6 +285,7 @@ function TopBar() {
                   label="New Wallet"
                   value={newWallet}
                   onChange={(e) => setNewWallet(e.target.value)}
+                  onKeyDown={(e) => e.stopPropagation()}
                 />
                 <Button
                   onClick={handleAddWallet}
