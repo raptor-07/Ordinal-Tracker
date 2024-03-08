@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -11,12 +14,22 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 import theme from "../../theme";
 
-const pages = ["Collections", "Watch List", "Alerts"];
-const wallets = ["0x123...123", "0x456...456", "0x789...789"];
-
 function TopBar() {
+  const pages = ["Collections", "Watch List", "Alerts"];
+
+  let initialWallets: any[] | (() => any[]) = [];
+  
+  if (typeof window !== 'undefined') {
+    const walletsString = localStorage.getItem("wallets");
+    initialWallets = walletsString ? walletsString.split(",") : [];
+  }
+
+  const [wallets, setWallets] = useState(initialWallets);
+  const [newWallet, setNewWallet] = useState("");
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -36,6 +49,15 @@ function TopBar() {
     setAnchorElUser(null);
   };
 
+  const handleAddWallet = () => {
+    const updatedWallets = [...wallets, newWallet];
+    setWallets(updatedWallets);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("wallets", updatedWallets.join(","));
+    }
+    setNewWallet("");
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <AppBar
@@ -49,11 +71,14 @@ function TopBar() {
           padding: 0,
         }}
       >
-        <Container maxWidth="xl" sx={{
-          margin: "0",
-          minWidth: "100%",
-          padding: "0",
-        }}>
+        <Container
+          maxWidth="xl"
+          sx={{
+            margin: "0",
+            minWidth: "100%",
+            padding: "0",
+          }}
+        >
           <Toolbar>
             <Typography
               variant="h6"
@@ -180,7 +205,14 @@ function TopBar() {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open wallets">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar
+                    alt="User"
+                    src="/images/wallet.png"
+                    sx={{
+                      width: 70,
+                      height: 70,
+                    }}
+                  />
                 </IconButton>
               </Tooltip>
               <Menu
@@ -199,6 +231,45 @@ function TopBar() {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    p: 2,
+                  }}
+                >
+                  <TextField
+                    label="New Wallet"
+                    value={newWallet}
+                    onChange={(e) => setNewWallet(e.target.value)}
+                  />
+                  <Button
+                    onClick={handleAddWallet}
+                    sx={{
+                      mt: 2,
+                      backgroundColor: "transparent",
+                      boxShadow: "none",
+                      width: "100%",
+                      "&:hover": {
+                        boxShadow: "0px 0px 10px 0px rgba(106, 103, 201, 0.5)",
+                        textDecorationColor: "white",
+                      },
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "#6a67c9",
+                        fontWeight: 700,
+                        padding: "0",
+                        margin: "0",
+                      }}
+                    >
+                      ADD WALLET
+                    </p>
+                  </Button>
+                </Box>
                 {wallets.map((wallet_id) => (
                   <MenuItem key={wallet_id} onClick={handleCloseUserMenu}>
                     <Typography textAlign="center">{wallet_id}</Typography>

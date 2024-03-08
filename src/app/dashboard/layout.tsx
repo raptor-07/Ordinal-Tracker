@@ -1,4 +1,5 @@
 "use client";
+
 import Box from "@mui/material/Box";
 import TopBar from "./components/TopBar";
 
