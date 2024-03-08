@@ -15,6 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
 
 function TopBar() {
   const initialPages = [
@@ -24,6 +25,7 @@ function TopBar() {
   ];
 
   const [pages, setPages] = useState(initialPages);
+  const [showAlert, setShowAlert] = useState(false);
 
   const handlePageClick = (pageName: string) => {
     setPages(
@@ -64,11 +66,12 @@ function TopBar() {
   };
 
   const handleAddWallet = () => {
-    // Check if the new wallet already exists
     if (wallets.includes(newWallet)) {
-      // Handle duplicate wallet address case here, e.g., show a message
-      console.log("Wallet address already exists!");
-      return; // Don't proceed further
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
+      return;
     }
 
     const updatedWallets = [...wallets, newWallet];
@@ -78,7 +81,6 @@ function TopBar() {
     }
     setNewWallet("");
   };
-
   return (
     <AppBar
       enableColorOnDark
@@ -257,7 +259,7 @@ function TopBar() {
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: "45px" }}
+              sx={{ mt: "60px", mr: "10px", minWidth: "200px", p: 0 }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
@@ -287,13 +289,14 @@ function TopBar() {
                   onChange={(e) => setNewWallet(e.target.value)}
                   onKeyDown={(e) => e.stopPropagation()}
                 />
+
                 <Button
                   onClick={handleAddWallet}
                   sx={{
-                    mt: 2,
+                    m: 2,
                     backgroundColor: "transparent",
                     boxShadow: "none",
-                    width: "100%",
+                    minWidth: "100%",
                     "&:hover": {
                       boxShadow: "0px 0px 10px 0px rgba(106, 103, 201, 0.5)",
                       textDecorationColor: "white",
@@ -311,6 +314,24 @@ function TopBar() {
                     ADD WALLET
                   </p>
                 </Button>
+                {showAlert && (
+                  <Alert
+                    severity="error"
+                    sx={{
+                      maxWidth: "220px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: "0",
+                        padding: "0",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      Wallet {newWallet} already exists!
+                    </p>
+                  </Alert>
+                )}
               </Box>
               {wallets.map((wallet_id) => (
                 <MenuItem key={wallet_id} onClick={handleCloseUserMenu}>
