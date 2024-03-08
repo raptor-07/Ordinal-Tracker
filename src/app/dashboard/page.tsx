@@ -1,11 +1,9 @@
 "use client";
 
+import CollectionTable from "./components/Table";
+
 function DashboardPage() {
-  return (
-    <div>
-      Content Here
-    </div>
-  );
+  return <CollectionTable />;
 }
 
 export default DashboardPage;
