@@ -18,7 +18,23 @@ import TextField from "@mui/material/TextField";
 import theme from "../../theme";
 
 function TopBar() {
-  const pages = ["Collections", "Watch List", "Alerts"];
+  const initialPages = [
+    { name: "Collections", active: true },
+    { name: "Watch List", active: false },
+    { name: "Alerts", active: false },
+  ];
+
+  const [pages, setPages] = useState(initialPages);
+
+  const handlePageClick = (pageName: string) => {
+    setPages(
+      pages.map((page) =>
+        page.name === pageName
+          ? { ...page, active: true }
+          : { ...page, active: false }
+      )
+    );
+  };
 
   let initialWallets: any[] | (() => any[]) = [];
 
@@ -82,9 +98,9 @@ function TopBar() {
         }}
       >
         <Toolbar
-        style={{
-          backgroundColor: "#000000",
-        }}
+          style={{
+            backgroundColor: "#000000",
+          }}
         >
           <Typography
             variant="h6"
@@ -134,8 +150,8 @@ function TopBar() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.name} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -178,8 +194,8 @@ function TopBar() {
             {pages.map((page) => (
               <Paper
                 elevation={0}
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page.name}
+                onClick={() => handlePageClick(page.name)}
                 sx={{
                   my: 2,
                   padding: "1.4%",
@@ -191,6 +207,7 @@ function TopBar() {
                   cursor: "pointer",
                   boxShadow: "none",
                   position: "relative",
+                  borderBottom: page.active ? "2px solid #6a67c9" : "none",
                   "&:hover": {
                     borderBottom: "1px solid #6a67c9",
                     "& p": {
@@ -204,8 +221,8 @@ function TopBar() {
                   },
                 }}
                 style={{
-              backgroundColor: "#000000",
-            }}
+                  backgroundColor: "#000000",
+                }}
               >
                 <p
                   style={{
@@ -214,7 +231,7 @@ function TopBar() {
                     transition: "text-shadow 0.3s ease, color 0.3s ease",
                   }}
                 >
-                  {page}
+                  {page.name}
                 </p>
               </Paper>
             ))}
