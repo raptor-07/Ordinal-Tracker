@@ -1,5 +1,3 @@
-"use client";
-
 import CollectionTable from "./components/Table";
 
 function DashboardPage() {

@@ -37,7 +37,6 @@ const rows = [
   createData("Example 1", 5, 1, -3, 1000, 2000, 3000, 50000, 20, 50),
   createData("Example 2", 3, -2, 4, 1500, 2500, 3500, 60000, 25, 60),
   createData("Example 3", 4, 0, 2, 1200, 2200, 3200, 55000, 18, 45),
-  // Add more rows as needed
 ];
 
 export default function CollectionTable() {
