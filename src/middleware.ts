@@ -7,4 +7,4 @@ export const config = {
   matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
 };
 
-console.log('auth', NextAuth(authConfig).auth);
+// console.log('auth', NextAuth(authConfig).auth);

@@ -69,8 +69,11 @@ export const { auth, signIn, signOut } = NextAuth({
           if (user) {
             const isValid = await bcrypt.compare(password, user.password);
             if (isValid) {
+              // console.log(getSession());
               console.log("User authenticated successfully.");
-              return { email: user.email, name: user.username };
+              // const value = cookies().set("user", `${user}`);
+
+              return user;
             }
           }
         }
