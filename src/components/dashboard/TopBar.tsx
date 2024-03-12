@@ -16,6 +16,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
+import { useCurrentUser } from "@/hooks/current-user";
 
 function TopBar() {
   const initialPages = [
@@ -36,7 +37,9 @@ function TopBar() {
       )
     );
   };
-
+  
+  const user: any = useCurrentUser();
+  
   let initialWallets: any[] | (() => any[]) = [];
 
   if (typeof window !== "undefined") {

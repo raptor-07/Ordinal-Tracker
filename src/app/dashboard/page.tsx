@@ -3,7 +3,9 @@
 import CollectionTable from "../../components/dashboard/Table";
 
 function DashboardPage() {
-  return <CollectionTable />;
+  return (
+      <CollectionTable />
+  )
 }
 
 export default DashboardPage;
