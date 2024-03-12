@@ -19,11 +19,13 @@ import Alert from "@mui/material/Alert";
 import { useCurrentUser } from "@/hooks/current-user";
 import getCollectionData from "@/actions/getDashboardData";
 
-function TopBar() {
-  const user: any = useCurrentUser();
-  console.log("user", user);
-  // getCollectionData(user?.email, localStorage.getItem("wallets"));
-
+function TopBar({
+  wallets,
+  setWallets,
+}: {
+  wallets: string[];
+  setWallets: React.Dispatch<React.SetStateAction<string[]>>;
+}) {
   const initialPages = [
     { name: "Collections", active: true },
     { name: "Watch List", active: false },
@@ -43,22 +45,10 @@ function TopBar() {
     );
   };
 
-  let initialWallets: any[] | (() => any[]) = [];
-
-  if (typeof window !== "undefined") {
-    const walletsString = localStorage.getItem("wallets");
-    initialWallets = walletsString ? walletsString.split(",") : [];
-  }
-
-  const [wallets, setWallets] = useState(initialWallets);
   const [newWallet, setNewWallet] = useState("");
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
-
-  useEffect(() => {
-    getCollectionData(user?.email, localStorage.getItem("wallets"));
-  }, [wallets]);
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
@@ -86,10 +76,10 @@ function TopBar() {
     }
 
     const updatedWallets = [...wallets, newWallet];
-    setWallets(updatedWallets);
     if (typeof window !== "undefined") {
       localStorage.setItem("wallets", updatedWallets.join(","));
     }
+    setWallets(updatedWallets);
     setNewWallet("");
   };
   return (
