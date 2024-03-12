@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { RegisterSchema } from "@/schemas";
 import { useState } from "react";
+import register from "@/actions/register";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -25,8 +26,15 @@ export default function SignupPage() {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      RegisterSchema.parse(formData);
-      console.log(formData);
+      const validateFields = RegisterSchema.safeParse(formData);
+
+      if (!validateFields.success) {
+        console.error("Validation error");
+        return;
+      }
+      register(validateFields.data);
+      
+      console.log("Form submitted");
     } catch (error: any) {
       console.error("Validation error:", error.message);
     }
