@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -38,6 +40,8 @@ const rows = [
   createData("Example 2", 3, -2, 4, 1500, 2500, 3500, 60000, 25, 60),
   createData("Example 3", 4, 0, 2, 1200, 2200, 3200, 55000, 18, 45),
 ];
+
+//attach wallets as cookies and fetch(dashboard/api/) at this point
 
 export default function CollectionTable() {
   return (

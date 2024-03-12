@@ -9,9 +9,10 @@ datasource db {
 
 model User {
   UId             String            @id @default(cuid())
-  username        String            @unique
-  email           String            @unique
-  password        String
+  name            String?
+  email           String?           @unique
+  image           String?
+  password        String?
   userCollections User_Collection[]
   wallets         Wallet[]
 }
@@ -21,7 +22,7 @@ model User_Collection {
   user          User       @relation(fields: [UId], references: [UId])
   Collection_Id String
   collection    Collection @relation(fields: [Collection_Id], references: [id])
-  Watchlist     Boolean    @default(false)
+  watchlist     Boolean    @default(false)
 }
 
 model Collection {
