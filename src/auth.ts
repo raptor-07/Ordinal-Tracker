@@ -8,5 +8,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signOut: "/auth/signout",
     error: "/auth/error",
   },
+  callbacks: {
+    async signIn({ user, account }) {
+      return true;
+    },
+    async jwt({ token }) {
+      return token;
+    },
+  },
   ...authConfig,
 });

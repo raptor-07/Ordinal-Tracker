@@ -33,7 +33,7 @@ export default function SignupPage() {
         return;
       }
       register(validateFields.data);
-      
+
       console.log("Form submitted");
     } catch (error: any) {
       console.error("Validation error:", error.message);
@@ -101,8 +101,14 @@ export default function SignupPage() {
             />
             <Button
               type="submit"
-              variant="outlined"
-              sx={{ backgroundColor: "#6a67a9", color: "#ffffff" }}
+              variant="text"
+              sx={{ color: "#ffffff",
+              "&:hover": {
+                textShadow: "0 0 5px #6a67c9",
+                color: "#C5C2F1",
+                fontWeight: "700",
+              },
+            }}
             >
               Sign Up
             </Button>
