@@ -1,1 +1,0 @@
-//get wallets and fetch all ordinals

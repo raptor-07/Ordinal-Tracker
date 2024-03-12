@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -17,8 +17,13 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import { useCurrentUser } from "@/hooks/current-user";
+import getCollectionData from "@/actions/getCollectionData";
 
 function TopBar() {
+  const user: any = useCurrentUser();
+  console.log("user", user);
+  // getCollectionData(user?.email, localStorage.getItem("wallets"));
+
   const initialPages = [
     { name: "Collections", active: true },
     { name: "Watch List", active: false },
@@ -37,9 +42,7 @@ function TopBar() {
       )
     );
   };
-  
-  const user: any = useCurrentUser();
-  
+
   let initialWallets: any[] | (() => any[]) = [];
 
   if (typeof window !== "undefined") {
@@ -52,6 +55,11 @@ function TopBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
+
+  useEffect(() => {
+    getCollectionData(user?.email, localStorage.getItem("wallets"));
+  }, [wallets]);
+
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );

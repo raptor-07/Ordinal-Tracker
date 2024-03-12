@@ -20,7 +20,7 @@ const login = async (
   await signIn("credentials", {
     email,
     password,
-    redirectTo: callbackUrl || "/dashboard",
+    redirectTo: "/dashboard",
   });
 
   return { success: true };

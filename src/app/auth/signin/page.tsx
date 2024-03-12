@@ -16,7 +16,7 @@ import login from "@/actions/login";
 export default function SigninPage() {
   const searchParams = useSearchParams();
   const callBackUrl = searchParams.get("callbackUrl");
-  console.log("callbackUrl", callBackUrl);
+
 
   const [formData, setFormData] = useState({
     email: "",
