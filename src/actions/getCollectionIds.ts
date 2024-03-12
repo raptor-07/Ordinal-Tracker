@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-async function getCollectionIds(wallets: string) {
+async function getCollectionIds(wallets: string | null) {
   let collectionIds: string[] = [];
 
   let apikey: string = process.env.SIMPLE_HASH ?? "";
