@@ -17,7 +17,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import { useCurrentUser } from "@/hooks/current-user";
-import getCollectionData from "@/actions/getCollectionData";
+import getCollectionData from "@/actions/getDashboardData";
 
 function TopBar() {
   const user: any = useCurrentUser();
