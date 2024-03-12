@@ -8,42 +8,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { DashboardPageProps } from "@/app/dashboard/page";
 
-function createData(
-  name: string,
-  floor: number,
-  floor1DChange: number,
-  floor7DChange: number,
-  volume1D: number,
-  volume7D: number,
-  volume30D: number,
-  mCap: number,
-  owners: number,
-  listingsSupply: number
-) {
-  return {
-    name,
-    floor,
-    floor1DChange,
-    floor7DChange,
-    volume1D,
-    volume7D,
-    volume30D,
-    mCap,
-    owners,
-    listingsSupply,
-  };
-}
+export default function CollectionTable({ dashBoardData }: DashboardPageProps) {
 
-const rows = [
-  createData("Example 1", 5, 1, -3, 1000, 2000, 3000, 50000, 20, 50),
-  createData("Example 2", 3, -2, 4, 1500, 2500, 3500, 60000, 25, 60),
-  createData("Example 3", 4, 0, 2, 1200, 2200, 3200, 55000, 18, 45),
-];
-
-//attach wallets as cookies and fetch(dashboard/api/) at this point
-
-export default function CollectionTable() {
   return (
     <TableContainer
       component={Paper}
@@ -185,23 +153,23 @@ export default function CollectionTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {dashBoardData.map((row: any) => (
             <TableRow
-              key={row.name}
+              key={row.collection_id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.collection_id}
               </TableCell>
-              <TableCell align="right">{row.floor}</TableCell>
-              <TableCell align="right">{row.floor1DChange}</TableCell>
-              <TableCell align="right">{row.floor7DChange}</TableCell>
-              <TableCell align="right">{row.volume1D}</TableCell>
-              <TableCell align="right">{row.volume7D}</TableCell>
-              <TableCell align="right">{row.volume30D}</TableCell>
-              <TableCell align="right">{row.mCap}</TableCell>
-              <TableCell align="right">{row.owners}</TableCell>
-              <TableCell align="right">{row.listingsSupply}</TableCell>
+              <TableCell align="right">{row.floor_price}</TableCell>
+              <TableCell align="right">{row.One_D_floor}</TableCell>
+              <TableCell align="right">{row.Seven_D_floor}</TableCell>
+              <TableCell align="right">{row.volume_1d}</TableCell>
+              <TableCell align="right">{row.volume_7d}</TableCell>
+              <TableCell align="right">{row.volume_30d}</TableCell>
+              <TableCell align="right">{row.market_cap}</TableCell>
+              <TableCell align="right">N/A</TableCell> {/* Owners (%) data not provided */}
+              <TableCell align="right">N/A</TableCell> {/* Listings/Supply (%) data not provided */}
             </TableRow>
           ))}
         </TableBody>

@@ -2,9 +2,13 @@
 
 import CollectionTable from "../../components/dashboard/Table";
 
-function DashboardPage() {
+export interface DashboardPageProps {
+  dashBoardData: any;
+}
+
+function DashboardPage({ dashBoardData }: DashboardPageProps) {
   return (
-      <CollectionTable />
+      <CollectionTable dashBoardData={dashBoardData} />
   )
 }
 
