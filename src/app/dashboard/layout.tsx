@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import TopBar from "./components/TopBar";
+import TopBar from "../../components/dashboard/TopBar";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (

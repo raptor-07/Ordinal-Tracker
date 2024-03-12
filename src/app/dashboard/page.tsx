@@ -1,4 +1,4 @@
-import CollectionTable from "./components/Table";
+import CollectionTable from "../../components/dashboard/Table";
 
 function DashboardPage() {
   return <CollectionTable />;

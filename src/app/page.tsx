@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
-import CustomButton from "./components/CustomButton";
-import TypeWriter from "./components/TypeWriter";
+import CustomButton from "../components/landing-page/CustomButton";
+import TypeWriter from "../components/landing-page/TypeWriter";
 
 export default function LandingPage() {
   const [showButton, setShowButton] = useState(false);
