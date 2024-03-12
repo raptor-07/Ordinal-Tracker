@@ -18,6 +18,7 @@ async function getCollectionsStats(collectionIds: string[]) {
   const jsonData = await response.json();
 
   const collectionStats = jsonData.collections.map((collection: any) => ({
+    collection_id: collection.collection_id,
     name: collection.name,
     volume_1d: collection["1_day_volume"],
     volume_7d: collection["7_day_volume"],
