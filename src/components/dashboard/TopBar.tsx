@@ -79,7 +79,9 @@ function TopBar({
 
     if (validate(newWallet, Network.mainnet)) {
       let copyWallets = wallets;
-      const updatedWallets = copyWallets ? copyWallets + "," + newWallet: newWallet;
+      const updatedWallets = copyWallets
+        ? copyWallets + "," + newWallet
+        : newWallet;
       localStorage.setItem("wallets", updatedWallets);
       setWallets(updatedWallets);
       setLoading(true);
@@ -362,11 +364,39 @@ function TopBar({
                   </Alert>
                 )}
               </Box>
-              {wallets.split(",").map((wallet_id) => (
-                <MenuItem key={wallet_id} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{wallet_id}</Typography>
-                </MenuItem>
-              ))}
+              {wallets.split(",").map((wallet_id) => {
+                const shortenedId = `${wallet_id.slice(
+                  0,
+                  4
+                )}....${wallet_id.slice(-4)}`;
+                return (
+                  <MenuItem
+                    key={wallet_id}
+                    onClick={handleCloseUserMenu}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: "0",
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    <Typography
+                      textAlign="center"
+                      sx={{
+                        fontWeight: 700,
+                        width: "100%",
+                        height: "100%",
+                        padding: "5px",
+                        textDecorationColor: "#6a67c9",
+                        textShadow: "0 0 10px #6a67c9",
+                      }}
+                    >
+                      {shortenedId}
+                    </Typography>
+                  </MenuItem>
+                );
+              })}
             </Menu>
           </Box>
         </Toolbar>
