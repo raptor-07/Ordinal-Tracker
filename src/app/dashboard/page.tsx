@@ -6,11 +6,13 @@ import React from "react";
 
 export interface DashboardPageProps {
   dashBoardData: any;
+  loading: boolean;
 }
 
 function DashboardPage() {
-  const dashBoardData = React.useContext(PageContext);
-  return <CollectionTable dashBoardData={dashBoardData} />;
+  const { dashBoardData, loading } = React.useContext(PageContext);
+
+  return <CollectionTable dashBoardData={dashBoardData} loading={loading} />;
 }
 
 export default DashboardPage;

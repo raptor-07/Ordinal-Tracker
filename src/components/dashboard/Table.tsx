@@ -9,9 +9,30 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { DashboardPageProps } from "@/app/dashboard/page";
+import { Box, CircularProgress } from "@mui/material";
 
-export default function CollectionTable({ dashBoardData }: DashboardPageProps) {
-  return (
+export default function CollectionTable({
+  dashBoardData,
+  loading,
+}: DashboardPageProps) {
+  return loading ? (
+    <Box
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+      }}
+    >
+      <CircularProgress
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          marginTop: "-20px",
+          marginLeft: "-20px",
+        }}
+      />
+    </Box>
+  ) : (
     <TableContainer
       component={Paper}
       sx={{

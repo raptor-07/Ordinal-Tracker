@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 import React from "react";
 import getDashboardData from "@/actions/getDashboardData";
 import { useCurrentUser } from "@/hooks/current-user";
+import { DashboardPageProps } from "./page";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
-export const PageContext = React.createContext(null);
+export const PageContext = React.createContext<DashboardPageProps>({
+  dashBoardData: null,
+  loading: false,
+});
 
 function Layout({ children }: LayoutProps) {
   const [loading, setLoading] = useState(true);
@@ -57,9 +61,7 @@ function Layout({ children }: LayoutProps) {
     fetchData();
   }, [wallets]);
 
-  return loading ? (
-    <div>loading...</div>
-  ) : (
+  return (
     <div>
       <Box
         sx={{
@@ -71,7 +73,7 @@ function Layout({ children }: LayoutProps) {
           setWallets={setWallets}
           setLoading={setLoading}
         />
-        <PageContext.Provider value={dashBoardData}>
+        <PageContext.Provider value={{ dashBoardData, loading }}>
           {children}
         </PageContext.Provider>
       </Box>
