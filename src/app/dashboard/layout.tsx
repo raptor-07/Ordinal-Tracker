@@ -12,32 +12,58 @@ interface LayoutProps {
 }
 
 function Layout({ children }: LayoutProps) {
+  const [loading, setLoading] = useState(true);
   const user: any = useCurrentUser();
-  console.log("user", user);
+  console.log("user session in layout.tsx", user);
 
-  let initialWallets: string[] = [];
-
-  if (typeof window !== "undefined") {
-    const walletsString = localStorage.getItem("wallets");
-    initialWallets = walletsString ? walletsString.split(",") : [];
+  let initialWallets: string = "";
+  
+  if (typeof window !== 'undefined') {
+    initialWallets = localStorage.getItem("wallets") || "";
+    console.log("initialWallets in layout.tsx", initialWallets);
   }
 
-  const [wallets, setWallets] = useState<string[]>(initialWallets);
-  const [dashBoardData, setDashBoardData] = useState<any>(null);
+  const [wallets, setWallets] = useState<string>(initialWallets);
+  const [dashBoardData, setDashBoardData] = useState<any>([{
+    collection_id: "",
+    floor_price: "",
+    One_D_floor: "",
+    Seven_D_floor: "",
+    volume_1d: "",
+    volume_7d: "",
+    volume_30d: "",
+    market_cap: "",
+  }]);
+
+  console.log("wallets in layout.tsx", wallets);
 
   useEffect(() => {
-    let data = getDashboardData(user?.email, localStorage.getItem("wallets"));
-    setDashBoardData(data);
+    console.log("useEffect is executing!!!!");
+    if (wallets === "" || wallets === null) {
+      console.log("wallets is empty");
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      let data = await getDashboardData(user?.email, wallets);
+      console.log("data", data);
+      setDashBoardData(data);
+      setLoading(false);
+    };
+    fetchData();
   }, [wallets]);
 
-  return (
+  return loading ? (
+    <div>loading...</div>
+  ) : (
     <div>
       <Box
         sx={{
           height: "100vh",
         }}
       >
-        <TopBar wallets={wallets} setWallets={setWallets} />
+        <TopBar wallets={wallets} setWallets={setWallets} setLoading={setLoading}/>
         <DashboardPage dashBoardData={dashBoardData} />
         {children}
       </Box>

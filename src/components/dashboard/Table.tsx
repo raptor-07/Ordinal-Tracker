@@ -153,7 +153,7 @@ export default function CollectionTable({ dashBoardData }: DashboardPageProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {dashBoardData.map((row: any) => (
+          {dashBoardData?.map((row: any) => (
             <TableRow
               key={row.collection_id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

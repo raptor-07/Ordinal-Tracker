@@ -13,11 +13,13 @@ async function getDashboardData(
     // No session
     return null;
   } else {
+    console.log("userEmail inside get dashboard servaction", userEmail);
     const user = await getUserByEmail(userEmail);
     if (user == null) {
       return { null: null };
     }
 
+    console.log("wallets inside get dashboard servaction", wallets);
     const collectionIds: string[] = await getCollectionIds(wallets);
     const [collectionsStats, collectionsFloor] = await Promise.all([
       getCollectionsStats(collectionIds),

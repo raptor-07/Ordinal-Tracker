@@ -16,15 +16,16 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
-import { useCurrentUser } from "@/hooks/current-user";
-import getCollectionData from "@/actions/getDashboardData";
+import { validate, Network } from "bitcoin-address-validation";
 
 function TopBar({
   wallets,
   setWallets,
+  setLoading,
 }: {
-  wallets: string[];
-  setWallets: React.Dispatch<React.SetStateAction<string[]>>;
+  wallets: string;
+  setWallets: React.Dispatch<React.SetStateAction<string>>;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const initialPages = [
     { name: "Collections", active: true },
@@ -33,6 +34,7 @@ function TopBar({
   ];
 
   const [pages, setPages] = useState(initialPages);
+  const [showWalletExistsAlert, setWalletExistsAlert] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
   const handlePageClick = (pageName: string) => {
@@ -67,21 +69,29 @@ function TopBar({
   };
 
   const handleAddWallet = () => {
-    if (wallets.includes(newWallet)) {
-      setShowAlert(true);
+    if (wallets.split(",").includes(newWallet)) {
+      setWalletExistsAlert(true);
       setTimeout(() => {
-        setShowAlert(false);
+        setWalletExistsAlert(false);
       }, 1500);
       return;
     }
 
-    const updatedWallets = [...wallets, newWallet];
-    if (typeof window !== "undefined") {
-      localStorage.setItem("wallets", updatedWallets.join(","));
+    if (validate(newWallet, Network.mainnet)) {
+      let copyWallets = wallets;
+      const updatedWallets = copyWallets ? copyWallets + "," + newWallet: newWallet;
+      localStorage.setItem("wallets", updatedWallets);
+      setWallets(updatedWallets);
+      setLoading(true);
+      setNewWallet("");
+    } else {
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
     }
-    setWallets(updatedWallets);
-    setNewWallet("");
   };
+
   return (
     <AppBar
       enableColorOnDark
@@ -315,7 +325,7 @@ function TopBar({
                     ADD WALLET
                   </p>
                 </Button>
-                {showAlert && (
+                {showWalletExistsAlert && (
                   <Alert
                     severity="error"
                     sx={{
@@ -333,8 +343,26 @@ function TopBar({
                     </p>
                   </Alert>
                 )}
+                {showAlert && (
+                  <Alert
+                    severity="error"
+                    sx={{
+                      maxWidth: "220px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: "0",
+                        padding: "0",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      {newWallet} is not a valid BTC Address!
+                    </p>
+                  </Alert>
+                )}
               </Box>
-              {wallets.map((wallet_id) => (
+              {wallets.split(",").map((wallet_id) => (
                 <MenuItem key={wallet_id} onClick={handleCloseUserMenu}>
                   <Typography textAlign="center">{wallet_id}</Typography>
                 </MenuItem>
