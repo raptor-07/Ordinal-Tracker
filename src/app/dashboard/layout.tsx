@@ -53,7 +53,7 @@ function Layout({ children }: LayoutProps) {
     }
 
     const fetchData = async () => {
-      let data = await getDashboardData(user?.email, wallets);
+      let data = await getDashboardData(user.email, wallets);
       console.log("data", data);
       setDashBoardData(data);
       setLoading(false);
