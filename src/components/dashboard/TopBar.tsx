@@ -293,7 +293,7 @@ function TopBar({
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  p: 2,
+                  padding: "0 8px 0 8px",
                 }}
               >
                 <TextField
@@ -306,7 +306,7 @@ function TopBar({
                 <Button
                   onClick={handleAddWallet}
                   sx={{
-                    m: 2,
+                    margin: "10px 0 0 0",
                     backgroundColor: "transparent",
                     boxShadow: "none",
                     minWidth: "100%",
