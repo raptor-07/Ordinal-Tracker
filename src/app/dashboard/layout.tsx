@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import React from "react";
 import getDashboardData from "@/actions/getDashboardData";
 import { useCurrentUser } from "@/hooks/current-user";
-import DashboardPage from "@/app/dashboard/page";
 
 interface LayoutProps {
   children: React.ReactNode;

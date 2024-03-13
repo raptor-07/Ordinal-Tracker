@@ -11,7 +11,6 @@ import Paper from "@mui/material/Paper";
 import { DashboardPageProps } from "@/app/dashboard/page";
 
 export default function CollectionTable({ dashBoardData }: DashboardPageProps) {
-
   return (
     <TableContainer
       component={Paper}
@@ -159,7 +158,7 @@ export default function CollectionTable({ dashBoardData }: DashboardPageProps) {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.collection_id}
+                {row.name}
               </TableCell>
               <TableCell align="right">{row.floor_price}</TableCell>
               <TableCell align="right">{row.One_D_floor}</TableCell>
@@ -168,8 +167,10 @@ export default function CollectionTable({ dashBoardData }: DashboardPageProps) {
               <TableCell align="right">{row.volume_7d}</TableCell>
               <TableCell align="right">{row.volume_30d}</TableCell>
               <TableCell align="right">{row.market_cap}</TableCell>
-              <TableCell align="right">N/A</TableCell> {/* Owners (%) data not provided */}
-              <TableCell align="right">N/A</TableCell> {/* Listings/Supply (%) data not provided */}
+              <TableCell align="right">N/A</TableCell>{" "}
+              {/* Owners (%) data not provided */}
+              <TableCell align="right">N/A</TableCell>{" "}
+              {/* Listings/Supply (%) data not provided */}
             </TableRow>
           ))}
         </TableBody>
