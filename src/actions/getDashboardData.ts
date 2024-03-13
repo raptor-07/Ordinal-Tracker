@@ -26,28 +26,23 @@ async function getDashboardData(
       getCollectionsFloor(collectionIds),
     ]);
 
+    console.log("collectionsStats", collectionsStats);
+    console.log("collectionsFloor", collectionsFloor);
+
     const collectionsStatsMap = collectionsStats.reduce((map: any, collection: any) => {
       map[collection.collection_id] = collection;
       return map;
     }, {});
-
+    
     const mergedData = collectionsFloor.map(floorPrice => {
-      if (floorPrice) {
-        const collectionStats = collectionsStatsMap[floorPrice.collection_id];
-        return {
-          collection_id: floorPrice.collection_id,
-          floor_price: floorPrice.floor_price,
-          One_D_floor: floorPrice.One_D_floor,
-          Seven_D_floor: floorPrice.Seven_D_floor,
-          volume_1d: collectionStats["1_day_volume"],
-          volume_7d: collectionStats["7_day_volume"],
-          volume_30d: collectionStats["30_day_volume"],
-          market_cap: collectionStats.market_cap,
-        };
-      }
-      return null;
+      const collectionStats = collectionsStatsMap[floorPrice.collection_id];
+      return {
+        ...collectionStats,
+        ...floorPrice,
+      };
     });
-
+    
+    console.log("mergedData", mergedData);
     return mergedData;
   }
 }
