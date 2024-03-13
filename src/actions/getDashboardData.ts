@@ -21,6 +21,7 @@ async function getDashboardData(
 
     console.log("wallets inside get dashboard servaction", wallets);
     const collectionIds: string[] = await getCollectionIds(wallets);
+    
     const [collectionsStats, collectionsFloor] = await Promise.all([
       getCollectionsStats(collectionIds),
       getCollectionsFloor(collectionIds),
