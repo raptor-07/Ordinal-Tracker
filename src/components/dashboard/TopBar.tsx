@@ -1,32 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Alert from "@mui/material/Alert";
-import { validate, Network } from "bitcoin-address-validation";
 
-function TopBar({
-  wallets,
-  setWallets,
-  setLoading,
-}: {
-  wallets: string;
-  setWallets: React.Dispatch<React.SetStateAction<string>>;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+
+function TopBar() {
   const initialPages = [
     { name: "Collections", active: true },
     { name: "Watch List", active: false },
@@ -34,8 +18,6 @@ function TopBar({
   ];
 
   const [pages, setPages] = useState(initialPages);
-  const [showWalletExistsAlert, setWalletExistsAlert] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
 
   const handlePageClick = (pageName: string) => {
     setPages(
@@ -47,53 +29,6 @@ function TopBar({
     );
   };
 
-  const [newWallet, setNewWallet] = useState("");
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
-
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
-  );
-
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleAddWallet = () => {
-    if (wallets.split(",").includes(newWallet)) {
-      setWalletExistsAlert(true);
-      setTimeout(() => {
-        setWalletExistsAlert(false);
-      }, 1500);
-      return;
-    }
-
-    if (validate(newWallet, Network.mainnet)) {
-      let copyWallets = wallets;
-      const updatedWallets = copyWallets
-        ? copyWallets + "," + newWallet
-        : newWallet;
-      localStorage.setItem("wallets", updatedWallets);
-      setWallets(updatedWallets);
-      setLoading(true);
-      setNewWallet("");
-    } else {
-      setShowAlert(true);
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 1500);
-    }
-  };
-
   return (
     <AppBar
       enableColorOnDark
@@ -102,7 +37,6 @@ function TopBar({
       style={{
         backgroundColor: "#000000",
         color: "white",
-        // boxShadow: "none",
         margin: 0,
         padding: 0,
         boxShadow: "0px 0px 2px 0px #c5c2f1",
