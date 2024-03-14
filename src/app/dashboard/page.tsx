@@ -3,6 +3,7 @@
 import CollectionTable from "../../components/dashboard/Table";
 import { PageContext } from "./layout";
 import React from "react";
+import AddWallets  from "@/components/dashboard/AddWallets";
 
 export interface DashboardPageProps {
   dashBoardData: any;
@@ -12,7 +13,12 @@ export interface DashboardPageProps {
 function DashboardPage() {
   const { dashBoardData, loading } = React.useContext(PageContext);
 
-  return <CollectionTable dashBoardData={dashBoardData} loading={loading} />;
+  return (
+    <div>
+      <AddWallets />
+      <CollectionTable dashBoardData={dashBoardData} loading={loading} />
+    </div>
+  );
 }
 
 export default DashboardPage;

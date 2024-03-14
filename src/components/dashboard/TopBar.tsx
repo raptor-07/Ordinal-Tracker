@@ -102,9 +102,10 @@ function TopBar({
       style={{
         backgroundColor: "#000000",
         color: "white",
-        boxShadow: "none",
+        // boxShadow: "none",
         margin: 0,
         padding: 0,
+        boxShadow: "0px 0px 2px 0px #c5c2f1",
       }}
     >
       <Container
@@ -129,54 +130,18 @@ function TopBar({
             component="a"
             href="#app-bar-with-responsive-menu"
             sx={{
-              mr: 5,
+              m: 2,
               display: { xs: "none", md: "flex" },
               fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
+              minWidth: "min-content",
             }}
           >
             OrdiTrack
           </Typography>
-
-          <Box
-            sx={{
-              display: { xs: "flex", md: "flex" },
-              justifyContent: "space-evenly",
-            }}
-            style={{
-              backgroundColor: "#000000",
-            }}
-          >
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "flex" },
-                mt: "45px",
-                justifyContent: "center",
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page.name} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page.name}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
 
           <Typography
             variant="h5"
@@ -189,7 +154,7 @@ function TopBar({
               flexGrow: 1,
               fontFamily: "monospace",
               fontWeight: 700,
-              letterSpacing: ".3rem",
+              letterSpacing: ".4rem",
               color: "inherit",
               textDecoration: "none",
             }}
@@ -204,7 +169,7 @@ function TopBar({
               display: { xs: "none", md: "flex" },
               justifyContent: "space-around",
               alignItems: "center",
-              minWidth: "80%",
+              width: "100%",
               m: "0 30px 0 0",
               maxHeight: "80%",
             }}
@@ -256,148 +221,6 @@ function TopBar({
                 </p>
               </Paper>
             ))}
-          </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open wallets">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar
-                  alt="User"
-                  src="/images/wallet.png"
-                  sx={{
-                    width: 70,
-                    height: 70,
-                  }}
-                />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "60px", mr: "10px", minWidth: "200px", p: 0 }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "0 8px 0 8px",
-                }}
-              >
-                <TextField
-                  label="New Wallet"
-                  value={newWallet}
-                  onChange={(e) => setNewWallet(e.target.value)}
-                  onKeyDown={(e) => e.stopPropagation()}
-                />
-
-                <Button
-                  onClick={handleAddWallet}
-                  sx={{
-                    margin: "10px 0 0 0",
-                    backgroundColor: "transparent",
-                    boxShadow: "none",
-                    minWidth: "100%",
-                    "&:hover": {
-                      boxShadow: "0px 0px 10px 0px rgba(106, 103, 201, 0.5)",
-                      textDecorationColor: "white",
-                    },
-                  }}
-                >
-                  <p
-                    style={{
-                      color: "#6a67c9",
-                      fontWeight: 700,
-                      padding: "0",
-                      margin: "0",
-                    }}
-                  >
-                    ADD WALLET
-                  </p>
-                </Button>
-                {showWalletExistsAlert && (
-                  <Alert
-                    severity="error"
-                    sx={{
-                      maxWidth: "220px",
-                    }}
-                  >
-                    <p
-                      style={{
-                        margin: "0",
-                        padding: "0",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      Wallet {newWallet} already exists!
-                    </p>
-                  </Alert>
-                )}
-                {showAlert && (
-                  <Alert
-                    severity="error"
-                    sx={{
-                      maxWidth: "220px",
-                    }}
-                  >
-                    <p
-                      style={{
-                        margin: "0",
-                        padding: "0",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      {newWallet} is not a valid BTC Address!
-                    </p>
-                  </Alert>
-                )}
-              </Box>
-              {wallets.split(",").map((wallet_id) => {
-                const shortenedId = `${wallet_id.slice(
-                  0,
-                  4
-                )}....${wallet_id.slice(-4)}`;
-                return (
-                  <MenuItem
-                    key={wallet_id}
-                    onClick={handleCloseUserMenu}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      padding: "0",
-                      backgroundColor: "transparent",
-                    }}
-                  >
-                    <Typography
-                      textAlign="center"
-                      sx={{
-                        fontWeight: 700,
-                        width: "100%",
-                        height: "100%",
-                        padding: "5px",
-                        textDecorationColor: "#6a67c9",
-                        textShadow: "0 0 10px #6a67c9",
-                      }}
-                    >
-                      {shortenedId}
-                    </Typography>
-                  </MenuItem>
-                );
-              })}
-            </Menu>
           </Box>
         </Toolbar>
       </Container>

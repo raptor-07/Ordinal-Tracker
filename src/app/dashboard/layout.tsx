@@ -17,7 +17,7 @@ export const PageContext = React.createContext<DashboardPageProps>({
 });
 
 function Layout({ children }: LayoutProps) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const user: any = useCurrentUser();
   console.log("user session in layout.tsx", user);
 
@@ -42,24 +42,24 @@ function Layout({ children }: LayoutProps) {
     },
   ]);
 
-  console.log("wallets in layout.tsx", wallets);
+  // console.log("wallets in layout.tsx", wallets);
 
-  useEffect(() => {
-    console.log("useEffect is executing!!!!");
-    if (wallets === "" || wallets === null) {
-      console.log("wallets is empty");
-      setLoading(false);
-      return;
-    }
+  // useEffect(() => {
+  //   console.log("useEffect is executing!!!!");
+  //   if (wallets === "" || wallets === null) {
+  //     console.log("wallets is empty");
+  //     setLoading(false);
+  //     return;
+  //   }
 
-    const fetchData = async () => {
-      let data = await getDashboardData(user.email, wallets);
-      console.log("data", data);
-      setDashBoardData(data);
-      setLoading(false);
-    };
-    fetchData();
-  }, [wallets]);
+  //   const fetchData = async () => {
+  //     let data = await getDashboardData(user.email, wallets);
+  //     console.log("data", data);
+  //     setDashBoardData(data);
+  //     setLoading(false);
+  //   };
+  //   fetchData();
+  // }, [wallets]);
 
   return (
     <div>
