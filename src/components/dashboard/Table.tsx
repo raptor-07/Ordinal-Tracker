@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRef } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -18,8 +19,8 @@ export default function CollectionTable({
   wallets: readonly any[];
 }) {
   const user: any = useCurrentUser();
-  console.log("user", user);
-
+  const userRef = useRef(user);
+  console.log("userRef", userRef.current.email);
   const [dashBoardData, setDashBoardData] = React.useState<any>([
     {
       collection_id: "",
@@ -38,6 +39,18 @@ export default function CollectionTable({
     console.log("useEffect is executing!!!!");
     if (wallets.length === 0) {
       console.log("wallets is empty");
+      setDashBoardData([
+        {
+          collection_id: "",
+          floor_price: "",
+          One_D_floor: "",
+          Seven_D_floor: "",
+          volume_1d: "",
+          volume_7d: "",
+          volume_30d: "",
+          market_cap: "",
+        },
+      ]);
       setLoading(false);
       return;
     }
@@ -46,7 +59,7 @@ export default function CollectionTable({
       setLoading(true);
       const walletString = wallets.map((wallet) => wallet.label).join(",");
       console.log("wallets string:", walletString);
-      let data = await getDashboardData(user.email, walletString);
+      let data = await getDashboardData(userRef.current.email, walletString);
       console.log("data", data);
       setDashBoardData(data);
       setLoading(false);
@@ -55,11 +68,14 @@ export default function CollectionTable({
   }, [wallets]);
 
   return loading ? (
-    <Box sx={{ display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '80vh',
-    }}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "80vh",
+      }}
+    >
       <CircularProgress />
     </Box>
   ) : (
@@ -83,7 +99,7 @@ export default function CollectionTable({
         >
           <TableRow>
             <TableCell>
-             <p
+              <p
                 style={{
                   fontWeight: 700,
                   marginLeft: "8px",
