@@ -1,22 +1,37 @@
 "use client";
 
 import CollectionTable from "../../components/dashboard/Table";
-import { PageContext } from "./layout";
 import React from "react";
-import AddWallets  from "@/components/dashboard/AddWallets";
+import AddWallets from "@/components/dashboard/AddWallets";
 
-export interface DashboardPageProps {
-  dashBoardData: any;
-  loading: boolean;
+interface ChipData {
+  key: number;
+  label: string;
 }
 
 function DashboardPage() {
-  const { dashBoardData, loading } = React.useContext(PageContext);
+  let localStorageWallets: string = "";
+
+  if (typeof window !== "undefined") {
+    localStorageWallets = localStorage.getItem("wallets") || "";
+    console.log("initialWallets in dashboard page", localStorageWallets);
+    if (localStorageWallets === null || localStorageWallets === "") {
+      localStorage.setItem("wallets", "");
+    }
+  }
+
+  const initialWallets: readonly ChipData[] = localStorageWallets
+    .split(",")
+    .filter((wallet) => wallet.trim() !== "")
+    .map((wallet, index) => ({ key: index, label: wallet }));
+
+  const [wallets, setWallets] =
+    React.useState<readonly ChipData[]>(initialWallets);
 
   return (
     <div>
-      <AddWallets />
-      <CollectionTable dashBoardData={dashBoardData} loading={loading} />
+      <AddWallets wallets={wallets} setWallets={setWallets} />
+      <CollectionTable wallets={wallets}/>
     </div>
   );
 }
