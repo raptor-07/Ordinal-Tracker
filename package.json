@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.3.4",
     "@mui/material": "^5.15.12",
+    "@mui/material-next": "^6.0.0-alpha.126",
     "@mui/material-nextjs": "^5.15.11",
     "bcryptjs": "^2.4.3",
     "bitcoin-address-validation": "^2.2.3",
