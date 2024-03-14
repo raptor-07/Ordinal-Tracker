@@ -21,10 +21,9 @@ function AddWallets() {
   if (typeof window !== "undefined") {
     localStorageWallets = localStorage.getItem("wallets") || "";
     console.log("initialWallets in layout.tsx", localStorageWallets);
-  }
-
-  if (localStorageWallets === null || localStorageWallets === "") {
-    localStorage.setItem("wallets", "");
+    if (localStorageWallets === null || localStorageWallets === "") {
+      localStorage.setItem("wallets", "");
+    }
   }
 
   const initialWallets: readonly ChipData[] = localStorageWallets
