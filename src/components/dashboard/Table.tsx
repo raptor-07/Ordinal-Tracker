@@ -46,16 +46,20 @@ export default function CollectionTable({
       setLoading(true);
       const walletString = wallets.map((wallet) => wallet.label).join(",");
       console.log("wallets string:", walletString);
-      // let data = await getDashboardData(user.email, walletString);
-      // console.log("data", data);
-      // setDashBoardData(data);
+      let data = await getDashboardData(user.email, walletString);
+      console.log("data", data);
+      setDashBoardData(data);
       setLoading(false);
     };
     fetchData();
   }, [wallets]);
 
   return loading ? (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '80vh',
+    }}>
       <CircularProgress />
     </Box>
   ) : (
