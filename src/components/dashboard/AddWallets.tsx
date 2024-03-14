@@ -15,24 +15,7 @@ const ListItem = styled("li")(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
 
-function AddWallets() {
-  let localStorageWallets: string = "";
-
-  if (typeof window !== "undefined") {
-    localStorageWallets = localStorage.getItem("wallets") || "";
-    console.log("initialWallets in layout.tsx", localStorageWallets);
-    if (localStorageWallets === null || localStorageWallets === "") {
-      localStorage.setItem("wallets", "");
-    }
-  }
-
-  const initialWallets: readonly ChipData[] = localStorageWallets
-    .split(",")
-    .filter((wallet) => wallet.trim() !== "")
-    .map((wallet, index) => ({ key: index, label: wallet }));
-
-  const [wallets, setWallets] =
-    React.useState<readonly ChipData[]>(initialWallets);
+function AddWallets({ wallets, setWallets }: { wallets: readonly ChipData[]; setWallets: React.Dispatch<React.SetStateAction<readonly ChipData[]>>; }) {
 
   React.useEffect(() => {
     localStorage.setItem(
@@ -94,7 +77,7 @@ function AddWallets() {
         sx={{
           display: "flex",
           backgroundColor: "#000000",
-          padding: "0px",
+          padding: "14px",
           margin: "0px",
           minWidth: "100%",
           height: "100%",
@@ -108,7 +91,7 @@ function AddWallets() {
           onKeyDown={HandleAddWallet}
           style={{
             borderRadius: "50px",
-            margin: "5px",
+            margin: "0px",
           }}
         />
         {wallets.length > 0 &&
@@ -134,7 +117,7 @@ function AddWallets() {
                     textDecorationColor: "#4a40c9",
                     textShadow: "0 0 2px #2a67a2",
                     backgroundColor: "#000000",
-                    fontSize: "1.1rem",
+                    fontSize: "1.4rem",
                   }}
                 />
               </ListItem>
