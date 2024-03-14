@@ -19,8 +19,10 @@ export default function CollectionTable({
   wallets: readonly any[];
 }) {
   const user: any = useCurrentUser();
-  const userRef = useRef(user);
-  console.log("userRef", userRef.current.email);
+  console.log("user", user);
+  let userRef: any = useRef(user);
+  console.log("userRef", userRef);
+
   const [dashBoardData, setDashBoardData] = React.useState<any>([
     {
       collection_id: "",
@@ -59,7 +61,12 @@ export default function CollectionTable({
       setLoading(true);
       const walletString = wallets.map((wallet) => wallet.label).join(",");
       console.log("wallets string:", walletString);
-      let data = await getDashboardData(userRef.current.email, walletString);
+      let data;
+      if (userRef == null) {
+        data = await getDashboardData(userRef.current.email, walletString);
+      } else {
+        data = await getDashboardData(null, walletString);
+      }
       console.log("data", data);
       setDashBoardData(data);
       setLoading(false);

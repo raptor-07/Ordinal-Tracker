@@ -17,20 +17,26 @@ async function getCollectionIds(wallets: string | null) {
       headers: headers,
     });
 
-    const jsonData = await response.json();
+    console.log("response", response.status);
+    if (response.status === 200) {
+      const jsonData = await response.json();
+      console.log("jsonData", jsonData);
 
-    const filteredTransfers = jsonData.transfers.filter(
-      (transfer: any) =>
-        transfer.chain === "bitcoin" && transfer.collection_id !== null
-    );
+      const filteredTransfers = jsonData.transfers.filter(
+        (transfer: any) =>
+          transfer.chain === "bitcoin" && transfer.collection_id !== null
+      );
 
-    const ids = filteredTransfers.map(
-      (transfer: any) => transfer.collection_id
-    );
-    collectionIds = collectionIds.concat(ids);
+      const ids = filteredTransfers.map(
+        (transfer: any) => transfer.collection_id
+      );
+      collectionIds = collectionIds.concat(ids);
 
-    if (jsonData.next) {
-      await fetchData(jsonData.next);
+      if (jsonData.next) {
+        await fetchData(jsonData.next);
+      }
+    } else {
+      throw new Error();
     }
   };
 
