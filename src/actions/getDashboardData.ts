@@ -4,26 +4,27 @@ import { getUserByEmail } from "@/data/user";
 import getCollectionIds from "./getCollectionIds";
 import getCollectionsStats from "./getCollectionsStats";
 import getCollectionsFloor from "./getCollectionsFloor";
+import {
+  addCollectionsToCollection,
+  addCollectionsToUserCollection,
+} from "@/data/collection";
 
 async function getDashboardData(
   userEmail: string | null | undefined,
   wallets: string | null
 ) {
   try {
-    if (userEmail == null || userEmail === "" || userEmail === undefined && wallets !== null) {
-      // No session
-      // console.log("userEmail inside get dashboard servaction", userEmail);
-
-      // console.log("wallets inside get dashboard servaction", wallets);
+    if (
+      userEmail == null ||
+      userEmail === "" ||
+      (userEmail === undefined && wallets !== null)
+    ) {
       const collectionIds: string[] = await getCollectionIds(wallets);
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(collectionIds),
         getCollectionsFloor(collectionIds),
       ]);
-
-      // console.log("collectionsStats", collectionsStats);
-      // console.log("collectionsFloor", collectionsFloor);
 
       const collectionsStatsMap = collectionsStats.reduce(
         (map: any, collection: any) => {
@@ -41,25 +42,29 @@ async function getDashboardData(
         };
       });
 
-      console.log("mergedData", mergedData);
       return mergedData;
     } else {
+      //with session
 
-      //with session 
-
-      // console.log("userEmail inside get dashboard servaction", userEmail);
       const user = await getUserByEmail(userEmail);
       if (user == null) {
-        return { null: null };
+        return { error: "user does not exist" };
       }
 
       const collectionIds: string[] = await getCollectionIds(wallets);
+
+      if (collectionIds.length > 20) {
+        collectionIds.slice(0, 20);
+      }
+
+      await addCollectionsToCollection(collectionIds, user);
+
+      await addCollectionsToUserCollection(collectionIds, user);
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(collectionIds),
         getCollectionsFloor(collectionIds),
       ]);
-
 
       const collectionsStatsMap = collectionsStats.reduce(
         (map: any, collection: any) => {
@@ -82,7 +87,7 @@ async function getDashboardData(
     }
   } catch (error) {
     console.error("Error in getDashboardData:", error);
-    throw error; // Rethrow the error for the caller to handle
+    throw error;
   }
 }
 

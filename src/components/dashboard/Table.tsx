@@ -60,12 +60,14 @@ export default function CollectionTable({
     const fetchData = async () => {
       setLoading(true);
       const walletString = wallets.map((wallet) => wallet.label).join(",");
-      console.log("wallets string:", walletString);
+
       let data;
       if (userRef == null) {
+        //no session exists
         data = await getDashboardData(userRef.current.email, walletString);
       } else {
-        data = await getDashboardData(null, walletString);
+        //session exists
+        data = await getDashboardData(userRef.current.email, walletString);
       }
       console.log("data", data);
       setDashBoardData(data);

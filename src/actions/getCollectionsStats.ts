@@ -12,7 +12,6 @@ async function getCollectionsStats(collectionIds: string[]) {
     for (let i = 0; i < collectionIds.length; i += 5) {
       const currentCollectionIds = collectionIds.slice(i, i + 5);
       const currentCollectionIdsParam = currentCollectionIds.join(",");
-      // console.log("currentCollectionIdsParam", currentCollectionIdsParam);
 
       const response = await fetch(
         `https://api.simplehash.com/api/v0/nfts/collections_activity?collection_ids=${currentCollectionIdsParam}`,
@@ -27,8 +26,6 @@ async function getCollectionsStats(collectionIds: string[]) {
       }
 
       const jsonData = await response.json();
-
-      // console.log("collection Stat", jsonData);
 
       const collectionStats = jsonData.collections.map((collection: any) => ({
         collection_id: collection.collection_id,
