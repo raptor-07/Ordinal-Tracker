@@ -7,6 +7,7 @@ import { Container } from "@mui/material";
 import { validate, Network } from "bitcoin-address-validation";
 import { useCurrentUser } from "@/hooks/current-user";
 import { addNewWallet } from "@/actions/addNewWallet";
+import { deleteWallet } from "@/actions/deleteWallet";
 
 interface ChipData {
   key: number;
@@ -17,7 +18,7 @@ const ListItem = styled("li")(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
 
-function AddWallets({
+function Wallets({
   wallets,
   setWallets,
 }: {
@@ -37,7 +38,21 @@ function AddWallets({
     );
   }, [wallets]);
 
-  const handleDelete = (chipToDelete: ChipData) => () => {
+  const handleDelete = (chipToDelete: ChipData) => async () => {
+    if (userRef !== null || userRef !== undefined) {
+      //session exists
+      // console.log("session exists - delete wallet from db");
+      const result = await deleteWallet(userRef.current, chipToDelete.label);
+      console.log("result", result);
+      if (result.error) {
+        alert(result.error);
+        return;
+      }
+      setWallets((chips) =>
+        chips.filter((chip) => chip.key !== chipToDelete.key)
+      );
+      return;
+    }
     setWallets((chips) =>
       chips.filter((chip) => chip.key !== chipToDelete.key)
     );
@@ -64,16 +79,19 @@ function AddWallets({
       if (userRef !== null || userRef !== undefined) {
         //session exists
         // console.log("session exists - add wallet to db");
-        const result = await addNewWallet(
-          userRef.current,
-          wallet
-        );
+        const result = await addNewWallet(userRef.current, wallet);
         console.log("result", result);
-        if(result.error) {
+        if (result.error) {
           alert(result.error);
+          (event.target as HTMLInputElement).value = "";
           return;
         }
+        setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
+        (event.target as HTMLInputElement).value = "";
+        return;
       }
+
+      setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
       (event.target as HTMLInputElement).value = "";
     }
   };
@@ -153,4 +171,4 @@ function AddWallets({
   );
 }
 
-export default AddWallets;
+export default Wallets;

@@ -2,7 +2,7 @@
 
 import CollectionTable from "../../components/dashboard/Table";
 import React from "react";
-import AddWallets from "@/components/dashboard/AddWallets";
+import Wallets from "@/components/dashboard/Wallets";
 
 interface ChipData {
   key: number;
@@ -30,7 +30,7 @@ function DashboardPage() {
 
   return (
     <div>
-      <AddWallets wallets={wallets} setWallets={setWallets} />
+      <Wallets wallets={wallets} setWallets={setWallets} />
       <CollectionTable wallets={wallets}/>
     </div>
   );
