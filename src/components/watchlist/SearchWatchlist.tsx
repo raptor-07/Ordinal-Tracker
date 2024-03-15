@@ -4,26 +4,10 @@ import TextField from "@mui/material/TextField";
 import { Container } from "@mui/material";
 import { getWatchlists } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
-export interface Watchlist {
-  name: string;
-  image: string;
-  collection_id: string;
-  description: string;
-  watchlist: boolean;
-}
-function SearchWatchlist() {
+
+function SearchWatchlist(watchlist: any, setWatchlist: any) {
   const user: any = useCurrentUser();
   let userRef: any = React.useRef(user);
-
-  const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
-    {
-      name: "",
-      image: "",
-      collection_id: "",
-      description: "",
-      watchlist: false,
-    },
-  ]);
 
   React.useEffect(() => {
     //get watchlist data from db

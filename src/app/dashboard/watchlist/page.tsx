@@ -4,13 +4,24 @@ import React from "react";
 import SearchWarchlist from "@/components/watchlist/SearchWatchlist";
 import Table from "@/components/watchlist/Table";
 
-interface Props {
-  // Define your component props here
+export interface Watchlist {
+  name: string;
+  image: string;
+  collection_id: string;
+  description: string;
+  watchlist: boolean;
 }
 
-const Page: React.FC<Props> = () => {
-  // Add your component logic here
-
+const Page: React.FC = () => {
+  const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
+    {
+      name: "",
+      image: "",
+      collection_id: "",
+      description: "",
+      watchlist: false,
+    },
+  ]);
   return (
     <Container
       maxWidth={false}
@@ -24,8 +35,8 @@ const Page: React.FC<Props> = () => {
         minWidth: "100%",
       }}
     >
-      <SearchWarchlist />
-      <Table />
+      <SearchWarchlist watchlist={watchlist} setWatchlist={setWatchlist} />
+      <Table watchlist={watchlist} setWatchlist={setWatchlist} />
     </Container>
   );
 };
