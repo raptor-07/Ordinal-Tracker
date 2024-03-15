@@ -125,7 +125,7 @@ function Wallets({
         sx={{
           display: "flex",
           backgroundColor: "#000000",
-          padding: "14px",
+          padding: "10px",
           margin: "0px",
           minWidth: "100%",
           height: "100%",
