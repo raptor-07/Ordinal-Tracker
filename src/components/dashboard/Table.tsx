@@ -39,8 +39,8 @@ export default function CollectionTable({
 
   React.useEffect(() => {
     console.log("useEffect is executing!!!!");
-    if (wallets.length === 0) {
-      console.log("wallets is empty");
+    if (wallets.length === 0 && !userRef) {
+      //Session 0 | Wallets 0
       setDashBoardData([
         {
           collection_id: "",
@@ -61,15 +61,19 @@ export default function CollectionTable({
       setLoading(true);
       const walletString = wallets.map((wallet) => wallet.label).join(",");
 
-      let data;
-      if (userRef == null) {
-        //no session exists
-        data = await getDashboardData(userRef.current.email, walletString);
-      } else {
-        //session exists
-        data = await getDashboardData(userRef.current.email, walletString);
+      let data: any = await getDashboardData(
+        userRef.current.email,
+        walletString
+      );
+
+      if (data.wallets) {
+        //Session 1 | Wallets 0
+        localStorage.setItem("wallets", data.wallets);
+        setDashBoardData(data.data);
+        setLoading(false);
+        return;
       }
-      console.log("data", data);
+
       setDashBoardData(data);
       setLoading(false);
     };
