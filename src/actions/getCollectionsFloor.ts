@@ -71,7 +71,7 @@ async function getCollectionsFloor(collectionIds: string[]) {
 
   try {
     const floorPrices = await Promise.all(fetchPromises);
-    console.log("floorPrices", floorPrices);
+    // console.log("floorPrices", floorPrices);
     return floorPrices;
   } catch (error) {
     console.error("Error fetching floor prices:", error);

@@ -5,6 +5,8 @@ import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import { Container } from "@mui/material";
 import { validate, Network } from "bitcoin-address-validation";
+import { useCurrentUser } from "@/hooks/current-user";
+import { addNewWallet } from "@/actions/addNewWallet";
 
 interface ChipData {
   key: number;
@@ -15,7 +17,18 @@ const ListItem = styled("li")(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
 
-function AddWallets({ wallets, setWallets }: { wallets: readonly ChipData[]; setWallets: React.Dispatch<React.SetStateAction<readonly ChipData[]>>; }) {
+function AddWallets({
+  wallets,
+  setWallets,
+}: {
+  wallets: readonly ChipData[];
+  setWallets: React.Dispatch<React.SetStateAction<readonly ChipData[]>>;
+}) {
+  const user: any = useCurrentUser();
+  let userRef: any = React.useRef(user);
+
+  console.log("user", user);
+  console.log("userRef", userRef);
 
   React.useEffect(() => {
     localStorage.setItem(
@@ -30,7 +43,7 @@ function AddWallets({ wallets, setWallets }: { wallets: readonly ChipData[]; set
     );
   };
 
-  const HandleAddWallet = (event: React.KeyboardEvent) => {
+  const HandleAddWallet = async (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       const wallet = (event.target as HTMLInputElement).value;
 
@@ -48,7 +61,19 @@ function AddWallets({ wallets, setWallets }: { wallets: readonly ChipData[]; set
         return;
       }
 
-      setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
+      if (userRef !== null || userRef !== undefined) {
+        //session exists
+        // console.log("session exists - add wallet to db");
+        const result = await addNewWallet(
+          userRef.current,
+          wallet
+        );
+        console.log("result", result);
+        if(result.error) {
+          alert(result.error);
+          return;
+        }
+      }
       (event.target as HTMLInputElement).value = "";
     }
   };

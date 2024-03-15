@@ -17,10 +17,10 @@ async function getCollectionIds(wallets: string | null) {
       headers: headers,
     });
 
-    console.log("response", response.status);
+    // console.log("response", response.status);
     if (response.status === 200) {
       const jsonData = await response.json();
-      console.log("jsonData", jsonData);
+      // console.log("jsonData", jsonData);
 
       const filteredTransfers = jsonData.transfers.filter(
         (transfer: any) =>

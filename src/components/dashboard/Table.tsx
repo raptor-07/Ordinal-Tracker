@@ -19,9 +19,9 @@ export default function CollectionTable({
   wallets: readonly any[];
 }) {
   const user: any = useCurrentUser();
-  console.log("user", user);
+  // console.log("user", user);
   let userRef: any = useRef(user);
-  console.log("userRef", userRef);
+  // console.log("userRef", userRef);
 
   const [dashBoardData, setDashBoardData] = React.useState<any>([
     {

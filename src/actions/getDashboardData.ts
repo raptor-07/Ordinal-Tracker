@@ -12,7 +12,7 @@ async function getDashboardData(
   try {
     if (userEmail == null || userEmail === "" || userEmail === undefined && wallets !== null) {
       // No session
-      console.log("userEmail inside get dashboard servaction", userEmail);
+      // console.log("userEmail inside get dashboard servaction", userEmail);
 
       // console.log("wallets inside get dashboard servaction", wallets);
       const collectionIds: string[] = await getCollectionIds(wallets);
@@ -47,7 +47,7 @@ async function getDashboardData(
 
       //with session 
 
-      console.log("userEmail inside get dashboard servaction", userEmail);
+      // console.log("userEmail inside get dashboard servaction", userEmail);
       const user = await getUserByEmail(userEmail);
       if (user == null) {
         return { null: null };
