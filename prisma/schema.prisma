@@ -7,31 +7,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TrackType {
+  percentage
+  absolute_value
+}
+
 model User {
-  UId             String            @id @default(cuid())
-  name            String?
-  email           String?           @unique
-  image           String?
-  password        String?
-  userCollections User_Collection[]
-  wallets         Wallet[]
+  uId              String            @id @default(cuid())
+  username         String            @unique
+  email            String            @unique
+  password         String
+  ownedCollections User_Collection[]
+  wallets          Wallet[]
+  floorAlerts      Floor_Alerts[]
+  userWatchlists   User_Watchlist[]
 }
 
 model User_Collection {
-  UId           String     @id
-  user          User       @relation(fields: [UId], references: [UId])
-  Collection_Id String
-  collection    Collection @relation(fields: [Collection_Id], references: [id])
-  watchlist     Boolean    @default(false)
+  uCId         String     @id @default(cuid())
+  uId          String
+  user         User       @relation(fields: [uId], references: [uId])
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [cId])
+}
+
+model User_Watchlist {
+  uWid         String     @id @default(cuid())
+  uId          String
+  user         User       @relation(fields: [uId], references: [uId])
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [cId])
 }
 
 model Collection {
-  id              String            @id @default(cuid())
+  cId             String            @id
+  description     String
+  image           String
   userCollections User_Collection[]
+  floorAlerts     Floor_Alerts[]
+  userWatchlists  User_Watchlist[]
 }
 
 model Wallet {
-  Wallet_Id String @id @default(cuid())
-  UId       String
-  user      User   @relation(fields: [UId], references: [UId])
+  wId           String  @id
+  uId           String
+  user          User    @relation(fields: [uId], references: [uId])
+  alertsEnabled Boolean
+}
+
+model Floor_Alerts {
+  aId          String     @id @default(cuid())
+  user         User       @relation(fields: [aId], references: [uId])
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [cId])
+  trackType    TrackType
+  refPrice     Int
+  direction    Boolean
+  value        Int
 }
