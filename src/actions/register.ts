@@ -27,7 +27,7 @@ const register = async (values: {
       data: {
         email,
         password: hashedPassword,
-        name,
+        username: name, // Specify the 'name' property explicitly
       },
     });
 
