@@ -25,21 +25,21 @@ function SearchWatchlist() {
     },
   ]);
 
+  React.useEffect(() => {
+    //get watchlist data from db
+    const fetchData = async () => {
+      const data = await getWatchlists(userRef.current);
+      if (data.error) {
+        alert(data.error);
+      }
+    };
+    fetchData();
+  });
+
   const handleAddWatchlist = async (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       const watchlist = event.target as HTMLInputElement;
     }
-
-    React.useEffect(() => {
-      //get watchlist data from db
-        const fetchData = async () => {
-            const data = await getWatchlists(userRef.current);
-            if (data.error){
-                alert(data.error);
-            }
-        };
-      fetchData();
-    });
   };
 
   return (
