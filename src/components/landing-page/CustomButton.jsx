@@ -58,7 +58,6 @@ function CustomButton() {
               "&:focus": {
                 textDecoration: "none",
                 backgroundColor: "transparent",
-
               },
               minWidth: 200,
               paddingTop: 2,
@@ -74,6 +73,13 @@ function CustomButton() {
               variant="h5"
               sx={{
                 fontWeight: 800,
+                color: "primary.main",
+                "&:hover": {
+                  color: "primary.light",
+                },
+                "&:active": {
+                  color: "primary.dark",
+                },
               }}
             >
               Try For Free
