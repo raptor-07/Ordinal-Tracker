@@ -62,3 +62,18 @@ export const deleteExistingWallet = async (walletString: string, user: User) => 
     throw new Error(error.message);
   }
 };
+
+export const getUserWallets = async (user: User) => {
+  try {
+    const wallets = await db.wallet.findMany({
+      where: {
+        uId: user.uId,
+      },
+    });
+
+    return wallets;
+  } catch (error) {
+    console.error("Error in getUserWallets:", error);
+    throw error;
+  }
+};
