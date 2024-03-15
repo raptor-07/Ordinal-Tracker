@@ -115,3 +115,19 @@ export const getUserCollections = async (user: User) => {
     throw error;
   }
 }
+
+
+export const getWatchlistCollections = async (user: any) => {
+  try {
+    const collections = await db.user_Watchlist.findMany({
+      where: {
+        uId: user.uId,
+      },
+    });
+
+    return collections;
+  } catch (error) {
+    console.error("Error in getWatchlistCollections:", error);
+    throw error;
+  }
+}

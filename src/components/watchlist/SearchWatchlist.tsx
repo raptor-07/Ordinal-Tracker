@@ -1,27 +1,46 @@
 import * as React from "react";
-import { styled } from "@mui/material/styles";
-import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import { Container } from "@mui/material";
-import { validate, Network } from "bitcoin-address-validation";
+import { getWatchlists } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
-import { addNewWallet } from "@/actions/addNewWallet";
-import { deleteWallet } from "@/actions/deleteWallet";
-
-interface ChipData {
-  key: number;
-  label: string;
+export interface Watchlist {
+  name: string;
+  image: string;
+  collection_id: string;
+  description: string;
+  watchlist: boolean;
 }
-
-const ListItem = styled("li")(({ theme }) => ({
-  margin: theme.spacing(0.5),
-}));
-
 function SearchWatchlist() {
-  const handleDelete = (chipToDelete: ChipData) => async () => {};
+  const user: any = useCurrentUser();
+  let userRef: any = React.useRef(user);
 
-  const HandleAddWallet = async (event: React.KeyboardEvent) => {};
+  const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
+    {
+      name: "",
+      image: "",
+      collection_id: "",
+      description: "",
+      watchlist: false,
+    },
+  ]);
+
+  const handleAddWatchlist = async (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      const watchlist = event.target as HTMLInputElement;
+    }
+
+    React.useEffect(() => {
+      //get watchlist data from db
+        const fetchData = async () => {
+            const data = await getWatchlists(userRef.current);
+            if (data.error){
+                alert(data.error);
+            }
+        };
+      fetchData();
+    });
+  };
 
   return (
     <Paper
@@ -51,7 +70,7 @@ function SearchWatchlist() {
           id="filled-basic"
           label="Add Collection to watchlist"
           variant="standard"
-          onKeyDown={HandleAddWallet}
+          onKeyDown={handleAddWatchlist}
           style={{
             borderRadius: "50px",
             margin: "0px",
@@ -59,9 +78,9 @@ function SearchWatchlist() {
           sx={{
             minWidth: "100%",
             "&placeholder": {
-                textAlign: "center",
-                fontSize: "30px",
-            }
+              textAlign: "center",
+              fontSize: "30px",
+            },
           }}
         />
       </Container>
