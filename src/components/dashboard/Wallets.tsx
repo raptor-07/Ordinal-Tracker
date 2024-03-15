@@ -43,8 +43,13 @@ function Wallets({
       //session exists
       // console.log("session exists - delete wallet from db");
       const result = await deleteWallet(userRef.current, chipToDelete.label);
-      console.log("result", result);
       if (result.error) {
+        if (result.error == "Wallet does not exist") {
+          setWallets((chips) =>
+            chips.filter((chip) => chip.key !== chipToDelete.key)
+          );
+          return;
+        }
         alert(result.error);
         return;
       }
