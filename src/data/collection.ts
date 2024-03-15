@@ -100,3 +100,18 @@ export const addCollectionsToUserCollection = async (
     throw error;
   }
 };
+
+export const getUserCollections = async (user: User) => {
+  try {
+    const collections = await db.user_Collection.findMany({
+      where: {
+        uId: user.uId,
+      },
+    });
+
+    return collections;
+  } catch (error) {
+    console.error("Error in getUserCollections:", error);
+    throw error;
+  }
+}
