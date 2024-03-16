@@ -173,6 +173,7 @@ async function getDashboardData(
       const userWalletsString = userWallets
         .map((wallet: any) => wallet.wId)
         .join(",");
+      console.log({ wallets: userWalletsString, data: mergedData });
       return { wallets: userWalletsString, data: mergedData };
     }
   } catch (error) {

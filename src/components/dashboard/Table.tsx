@@ -98,11 +98,12 @@ export default function CollectionTable({
       if (data.wallets) {
         //Session 1 | Wallets 0
         localStorage.setItem("wallets", data.wallets);
+        // console.log("data for dashboard on client", data);
         setDashBoardData(data.data);
         setLoading(false);
         return;
       }
-      console.log("data for dashboard on client", data);
+      // console.log("data for dashboard on client xxxx", data);
       setDashBoardData(data);
       setLoading(false);
     };
