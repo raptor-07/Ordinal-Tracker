@@ -11,7 +11,7 @@ export const addCollectionsToCollection = async (
 
     const headers = new Headers();
     headers.append("x-api-key", process.env.SIMPLE_HASH ?? "");
-
+    console.log("collectionParam", collectionParam);
     const response = await fetch(
       `https://api.simplehash.com/api/v0/nfts/collections/ids?collection_ids=${collectionParam}`,
       {
@@ -19,7 +19,7 @@ export const addCollectionsToCollection = async (
         headers: headers,
       }
     );
-
+    console.log("response for collections", response);
     if (response.status === 200) {
       const data = await response.json();
 
@@ -31,6 +31,7 @@ export const addCollectionsToCollection = async (
           if (collectionData) {
             return {
               collectionId: collectionData.collection_id,
+              name: collectionData.name,
               description: collectionData.description,
               image: collectionData.image_url,
             };
@@ -38,28 +39,32 @@ export const addCollectionsToCollection = async (
         })
         .filter(Boolean);
 
-        console.log("mergedData", mergedData);
-
+      console.log("mergedData", mergedData);
+      let collectionsUpdate;
       mergedData.forEach(async (collection) => {
-        let collectionsUpdate = await db.collection.upsert({
+        collectionsUpdate = await db.collection.upsert({
           where: {
             cId: collection?.collectionId ?? "",
           },
           update: {
             cId: collection?.collectionId ?? "",
+            name: collection?.name ?? "",
             description: collection?.description ?? "",
             image: collection?.image ?? "",
           },
           create: {
             cId: collection?.collectionId ?? "",
+            name: collection?.name ?? "",
             description: collection?.description ?? "",
             image: collection?.image ?? "",
           },
         });
       });
+      console.log("collectionsUpdate", collectionsUpdate);
       return;
     }
-    throw new Error("Failed to fetch data from API, Try Again Later");
+    return { error: "Error fetching collection IDs"}
+    
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -108,15 +113,30 @@ export const getUserCollections = async (user: User) => {
         uId: user.uId,
       },
     });
-
+    if(collections.length === 0) {
+      return { error: "No collections found" }
+    }
     return collections;
   } catch (error) {
     console.error("Error in getUserCollections:", error);
     throw error;
   }
-}
+};
 
+export const getCollectionById = async (collectionId: string) => {
+  try {
+    const collection = await db.collection.findUnique({
+      where: {
+        cId: collectionId,
+      },
+    });
 
+    return collection;
+  } catch (error) {
+    console.error("Error in getCollectionById:", error);
+    throw error;
+  }
+};
 export const getWatchlistCollections = async (user: any) => {
   try {
     const collections = await db.user_Watchlist.findMany({
@@ -130,4 +150,53 @@ export const getWatchlistCollections = async (user: any) => {
     console.error("Error in getWatchlistCollections:", error);
     throw error;
   }
-}
+};
+
+export const isWatchlistCollection = async (
+  collectionId: string,
+  user: any
+) => {
+  try {
+    let watchlist = await db.user_Watchlist.findUnique({
+      where: {
+        uId_collectionId: {
+          uId: user.uId,
+          collectionId: collectionId,
+        },
+      },
+    });
+
+    if (!watchlist) {
+      watchlist = await db.user_Watchlist.create({
+        data: {
+          uId: user.uId,
+          collectionId: collectionId,
+        },
+      });
+    }
+
+    return watchlist;
+  } catch (error) {
+    console.error("Error in isWatchlistCollection:", error);
+    throw error;
+  }
+};
+
+export const isInCollection = async (collectionId: string) => {
+  try {
+    const collection = await db.collection.findUnique({
+      where: {
+        cId: collectionId,
+      },
+    });
+    if (collection === null) {
+      return {
+        error: "Collection not found",
+      };
+    }
+    return collection;
+  } catch (error) {
+    console.error("Error in isInCollection:", error);
+    throw error;
+  }
+};
