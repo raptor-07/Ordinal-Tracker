@@ -42,7 +42,10 @@ export const addWallet = async (walletString: string, user: User) => {
   }
 };
 
-export const deleteExistingWallet = async (walletString: string, user: User) => {
+export const deleteExistingWallet = async (
+  walletString: string,
+  user: User
+) => {
   try {
     let wallet = await db.wallet.findUnique({
       where: {
@@ -75,5 +78,22 @@ export const getUserWallets = async (user: User) => {
   } catch (error) {
     console.error("Error in getUserWallets:", error);
     throw error;
+  }
+};
+
+export const markWalletAs = async (walletId: string, mark: boolean) => {
+  try {
+    const wallet = await db.wallet.update({
+      where: {
+        wId: walletId,
+      },
+      data: {
+        alertsEnabled: mark,
+      },
+    });
+
+    return wallet;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
