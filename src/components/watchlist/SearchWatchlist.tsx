@@ -2,12 +2,19 @@ import * as React from "react";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import { Container } from "@mui/material";
-import { getWatchlists } from "@/actions/handleWatchlist";
+import { getWatchlists, addWatchlist } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
+import { useRouter } from "next/navigation";
 
 function SearchWatchlist(watchlist: any, setWatchlist: any) {
   const user: any = useCurrentUser();
+  const router = useRouter();
+  if(!user){
+    alert("Please login to add a collection to your watchlist");
+    router.push("/auth/signin");
+  }
   let userRef: any = React.useRef(user);
+  console.log("userRef", userRef, user);
 
   React.useEffect(() => {
     //get watchlist data from db
@@ -17,12 +24,16 @@ function SearchWatchlist(watchlist: any, setWatchlist: any) {
         alert(data.error);
       }
     };
-    fetchData();
+    // fetchData();
   });
 
   const handleAddWatchlist = async (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      const watchlist = event.target as HTMLInputElement;
+      const slug = event.target as HTMLInputElement;
+      //add watchlist server action
+      const data = await addWatchlist(slug.value, userRef);
+      //if watchlist added successfully -> force a rerender of the watchlist page
+      console.log("watchlist collections data", data);
     }
   };
 
