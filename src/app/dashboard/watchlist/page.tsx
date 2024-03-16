@@ -1,16 +1,10 @@
 "use client";
+
 import { Container } from "@mui/material";
 import React from "react";
-import SearchWarchlist from "@/components/watchlist/SearchWatchlist";
-import Table from "@/components/watchlist/Table";
-
-export interface Watchlist {
-  name: string;
-  image: string;
-  collection_id: string;
-  description: string;
-  watchlist: boolean;
-}
+import SearchWatchlist from "@/components/watchlist/SearchWatchlist";
+import CollectionTable from "@/components/watchlist/Table";
+import { Watchlist } from "@/components/watchlist/Table";
 
 const Page: React.FC = () => {
   const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
@@ -19,7 +13,6 @@ const Page: React.FC = () => {
       image: "",
       collection_id: "",
       description: "",
-      watchlist: false,
     },
   ]);
   return (
@@ -35,8 +28,8 @@ const Page: React.FC = () => {
         minWidth: "100%",
       }}
     >
-      <SearchWarchlist watchlist={watchlist} setWatchlist={setWatchlist} />
-      <Table watchlist={watchlist} setWatchlist={setWatchlist} />
+      <SearchWatchlist watchlist={watchlist} setWatchlist={setWatchlist} />
+      <CollectionTable watchlist={watchlist} setWatchlist={setWatchlist} />
     </Container>
   );
 };
