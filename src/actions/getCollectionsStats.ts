@@ -39,6 +39,9 @@ async function getCollectionsStats(collectionIds: string[]) {
       allCollectionStats = [...allCollectionStats, ...collectionStats];
     }
 
+    if (allCollectionStats.length === 0) {
+      throw new Error("No collection stats found");
+    }
     // console.log("allCollectionStats", allCollectionStats);
 
     return allCollectionStats;

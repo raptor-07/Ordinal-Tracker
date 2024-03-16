@@ -12,6 +12,7 @@ import Paper from "@mui/material/Paper";
 import { useCurrentUser } from "@/hooks/current-user";
 import getDashboardData from "@/actions/getDashboardData";
 import { Box, CircularProgress } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function CollectionTable({
   wallets,
@@ -22,6 +23,8 @@ export default function CollectionTable({
   // console.log("user", user);
   let userRef: any = useRef(user);
   // console.log("userRef", userRef);
+
+  const router = useRouter();
 
   const [dashBoardData, setDashBoardData] = React.useState<any>([
     {
@@ -66,6 +69,32 @@ export default function CollectionTable({
         walletString
       );
 
+      if (data.error) {
+        if(data.error === "No Collections found") {
+          //Session 1 | Wallets 0
+          console.log("No collections found in DB");
+          setDashBoardData([
+            {
+              collection_id: "",
+              floor_price: "",
+              One_D_floor: "",
+              Seven_D_floor: "",
+              volume_1d: "",
+              volume_7d: "",
+              volume_30d: "",
+              market_cap: "",
+            },
+          ]);
+          setLoading(false);
+          return;
+        }
+        console.error("Error in getting data", data.error);
+        alert("Error in getting data. You may need to login again!");
+        setLoading(false);
+        router.push("/auth/signin");
+        return;
+      }
+
       if (data.wallets) {
         //Session 1 | Wallets 0
         localStorage.setItem("wallets", data.wallets);
@@ -73,9 +102,9 @@ export default function CollectionTable({
         setLoading(false);
         return;
       }
-
-      setDashBoardData(data);
-      setLoading(false);
+      console.log("data for dashboard on client", data);
+      // setDashBoardData(data);
+      // setLoading(false);
     };
     fetchData();
   }, [wallets]);

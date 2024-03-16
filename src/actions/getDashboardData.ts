@@ -27,12 +27,24 @@ async function getDashboardData(
     ) {
       //Session 0 | Wallets 1
       console.log("Session 0 | Wallets 1");
-      const collectionIds: string[] = await getCollectionIds(wallets);
+      const collectionIds: string[] | any = await getCollectionIds(wallets);
+
+      if (collectionIds.error) {
+        return { error: collectionIds.error };
+      }
+
+      if (collectionIds.length > 20) {
+        collectionIds.slice(0, 20);
+      }
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(collectionIds),
         getCollectionsFloor(collectionIds),
       ]);
+
+      if (collectionsStats.length === 0 || collectionsFloor.length === 0) {
+        return { error: "No data found" };
+      }
 
       const collectionsStatsMap = collectionsStats.reduce(
         (map: any, collection: any) => {
@@ -64,18 +76,31 @@ async function getDashboardData(
       if (userEmail === null || userEmail === "" || userEmail === undefined) {
         return { error: "user does not exist" };
       }
+      // console.log("userEmail", userEmail);
       const user = await getUserByEmail(userEmail);
       if (user == null) {
         return { error: "user does not exist" };
       }
+      console.log("user", user);
 
-      const collectionIds: string[] = await getCollectionIds(wallets);
+      const collectionIds: string[] | any = await getCollectionIds(wallets);
+
+      if (collectionIds.error) {
+        return { error: collectionIds.error };
+      }
 
       if (collectionIds.length > 20) {
         collectionIds.slice(0, 20);
       }
 
-      await addCollectionsToCollection(collectionIds, user);
+      const addedCollection: any = await addCollectionsToCollection(
+        collectionIds,
+        user
+      );
+
+      if (addedCollection.error) {
+        return { error: addedCollection.error };
+      }
 
       await addCollectionsToUserCollection(collectionIds, user);
 
@@ -84,6 +109,9 @@ async function getDashboardData(
         getCollectionsFloor(collectionIds),
       ]);
 
+      if (collectionsStats.length === 0 || collectionsFloor.length === 0) {
+        return { error: "No data found" };
+      }
       const collectionsStatsMap = collectionsStats.reduce(
         (map: any, collection: any) => {
           map[collection.collection_id] = collection;
@@ -113,6 +141,9 @@ async function getDashboardData(
         return { error: "user does not exist" };
       }
       const collectionIds: any = await getUserCollections(user);
+      if (collectionIds.error === "No collections found") {
+        return { error: collectionIds.error };
+      }
       const collectionIdStrings = collectionIds.map(
         (item: any) => item.collectionId
       );

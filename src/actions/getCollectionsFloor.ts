@@ -65,12 +65,15 @@ async function getCollectionsFloor(collectionIds: string[]) {
         `Error fetching data for collection ID ${collectionId}:`,
         error
       );
-      return null;
+      return [];
     }
   });
 
   try {
     const floorPrices = await Promise.all(fetchPromises);
+    if (floorPrices.length === 0) {
+      throw new Error("No floor prices found");
+    }
     // console.log("floorPrices", floorPrices);
     return floorPrices;
   } catch (error) {

@@ -37,10 +37,13 @@ model User_Watchlist {
   user         User       @relation(fields: [uId], references: [uId])
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [cId])
+
+  @@unique([uId, collectionId])
 }
 
 model Collection {
   cId             String            @id
+  name            String
   description     String
   image           String
   userCollections User_Collection[]
