@@ -42,7 +42,7 @@ export const addCollectionsToCollection = async (
       console.log("mergedData", mergedData);
       let collectionsUpdate;
       mergedData.forEach(async (collection) => {
-        collectionsUpdate = await db.collection.upsert({
+        await db.collection.upsert({
           where: {
             cId: collection?.collectionId ?? "",
           },
@@ -60,8 +60,7 @@ export const addCollectionsToCollection = async (
           },
         });
       });
-      console.log("collectionsUpdate", collectionsUpdate);
-      return;
+      return {};
     }
     return { error: "Error fetching collection IDs"}
     
@@ -96,8 +95,6 @@ export const addCollectionsToUserCollection = async (
         });
       })
     );
-
-    console.log("addedCollections", addedCollections);
 
     return addedCollections;
   } catch (error) {

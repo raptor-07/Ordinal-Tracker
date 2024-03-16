@@ -103,8 +103,8 @@ export default function CollectionTable({
         return;
       }
       console.log("data for dashboard on client", data);
-      // setDashBoardData(data);
-      // setLoading(false);
+      setDashBoardData(data);
+      setLoading(false);
     };
     fetchData();
   }, [wallets]);

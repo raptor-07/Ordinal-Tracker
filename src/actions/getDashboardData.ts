@@ -98,7 +98,7 @@ async function getDashboardData(
         user
       );
 
-      if (addedCollection.error) {
+      if (addedCollection.hasOwnProperty("error")) {
         return { error: addedCollection.error };
       }
 
