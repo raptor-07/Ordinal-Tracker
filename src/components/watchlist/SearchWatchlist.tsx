@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
@@ -6,34 +8,40 @@ import { getWatchlists, addWatchlist } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
 
-function SearchWatchlist(watchlist: any, setWatchlist: any) {
+function SearchWatchlist({
+  watchlist,
+  setWatchlist,
+}: {
+  watchlist: any;
+  setWatchlist: React.Dispatch<React.SetStateAction<any>>;
+}) {
   const user: any = useCurrentUser();
   const router = useRouter();
-  if(!user){
+  let userRef: any = React.useRef(user);
+  if (!userRef) {
     alert("Please login to add a collection to your watchlist");
     router.push("/auth/signin");
   }
-  let userRef: any = React.useRef(user);
   console.log("userRef", userRef, user);
-
-  React.useEffect(() => {
-    //get watchlist data from db
-    const fetchData = async () => {
-      const data = await getWatchlists(userRef.current);
-      if (data.error) {
-        alert(data.error);
-      }
-    };
-    // fetchData();
-  });
 
   const handleAddWatchlist = async (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       const slug = event.target as HTMLInputElement;
       //add watchlist server action
-      const data = await addWatchlist(slug.value, userRef);
+      const data: any = await addWatchlist(slug.value, userRef);
+      if (data.error) {
+        if (
+          data.error === "Please login to add a collection to your watchlist"
+        ) {
+          alert(data.error);
+          router.push("/auth/signin");
+        } else {
+          alert(data.error);
+        }
+      }
       //if watchlist added successfully -> force a rerender of the watchlist page
       console.log("watchlist collections data", data);
+      setWatchlist((prevWatchlist: any) => [...prevWatchlist, data]);
     }
   };
 
