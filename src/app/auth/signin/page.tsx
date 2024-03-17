@@ -7,16 +7,18 @@ import {
   TextField,
   Button,
   FormControl,
+  Link,
 } from "@mui/material";
 import { LoginSchema } from "@/schemas";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import login from "@/actions/login";
+import { useRouter } from "next/navigation";
 
 export default function SigninPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const callBackUrl = searchParams.get("callbackUrl");
-
 
   const [formData, setFormData] = useState({
     email: "",
@@ -33,15 +35,19 @@ export default function SigninPage() {
       e.preventDefault();
       const validateFields = LoginSchema.safeParse(formData);
 
+      // console.log("validateFields", validateFields);
+
       if (!validateFields.success) {
         console.error("Validation error");
         return;
       }
 
-      await login(validateFields.data, callBackUrl)
-      console.log("Success");
+      await login(validateFields.data, callBackUrl);
+      // console.log("Success");
+      router.push("/dashboard");
     } catch (error: any) {
       console.error("Validation error:", error.message);
+      alert("Credentials are wrong! Please try again.");
     }
   };
 
@@ -113,6 +119,16 @@ export default function SigninPage() {
             </Button>
           </FormControl>
         </form>
+        <Link
+          href="/auth/signup"
+          color="inherit"
+          sx={{
+            fontSize: "0.8rem",
+            textAlign: "center",
+          }}
+        >
+          {"Signup - Create New Account"}
+        </Link>
       </Box>
     </Container>
   );
