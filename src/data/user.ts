@@ -19,3 +19,19 @@ export const getUserById = async (uId: string) => {
     return null;
   }
 };
+
+export const getAlertEntriesByUser = async (user: any) => {
+  try {
+    const alertEntries = await db.floor_Alerts.findMany({
+      where: {
+        user: {
+          uId: user.uId,
+        },
+      },
+    });
+    return alertEntries;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
