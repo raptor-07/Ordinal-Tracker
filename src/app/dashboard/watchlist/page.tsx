@@ -5,8 +5,19 @@ import React from "react";
 import SearchWatchlist from "@/components/watchlist/SearchWatchlist";
 import CollectionTable from "@/components/watchlist/Table";
 import { Watchlist } from "@/components/watchlist/Table";
+import { useCurrentUser } from "@/hooks/current-user";
+import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
+  const user = useCurrentUser();
+  const router = useRouter();
+
+  if (typeof window !== "undefined" && !user) {
+    alert("You are not logged in");
+    router.push("/auth/signin");
+    return null;
+  }
+
   const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
     {
       name: "",
