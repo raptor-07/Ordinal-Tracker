@@ -9,7 +9,7 @@ import { useCurrentUser } from "@/hooks/current-user";
 import { addNewWallet } from "@/actions/addNewWallet";
 import { deleteWallet } from "@/actions/deleteWallet";
 
-interface ChipData {
+export interface ChipData {
   key: number;
   label: string;
 }
@@ -39,7 +39,7 @@ function Wallets({
   }, [wallets]);
 
   const handleDelete = (chipToDelete: ChipData) => async () => {
-    if (userRef !== null || userRef !== undefined) {
+    if (userRef.current !== undefined) {
       //session exists
       // console.log("session exists - delete wallet from db");
       const result = await deleteWallet(userRef.current, chipToDelete.label);
@@ -81,9 +81,11 @@ function Wallets({
         return;
       }
 
-      if (userRef !== null || userRef !== undefined) {
+      console.log("userRef in wallets useEffect", userRef);
+      
+      if (userRef.current !== undefined) {
         //session exists
-        // console.log("session exists - add wallet to db");
+        console.log("session exists - add wallet to db");
         const result = await addNewWallet(userRef.current, wallet);
         console.log("result", result);
         if (result.error) {
