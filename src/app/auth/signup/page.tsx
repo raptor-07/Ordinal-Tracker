@@ -11,8 +11,11 @@ import {
 import { RegisterSchema } from "@/schemas";
 import { useState } from "react";
 import register from "@/actions/register";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -35,6 +38,8 @@ export default function SignupPage() {
       register(validateFields.data);
 
       console.log("Form submitted");
+      
+      router.push("/auth/signin");
     } catch (error: any) {
       console.error("Validation error:", error.message);
     }
