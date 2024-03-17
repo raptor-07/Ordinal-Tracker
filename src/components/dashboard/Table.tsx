@@ -16,8 +16,12 @@ import { useRouter } from "next/navigation";
 
 export default function CollectionTable({
   wallets,
+  reload,
+  setReload,
 }: {
   wallets: readonly any[];
+  reload: boolean;
+  setReload: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const user: any = useCurrentUser();
   // console.log("user", user);
@@ -42,7 +46,9 @@ export default function CollectionTable({
 
   React.useEffect(() => {
     console.log("useEffect is executing!!!!");
-    if (wallets.length === 0 && !userRef) {
+    console.log("wallets in useEffect", wallets);
+    console.log("userRef in useEffect", userRef);
+    if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
       setDashBoardData([
         {
@@ -64,15 +70,13 @@ export default function CollectionTable({
       setLoading(true);
       const walletString = wallets.map((wallet) => wallet.label).join(",");
 
-      let data: any = await getDashboardData(
-        userRef.current.email,
-        walletString
-      );
+      let data: any = await getDashboardData(userRef, walletString);
 
       if (data.error) {
-        if(data.error === "No Collections found") {
+        if (data.error === "No collections found") {
           //Session 1 | Wallets 0
-          console.log("No collections found in DB");
+          //user has no collections
+          console.error("No collections found in DB");
           setDashBoardData([
             {
               collection_id: "",
@@ -97,13 +101,21 @@ export default function CollectionTable({
 
       if (data.wallets) {
         //Session 1 | Wallets 0
+        //user has wallets -> update wallets in local storage
+        console.log("data.wallets", data.wallets);
+        console.log("wallets", wallets);
         localStorage.setItem("wallets", data.wallets);
         // console.log("data for dashboard on client", data);
         setDashBoardData(data.data);
+        if (reload) {
+          setReload(false);
+        } else {
+          setReload(true);
+        }
         setLoading(false);
         return;
       }
-      // console.log("data for dashboard on client xxxx", data);
+
       setDashBoardData(data);
       setLoading(false);
     };
