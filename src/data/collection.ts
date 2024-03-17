@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { User } from "./wallet";
 import { TrackType } from "@prisma/client";
+import { v4 as uuidv4 } from "uuid";
 
 export const addCollectionsToCollection = async (
   collections: string[],
@@ -215,6 +216,7 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
   try {
     const newAlert = await db.floor_Alerts.create({
       data: {
+        aId: uuidv4(),
         user: {
           connect: {
             uId: user.uId,
