@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { User } from "./wallet";
+import { TrackType } from "@prisma/client";
 
 export const addCollectionsToCollection = async (
   collections: string[],
@@ -62,8 +63,7 @@ export const addCollectionsToCollection = async (
       });
       return {};
     }
-    return { error: "Error fetching collection IDs"}
-    
+    return { error: "Error fetching collection IDs" };
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -110,8 +110,8 @@ export const getUserCollections = async (user: User) => {
         uId: user.uId,
       },
     });
-    if(collections.length === 0) {
-      return { error: "No collections found" }
+    if (collections.length === 0) {
+      return { error: "No collections found" };
     }
     return collections;
   } catch (error) {
@@ -194,6 +194,51 @@ export const isInCollection = async (collectionId: string) => {
     return collection;
   } catch (error) {
     console.error("Error in isInCollection:", error);
+    throw error;
+  }
+};
+
+export const createAlertEntryForUser = async (user: any, alertData: any) => {
+  const {
+    trackingType,
+    refPrice,
+    trackingDirection,
+    trackingValue,
+    watchlistId,
+  } = alertData;
+
+  const trackTypeEnum = {
+    "Percent Movement": "percentage",
+    "Absolute Value": "absolute_value",
+  };
+
+  try {
+    const newAlert = await db.floor_Alerts.create({
+      data: {
+        user: {
+          connect: {
+            uId: user.uId,
+          },
+        },
+        collection: {
+          connect: {
+            cId: watchlistId,
+          },
+        },
+        trackType: trackTypeEnum[
+          trackingType as keyof typeof trackTypeEnum
+        ] as TrackType,
+        refPrice: parseInt(refPrice),
+        direction: trackingDirection === "Up",
+        value: parseInt(trackingValue),
+      },
+    });
+
+    console.log("newAlert", newAlert);
+
+    return newAlert;
+  } catch (error) {
+    console.error("Error creating alert entry for user:", error);
     throw error;
   }
 };
