@@ -60,7 +60,8 @@ model Wallet {
 
 model Floor_Alerts {
   aId          String     @id @default(cuid())
-  user         User       @relation(fields: [aId], references: [uId])
+  uId          String
+  user         User       @relation(fields: [uId], references: [uId])
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [cId])
   trackType    TrackType
