@@ -12,9 +12,16 @@ import {
 import { getUserWallets } from "@/data/wallet";
 
 async function getDashboardData(
-  userEmail: string | null | undefined,
+  userRef: { current: any },
   wallets: string | null
 ) {
+  let userEmail;
+  if (userRef.current == undefined) {
+    //session does not exist - Session 0
+    userEmail = null;
+  } else {
+    userEmail = userRef.current.email;
+  }
   try {
     console.log("userEmail", userEmail);
     console.log("wallets", wallets);
