@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { getWatchlists } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
@@ -26,9 +27,11 @@ import {
   Box,
 } from "@mui/material";
 
-interface FloorTxnsProps {}
+interface FloorTxnsProps {
+  setReload: React.Dispatch<React.SetStateAction<Boolean>>;
+}
 
-const FloorTxns: React.FC = (props: FloorTxnsProps) => {
+const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
   const user = useCurrentUser();
   let userRef = React.useRef(user);
 
@@ -61,6 +64,7 @@ const FloorTxns: React.FC = (props: FloorTxnsProps) => {
         alert(data.error);
       }
       if (data.watchlists) {
+        console.log("watchlist data in floor alerts component", data.watchlists);
         setWatchlist(data.watchlists);
         console.log(data.watchlists);
       }
@@ -84,7 +88,7 @@ const FloorTxns: React.FC = (props: FloorTxnsProps) => {
       alert(result.error);
       router.push("/auth/signin");
     }
-    //setAlertList
+    // props.setReload(true);
   };
 
   return isLoading ? (
