@@ -29,6 +29,9 @@ export default function SignupPage() {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      localStorage.clear();
+      console.log("Local Storage Cleared", localStorage);
+
       const validateFields = RegisterSchema.safeParse(formData);
 
       if (!validateFields.success) {
@@ -38,7 +41,7 @@ export default function SignupPage() {
       register(validateFields.data);
 
       console.log("Form submitted");
-      
+
       router.push("/auth/signin");
     } catch (error: any) {
       console.error("Validation error:", error.message);
@@ -107,13 +110,14 @@ export default function SignupPage() {
             <Button
               type="submit"
               variant="text"
-              sx={{ color: "#ffffff",
-              "&:hover": {
-                textShadow: "0 0 5px #6a67c9",
-                color: "#C5C2F1",
-                fontWeight: "700",
-              },
-            }}
+              sx={{
+                color: "#ffffff",
+                "&:hover": {
+                  textShadow: "0 0 5px #6a67c9",
+                  color: "#C5C2F1",
+                  fontWeight: "700",
+                },
+              }}
             >
               Sign Up
             </Button>
