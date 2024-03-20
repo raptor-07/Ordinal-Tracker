@@ -10,15 +10,19 @@ import {
   Link,
 } from "@mui/material";
 import { LoginSchema } from "@/schemas";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import login from "@/actions/login";
-import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks/current-user";
+import { signOut } from "@/auth";
 
 export default function SigninPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callBackUrl = searchParams.get("callbackUrl");
+
+  const user = useCurrentUser();
+  const userRef = useRef(user);
+  console.log("user", userRef);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -33,6 +37,18 @@ export default function SigninPage() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
+
+      if (userRef.current !== undefined) {
+        //session exists
+        signOut();
+        //clear local storage
+        localStorage.clear();
+        console.log("Local Storage Cleared", localStorage);
+      }
+
+      localStorage.clear();
+      console.log("Local Storage Cleared", localStorage);
+
       const validateFields = LoginSchema.safeParse(formData);
 
       // console.log("validateFields", validateFields);
@@ -43,8 +59,6 @@ export default function SigninPage() {
       }
 
       await login(validateFields.data, callBackUrl);
-      // console.log("Success");
-      router.push("/dashboard");
     } catch (error: any) {
       console.error("Validation error:", error.message);
       alert("Credentials are wrong! Please try again.");
