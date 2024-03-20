@@ -4,23 +4,22 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function getCollectionIds(wallets: string | null) {
-  let collectionIds: string[] = [];
-
   let apikey: string = process.env.SIMPLE_HASH ?? "";
 
-  const fetchData = async (url: string) => {
+  const fetchData = async (wallet: string) => {
     const headers = new Headers();
     headers.append("x-api-key", apikey);
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: headers,
-    });
+    const response = await fetch(
+      `https://api.simplehash.com/api/v0/nfts/transfers/wallets?chains=bitcoin&wallet_addresses=${wallet}`,
+      {
+        method: "GET",
+        headers: headers,
+      }
+    );
 
-    // console.log("response", response.status);
     if (response.status === 200) {
       const jsonData = await response.json();
-      // console.log("jsonData", jsonData);
 
       const filteredTransfers = jsonData.transfers.filter(
         (transfer: any) =>
@@ -30,24 +29,24 @@ async function getCollectionIds(wallets: string | null) {
       const ids = filteredTransfers.map(
         (transfer: any) => transfer.collection_id
       );
-      collectionIds = collectionIds.concat(ids);
 
-      if (jsonData.next) {
-        await fetchData(jsonData.next);
-      }
+      return { [wallet]: ids };
     } else {
       throw new Error();
     }
   };
 
   try {
-    await fetchData(
-      `https://api.simplehash.com/api/v0/nfts/transfers/wallets?chains=bitcoin&wallet_addresses=${wallets}`
-    );
+    if (wallets) {
+      const walletIds = wallets.split(",");
+      const walletCollections = await Promise.all(
+        walletIds.map((wallet) => fetchData(wallet))
+      );
 
-    const uniqueCollectionIds = Array.from(new Set(collectionIds));
-    console.log("uniqueCollectionIds", uniqueCollectionIds);
-    return uniqueCollectionIds;
+      const result = Object.assign({}, ...walletCollections);
+      console.log("result", result);
+      return result;
+    }
   } catch (error) {
     console.error("Error fetching collection IDs:", error);
     throw error;
