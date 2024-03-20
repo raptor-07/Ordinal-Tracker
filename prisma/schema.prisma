@@ -29,6 +29,10 @@ model User_Collection {
   user         User       @relation(fields: [uId], references: [uId])
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [cId])
+  walletId     String
+  wallet       Wallet     @relation(fields: [walletId], references: [wId])
+
+  @@unique([uId, collectionId, walletId])
 }
 
 model User_Watchlist {
@@ -52,10 +56,11 @@ model Collection {
 }
 
 model Wallet {
-  wId           String  @id
-  uId           String
-  user          User    @relation(fields: [uId], references: [uId])
-  alertsEnabled Boolean
+  wId             String            @id
+  uId             String
+  user            User              @relation(fields: [uId], references: [uId])
+  alertsEnabled   Boolean
+  userCollections User_Collection[]
 }
 
 model Floor_Alerts {
