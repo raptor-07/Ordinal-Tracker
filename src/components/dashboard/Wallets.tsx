@@ -6,7 +6,6 @@ import TextField from "@mui/material/TextField";
 import { Container } from "@mui/material";
 import { validate, Network } from "bitcoin-address-validation";
 import { useCurrentUser } from "@/hooks/current-user";
-import { addNewWallet } from "@/actions/addNewWallet";
 import { deleteWallet } from "@/actions/deleteWallet";
 
 export interface ChipData {
@@ -22,8 +21,8 @@ function Wallets({
   wallets,
   setWallets,
 }: {
-  wallets: readonly ChipData[];
-  setWallets: React.Dispatch<React.SetStateAction<readonly ChipData[]>>;
+  wallets: ChipData[];
+  setWallets: React.Dispatch<React.SetStateAction<ChipData[]>>;
 }) {
   const user: any = useCurrentUser();
   let userRef: any = React.useRef(user);
@@ -41,7 +40,6 @@ function Wallets({
   const handleDelete = (chipToDelete: ChipData) => async () => {
     if (userRef.current !== undefined) {
       //session exists
-      // console.log("session exists - delete wallet from db");
       const result = await deleteWallet(userRef.current, chipToDelete.label);
       if (result.error) {
         if (result.error == "Wallet does not exist") {
@@ -82,21 +80,6 @@ function Wallets({
       }
 
       console.log("userRef in wallets useEffect", userRef);
-      
-      if (userRef.current !== undefined) {
-        //session exists
-        console.log("session exists - add wallet to db");
-        const result = await addNewWallet(userRef.current, wallet);
-        console.log("result", result);
-        if (result.error) {
-          alert(result.error);
-          (event.target as HTMLInputElement).value = "";
-          return;
-        }
-        setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
-        (event.target as HTMLInputElement).value = "";
-        return;
-      }
 
       setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
       (event.target as HTMLInputElement).value = "";
