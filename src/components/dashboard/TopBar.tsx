@@ -8,18 +8,20 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
-
+import { useRouter } from "next/navigation";
 
 function TopBar() {
+  const router = useRouter();
+
   const initialPages = [
-    { name: "Collections", active: true },
-    { name: "Watch List", active: false },
-    { name: "Alerts", active: false },
+    { name: "Collections", active: true, path: "/dashboard" },
+    { name: "Watch List", active: false, path: "/dashboard/watchlist" },
+    { name: "Alerts", active: false, path: "/dashboard/alerts" },
   ];
 
   const [pages, setPages] = useState(initialPages);
 
-  const handlePageClick = (pageName: string) => {
+  const handlePageClick = (pageName: string, path: string) => {
     setPages(
       pages.map((page) =>
         page.name === pageName
@@ -27,6 +29,7 @@ function TopBar() {
           : { ...page, active: false }
       )
     );
+    router.push(path);
   };
 
   return (
@@ -115,7 +118,7 @@ function TopBar() {
               <Paper
                 elevation={0}
                 key={page.name}
-                onClick={() => handlePageClick(page.name)}
+                onClick={() => handlePageClick(page.name, page.path)}
                 sx={{
                   my: 2,
                   padding: "1.4%",
