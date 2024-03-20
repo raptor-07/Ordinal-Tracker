@@ -34,19 +34,23 @@ async function getDashboardData(
     ) {
       //Session 0 | Wallets 1
       console.log("Session 0 | Wallets 1");
-      const collectionIds: string[] | any = await getCollectionIds(wallets);
+      const collectionIds: any = await getCollectionIds(wallets);
 
       if (collectionIds.error) {
         return { error: collectionIds.error };
       }
 
-      if (collectionIds.length > 20) {
-        collectionIds.slice(0, 20);
+      const mergedCollectionIds: any = Array.from(
+        new Set(Object.values(collectionIds).flat())
+      );
+
+      if (mergedCollectionIds.length > 20) {
+        mergedCollectionIds.slice(0, 20);
       }
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
-        getCollectionsStats(collectionIds),
-        getCollectionsFloor(collectionIds),
+        getCollectionsStats(mergedCollectionIds),
+        getCollectionsFloor(mergedCollectionIds),
       ]);
 
       if (collectionsStats.length === 0 || collectionsFloor.length === 0) {
@@ -95,13 +99,16 @@ async function getDashboardData(
       if (collectionIds.error) {
         return { error: collectionIds.error };
       }
+      const mergedCollectionIds: any = Array.from(
+        new Set(Object.values(collectionIds).flat())
+      );
 
-      if (collectionIds.length > 20) {
-        collectionIds.slice(0, 20);
+      if (mergedCollectionIds.length > 20) {
+        mergedCollectionIds.slice(0, 20);
       }
 
       const addedCollection: any = await addCollectionsToCollection(
-        collectionIds,
+        mergedCollectionIds,
         user
       );
 
@@ -109,11 +116,11 @@ async function getDashboardData(
         return { error: addedCollection.error };
       }
 
-      await addCollectionsToUserCollection(collectionIds, user);
+      await addCollectionsToUserCollection(collectionIds, user, wallets);
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
-        getCollectionsStats(collectionIds),
-        getCollectionsFloor(collectionIds),
+        getCollectionsStats(mergedCollectionIds),
+        getCollectionsFloor(mergedCollectionIds),
       ]);
 
       if (collectionsStats.length === 0 || collectionsFloor.length === 0) {
