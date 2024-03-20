@@ -4,7 +4,7 @@ import { TrackType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 export const addCollectionsToCollection = async (
-  collections: string[],
+  collections: any[],
   user: User
 ) => {
   try {
@@ -71,31 +71,40 @@ export const addCollectionsToCollection = async (
 };
 
 export const addCollectionsToUserCollection = async (
-  collections: string[],
-  user: User
+  collections: { [walletId: string]: string[] },
+  user: User,
+  wallets: string | null
 ) => {
   try {
-    const ownedCollections = await db.user_Collection.findMany({
-      where: {
-        uId: user.uId,
-      },
-    });
+    const addedCollections = [];
 
-    const ownedCollectionIds = ownedCollections.map((c) => c.collectionId);
-    const newCollections = collections.filter(
-      (c) => !ownedCollectionIds.includes(c)
-    );
+    for (const walletId in collections) {
+      const collectionIds = collections[walletId];
 
-    const addedCollections = await Promise.all(
-      newCollections.map((collectionId) => {
-        return db.user_Collection.create({
-          data: {
-            uId: user.uId,
-            collectionId: collectionId,
+      for (const collectionId of collectionIds) {
+        const existingCollection = await db.user_Collection.findUnique({
+          where: {
+            uId_collectionId_walletId: {
+              uId: user.uId,
+              collectionId: collectionId,
+              walletId: walletId,
+            },
           },
         });
-      })
-    );
+
+        if (!existingCollection) {
+          const addedCollection = await db.user_Collection.create({
+            data: {
+              uId: user.uId,
+              collectionId: collectionId,
+              walletId: walletId,
+            },
+          });
+
+          addedCollections.push(addedCollection);
+        }
+      }
+    }
 
     return addedCollections;
   } catch (error) {
@@ -114,7 +123,12 @@ export const getUserCollections = async (user: User) => {
     if (collections.length === 0) {
       return { error: "No collections found" };
     }
-    return collections;
+    //return only unique collection ids
+    const uniqueCollectionIds = Array.from(
+      new Set(collections.map((item) => item.collectionId))
+    );
+
+    return uniqueCollectionIds;
   } catch (error) {
     console.error("Error in getUserCollections:", error);
     throw error;
@@ -241,6 +255,23 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
     return newAlert;
   } catch (error) {
     console.error("Error creating alert entry for user:", error);
+    throw error;
+  }
+};
+
+export const deleteUserCollectionsByWallet = async (
+  walletId: string,
+  userId: string
+) => {
+  try {
+    await db.user_Collection.deleteMany({
+      where: {
+        walletId: walletId,
+        uId: userId,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting user collections by wallet: ", error);
     throw error;
   }
 };
