@@ -10,9 +10,7 @@ export const deleteWallet = async (user: User, walletString: string) => {
     console.log("inside deleteWallet");
     const existingUser = await getUserByEmail(user.email ?? "");
     if (existingUser) {
-      console.log("deleteUserCollectionsByWallet");
       await deleteUserCollectionsByWallet(walletString, existingUser.uId);
-      console.log("deleteExistingWallet");
       await deleteExistingWallet(walletString, existingUser);
       return {};
     }
