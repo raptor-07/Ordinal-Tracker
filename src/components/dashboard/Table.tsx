@@ -13,13 +13,14 @@ import { useCurrentUser } from "@/hooks/current-user";
 import getDashboardData from "@/actions/getDashboardData";
 import { Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { addNewWallet } from "@/actions/addNewWallet";
 
 export default function CollectionTable({
   wallets,
   reload,
   setReload,
 }: {
-  wallets: readonly any[];
+  wallets: any[];
   reload: boolean;
   setReload: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -68,6 +69,11 @@ export default function CollectionTable({
 
     const fetchData = async () => {
       setLoading(true);
+      if (userRef.current !== undefined) {
+        //only if session exists
+        await addNewWallet(userRef.current, wallets);
+      }
+
       const walletString = wallets.map((wallet) => wallet.label).join(",");
 
       let data: any = await getDashboardData(userRef, walletString);
@@ -75,7 +81,7 @@ export default function CollectionTable({
       if (data.error) {
         if (data.error === "No collections found") {
           //Session 1 | Wallets 0
-          //user has no collections
+          //user has no collections in db
           console.error("No collections found in DB");
           setDashBoardData([
             {
@@ -115,7 +121,6 @@ export default function CollectionTable({
         setLoading(false);
         return;
       }
-
       setDashBoardData(data);
       setLoading(false);
     };
