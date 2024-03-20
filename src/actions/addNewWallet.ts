@@ -4,11 +4,11 @@ import { addWallet } from "@/data/wallet";
 import { getUserByEmail } from "@/data/user";
 import { User } from "next-auth";
 
-export const addNewWallet = async (user: User, walletString: string) => {
+export const addNewWallet = async (user: User, wallets: any[]) => {
   try {
     const existingUser = await getUserByEmail(user.email ?? "");
     if (existingUser) {
-      return await addWallet(walletString, existingUser);
+      return await addWallet(wallets, existingUser);
     }
     return { error: "User does not exist" };
   } catch (error: any) {
