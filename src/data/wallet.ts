@@ -117,10 +117,15 @@ export const getUserWallets = async (user: User) => {
   }
 };
 
-export const markWalletAs = async (walletId: string, mark: boolean) => {
+export const markWalletAs = async (
+  userId: string,
+  walletId: string,
+  mark: boolean
+) => {
   try {
-    const wallet = await db.wallet.update({
+    const userWallet = await db.user_Wallet.updateMany({
       where: {
+        uId: userId,
         wId: walletId,
       },
       data: {
@@ -128,7 +133,7 @@ export const markWalletAs = async (walletId: string, mark: boolean) => {
       },
     });
 
-    return wallet;
+    return userWallet;
   } catch (error: any) {
     throw new Error(error.message);
   }
