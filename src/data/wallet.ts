@@ -79,6 +79,12 @@ export const deleteExistingWallet = async (
         },
       });
 
+      await db.user_Wallet.deleteMany({
+        where: {
+          wId: walletString,
+        },
+      });
+
       await db.wallet.delete({
         where: {
           wId: walletString,
@@ -91,7 +97,6 @@ export const deleteExistingWallet = async (
     throw new Error(error.message);
   }
 };
-
 export const getUserWallets = async (user: User) => {
   try {
     const wallets = await db.wallet.findMany({
