@@ -99,11 +99,16 @@ export const deleteExistingWallet = async (
 };
 export const getUserWallets = async (user: User) => {
   try {
-    const wallets = await db.wallet.findMany({
+    const userWallets = await db.user_Wallet.findMany({
       where: {
         uId: user.uId,
       },
+      include: {
+        wallet: true,
+      },
     });
+
+    const wallets = userWallets.map((userWallet) => userWallet.wallet);
 
     return wallets;
   } catch (error) {
