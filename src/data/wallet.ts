@@ -2,8 +2,8 @@ import { db } from "@/lib/db";
 
 export interface Wallet {
   wId: string;
-  uId: string;
-  alertsEnabled: boolean;
+  lastTrackedTransaction?: string;
+  lastTrackedTimeStamp?: string;
 }
 
 export interface User {
@@ -11,6 +11,12 @@ export interface User {
   username: string;
   email: string;
   password: string;
+}
+
+export interface UserWallet {
+  uId: string;
+  wId: string;
+  alertsEnabled?: boolean;
 }
 
 export const addWallet = async (wallets: any[], user: User) => {
