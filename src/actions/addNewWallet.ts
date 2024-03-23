@@ -8,7 +8,10 @@ export const addNewWallet = async (user: User, wallets: any[]) => {
   try {
     const existingUser = await getUserByEmail(user.email ?? "");
     if (existingUser) {
-      return await addWallet(wallets, existingUser);
+      const result = await addWallet(wallets, existingUser);
+      if (result.errors.length > 0) {
+        return { error: result.errors.join(", ") };
+      }
     }
     return { error: "User does not exist" };
   } catch (error: any) {

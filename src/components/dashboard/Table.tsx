@@ -71,7 +71,11 @@ export default function CollectionTable({
       setLoading(true);
       if (userRef.current !== undefined) {
         //only if session exists
-        await addNewWallet(userRef.current, wallets);
+        const result = await addNewWallet(userRef.current, wallets);
+        if (result.error) {
+          alert("Error in adding wallets: " + result.error);
+          return;
+        }
       }
 
       const walletString = wallets.map((wallet) => wallet.label).join(",");

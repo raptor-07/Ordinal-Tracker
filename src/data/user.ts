@@ -22,7 +22,7 @@ export const getUserById = async (uId: string) => {
 
 export const getAlertEntriesByUser = async (user: any) => {
   try {
-    const alertEntries = await db.floor_Alerts.findMany({
+    const alertEntries = await db.floorAlerts.findMany({
       where: {
         user: {
           uId: user.uId,

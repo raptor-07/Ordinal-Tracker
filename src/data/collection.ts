@@ -228,7 +228,7 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
   };
 
   try {
-    const newAlert = await db.floor_Alerts.create({
+    const newAlert = await db.floorAlerts.create({
       data: {
         aId: uuidv4(),
         user: {

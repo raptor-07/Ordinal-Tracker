@@ -19,27 +19,38 @@ export const addWallet = async (wallets: any[], user: User) => {
     const errors = [];
 
     for (const walletData of wallets) {
-      let wallet = await db.wallet.findUnique({
+      let userWallet = await db.user_Wallet.findUnique({
         where: {
-          wId: walletData.label,
+          uId_wId: {
+            uId: user.uId,
+            wId: walletData.label,
+          },
         },
       });
 
-      if (wallet) {
-        errors.push(`Wallet ${walletData.label} already exists`);
+      if (userWallet) {
+        errors.push(walletData.label);
         continue;
       }
 
-      wallet = await db.wallet.create({
+      let wallet = await db.wallet.create({
         data: {
           wId: walletData.label,
-          uId: user.uId,
-          alertsEnabled: false,
+          lastTrackedTimeStamp: null,
+          lastTrackedTransaction: null,
         },
       });
 
-      if (wallet) {
-        addedWallets.push(wallet);
+      userWallet = await db.user_Wallet.create({
+        data: {
+          uId: user.uId,
+          wId: walletData.label,
+          alertsEnabled: null,
+        },
+      });
+
+      if (wallet && userWallet) {
+        addedWallets.push(userWallet);
       } else {
         errors.push(`Failed to add wallet ${walletData.label}`);
       }
@@ -80,7 +91,6 @@ export const deleteExistingWallet = async (
     throw new Error(error.message);
   }
 };
-
 
 export const getUserWallets = async (user: User) => {
   try {
