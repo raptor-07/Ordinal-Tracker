@@ -100,7 +100,21 @@ export default function CollectionTable({
       //local storage wallets
       const walletString = wallets.map((wallet) => wallet.label).join(",");
 
-      
+      //fetch data
+      let dataPromise: any = getDashboardData(userRef, walletString);
+
+      //timeout logic
+      const timeoutPromise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject(new Error("Timeout occurred"));
+        }, 120000); // 2 minutes timeout
+      });
+
+      // Race between dataPromise and timeoutPromise
+      const data = await Promise.race([dataPromise, timeoutPromise]);
+
+      if (data !== null && data !== undefined) {
+        console.log("data", data);
         if (data.error) {
           if (data.error === "No collections found") {
             //Session 1 | Wallets 0
