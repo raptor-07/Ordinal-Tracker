@@ -19,10 +19,18 @@ export default function CollectionTable({
   wallets,
   reload,
   setReload,
+  fetchData,
+  setFetchData,
+  isLoading,
+  setIsLoading,
 }: {
   wallets: any[];
   reload: boolean;
   setReload: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchData: boolean;
+  setFetchData: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const user: any = useCurrentUser();
   // console.log("user", user);
@@ -43,12 +51,8 @@ export default function CollectionTable({
       market_cap: "",
     },
   ]);
-  const [loading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    console.log("useEffect is executing!!!!");
-    console.log("wallets in useEffect", wallets);
-    console.log("userRef in useEffect", userRef);
     if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
       setDashBoardData([
@@ -63,75 +67,111 @@ export default function CollectionTable({
           market_cap: "",
         },
       ]);
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
-
-    const fetchData = async () => {
-      setLoading(true);
-      if (userRef.current !== undefined) {
-        //only if session exists
-        const result = await addNewWallet(userRef.current, wallets);
-        if (result.error) {
-          alert("Error in adding wallets: " + result.error);
-          return;
-        }
-      }
-
-      const walletString = wallets.map((wallet) => wallet.label).join(",");
-
-      let data: any = await getDashboardData(userRef, walletString);
-
-      if (data.error) {
-        if (data.error === "No collections found") {
-          //Session 1 | Wallets 0
-          //user has no collections in db
-          console.error("No collections found in DB");
-          setDashBoardData([
-            {
-              collection_id: "",
-              floor_price: "",
-              One_D_floor: "",
-              Seven_D_floor: "",
-              volume_1d: "",
-              volume_7d: "",
-              volume_30d: "",
-              market_cap: "",
-            },
-          ]);
-          setLoading(false);
-          return;
-        }
-        console.error("Error in getting data", data.error);
-        alert("Error in getting data. You may need to login again!");
-        setLoading(false);
-        router.push("/auth/signin");
-        return;
-      }
-
-      if (data.wallets) {
-        //Session 1 | Wallets 0
-        //user has wallets -> update wallets in local storage
-        console.log("data.wallets", data.wallets);
-        console.log("wallets", wallets);
-        localStorage.setItem("wallets", data.wallets);
-        // console.log("data for dashboard on client", data);
-        setDashBoardData(data.data);
-        if (reload) {
-          setReload(false);
-        } else {
-          setReload(true);
-        }
-        setLoading(false);
-        return;
-      }
-      setDashBoardData(data);
-      setLoading(false);
-    };
-    fetchData();
   }, [wallets]);
 
-  return loading ? (
+  React.useEffect(() => {
+    if (wallets.length == 0 && userRef.current == undefined) {
+      //Session 0 | Wallets 0
+      setDashBoardData([
+        {
+          collection_id: "",
+          floor_price: "",
+          One_D_floor: "",
+          Seven_D_floor: "",
+          volume_1d: "",
+          volume_7d: "",
+          volume_30d: "",
+          market_cap: "",
+        },
+      ]);
+      setIsLoading(false);
+      return;
+    }
+    const fetchData = async () => {
+      if (userRef.current !== undefined && wallets.length > 0) {
+        //Session 1 | Wallet 1 -> check consistency between local storage and db
+        console.log("Wallets in fetchData", wallets);
+        await addNewWallet(userRef.current, wallets);
+      }
+
+      //local storage wallets
+      const walletString = wallets.map((wallet) => wallet.label).join(",");
+
+      
+        if (data.error) {
+          if (data.error === "No collections found") {
+            //Session 1 | Wallets 0
+            //user has no collections in db
+            console.error("No collections found in DB");
+            setDashBoardData([
+              {
+                collection_id: "",
+                floor_price: "",
+                One_D_floor: "",
+                Seven_D_floor: "",
+                volume_1d: "",
+                volume_7d: "",
+                volume_30d: "",
+                market_cap: "",
+              },
+            ]);
+            setIsLoading(false);
+            return;
+          }
+          if (data.error === "No data found") {
+            alert("Service down, please try again later!");
+            setDashBoardData([
+              {
+                collection_id: "",
+                floor_price: "",
+                One_D_floor: "",
+                Seven_D_floor: "",
+                volume_1d: "",
+                volume_7d: "",
+                volume_30d: "",
+                market_cap: "",
+              },
+            ]);
+            setIsLoading(false);
+            return;
+          }
+          console.error("Error in getting data", data.error);
+          alert("Error in getting data. You may need to login again!");
+          setIsLoading(false);
+          router.push("/auth/signin");
+          return;
+        }
+
+        if (data.wallets) {
+          //Session 1 | Wallets 0
+          //user has wallets -> update wallets in local storage
+          console.log("data.wallets", data.wallets);
+          console.log("wallets", wallets);
+          localStorage.setItem("wallets", data.wallets);
+          // console.log("data for dashboard on client", data);
+          setDashBoardData(data.data);
+          if (reload) {
+            setReload(false);
+          } else {
+            setReload(true);
+          }
+          setIsLoading(false);
+          return;
+        }
+        setDashBoardData(data);
+        setIsLoading(false);
+      } else {
+        alert("Service down, please try again later!");
+        return;
+      }
+    };
+    fetchData();
+  }, [fetchData]);
+
+  return isLoading ? (
     <Box
       sx={{
         display: "flex",
