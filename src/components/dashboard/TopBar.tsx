@@ -9,17 +9,29 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 function TopBar() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const initialPages = [
-    { name: "Collections", active: true, path: "/dashboard" },
+    { name: "Collections", active: false, path: "/dashboard" },
     { name: "Watch List", active: false, path: "/dashboard/watchlist" },
     { name: "Alerts", active: false, path: "/dashboard/alerts" },
   ];
 
   const [pages, setPages] = useState(initialPages);
+
+  React.useEffect(() => {
+    const currentPath = pathname;
+    setPages(
+      pages.map((page) => ({
+        ...page,
+        active: page.path === currentPath,
+      }))
+    );
+  }, [pathname]);
 
   const handlePageClick = (pageName: string, path: string) => {
     setPages(
