@@ -36,7 +36,9 @@ function DashboardPage() {
     .map((wallet, index) => ({ key: index, label: wallet }));
 
   const [wallets, setWallets] = React.useState<ChipData[]>(initialWallets);
+  const [fetchData, setFetchData] = React.useState<boolean>(false);
   const [reload, setReload] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     const initialWallets: ChipData[] = localStorageWallets
@@ -52,7 +54,7 @@ function DashboardPage() {
       //Session 1
       getWallets(userRef).then((wallets) => {
         if (wallets !== null) {
-          const newWallets = wallets.map((wallet, index) => ({
+          const newWallets = wallets.map((wallet: any, index: any) => ({
             key: index,
             label: wallet.wId,
           }));
@@ -62,13 +64,31 @@ function DashboardPage() {
     }
   }, []);
 
+  React.useEffect(() => {
+    localStorage.setItem(
+      "wallets",
+      wallets.map((wallet) => wallet.label).join(",")
+    );
+  }, [wallets]);
+
   return (
     <div>
-      <Wallets wallets={wallets} setWallets={setWallets} />
+      <Wallets
+        wallets={wallets}
+        setWallets={setWallets}
+        fetchData={fetchData}
+        setFetchData={setFetchData}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+      />
       <CollectionTable
         wallets={wallets}
         setReload={setReload}
         reload={reload}
+        fetchData={fetchData}
+        setFetchData={setFetchData}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
       />
     </div>
   );
