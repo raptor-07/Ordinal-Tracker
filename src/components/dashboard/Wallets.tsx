@@ -7,6 +7,7 @@ import { Container } from "@mui/material";
 import { validate, Network } from "bitcoin-address-validation";
 import { useCurrentUser } from "@/hooks/current-user";
 import { deleteWallet } from "@/actions/deleteWallet";
+import { set } from "zod";
 
 export interface ChipData {
   key: number;
@@ -20,22 +21,23 @@ const ListItem = styled("li")(({ theme }) => ({
 function Wallets({
   wallets,
   setWallets,
+  fetchData,
+  setFetchData,
+  isLoading,
+  setIsLoading,
 }: {
   wallets: ChipData[];
   setWallets: React.Dispatch<React.SetStateAction<ChipData[]>>;
+  fetchData: boolean;
+  setFetchData: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const user: any = useCurrentUser();
   let userRef: any = React.useRef(user);
 
   console.log("user", user);
   console.log("userRef", userRef);
-
-  React.useEffect(() => {
-    localStorage.setItem(
-      "wallets",
-      wallets.map((wallet) => wallet.label).join(",")
-    );
-  }, [wallets]);
 
   const handleDelete = (chipToDelete: ChipData) => async () => {
     if (userRef.current !== undefined) {
@@ -54,11 +56,14 @@ function Wallets({
       setWallets((chips) =>
         chips.filter((chip) => chip.key !== chipToDelete.key)
       );
+      setFetchData(!fetchData);
       return;
     }
     setWallets((chips) =>
       chips.filter((chip) => chip.key !== chipToDelete.key)
     );
+    setIsLoading(true);
+    setFetchData(!fetchData);
   };
 
   const HandleAddWallet = async (event: React.KeyboardEvent) => {
@@ -83,6 +88,8 @@ function Wallets({
 
       setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
       (event.target as HTMLInputElement).value = "";
+      setIsLoading(true);
+      setFetchData(!fetchData);
     }
   };
 
