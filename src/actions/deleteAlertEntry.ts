@@ -1,9 +1,12 @@
 "use server";
 
 import { getUserByEmail } from "@/data/user";
-import { createAlertEntryForUser } from "@/data/collection";
+import {
+  createAlertEntryForUser,
+  deleteAlertEnryById,
+} from "@/data/collection";
 
-export const createAlertEntry = async (userRef: any, alertData: any) => {
+export const deleteAlertEntry = async (userRef: any, alertId: any) => {
   const user: any = await getUserByEmail(userRef.current.email);
 
   if (!user) {
@@ -13,7 +16,7 @@ export const createAlertEntry = async (userRef: any, alertData: any) => {
   }
 
   try {
-    const alertEntry = await createAlertEntryForUser(user, alertData);
+    const alertEntry = await deleteAlertEnryById(user, alertId);
     return alertEntry;
   } catch (error) {
     console.error("Error in createAlertEntry:", error);
