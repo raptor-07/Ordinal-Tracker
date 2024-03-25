@@ -251,8 +251,20 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
     refPrice,
     trackingDirection,
     trackingValue,
-    watchlistId,
+    collectionId,
   } = alertData;
+
+  console.log("alertData", alertData);
+
+  if (
+    !trackingType ||
+    !refPrice ||
+    !trackingDirection ||
+    !trackingValue ||
+    !collectionId
+  ) {
+    throw new Error("Invalid alert data");
+  }
 
   const trackTypeEnum = {
     "Percent Movement": "percentage",
@@ -270,7 +282,7 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
         },
         collection: {
           connect: {
-            cId: watchlistId,
+            cId: collectionId,
           },
         },
         trackType: trackTypeEnum[
@@ -279,6 +291,7 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
         refPrice: parseInt(refPrice),
         direction: trackingDirection === "Up",
         value: parseInt(trackingValue),
+        latestFloor: null,
       },
     });
 
@@ -287,6 +300,20 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
     return newAlert;
   } catch (error) {
     console.error("Error creating alert entry for user:", error);
+    throw error;
+  }
+};
+
+export const deleteAlertEnryById = async (user: any, alertId: string) => {
+  try {
+    await db.floorAlerts.delete({
+      where: {
+        aId: alertId,
+        uId: user.uId,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting alert entry by id:", error);
     throw error;
   }
 };
