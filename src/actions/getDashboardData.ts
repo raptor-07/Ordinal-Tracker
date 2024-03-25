@@ -37,7 +37,7 @@ async function getDashboardData(
       const collectionIds: any = await getCollectionIds(wallets);
 
       if (collectionIds.error) {
-        return { error: collectionIds.error };
+        return { error: "No data found" };
       }
 
       const mergedCollectionIds: any = Array.from(
@@ -97,26 +97,46 @@ async function getDashboardData(
       const collectionIds: string[] | any = await getCollectionIds(wallets);
 
       if (collectionIds.error) {
-        return { error: collectionIds.error };
+        return { error: "No data found" };
       }
-      const mergedCollectionIds: any = Array.from(
+      let mergedCollectionIds: any = Array.from(
         new Set(Object.values(collectionIds).flat())
       );
 
-      if (mergedCollectionIds.length > 20) {
-        mergedCollectionIds.slice(0, 20);
-      }
+      // if (mergedCollectionIds.length > 20) {
+      //   mergedCollectionIds = mergedCollectionIds.slice(0, 20);
+      // }
+
+      // console.log(
+      //   "number of items in mergedCollectionIds",
+      //   mergedCollectionIds.length
+      // );
 
       const addedCollection: any = await addCollectionsToCollection(
         mergedCollectionIds,
         user
       );
+      // console.log(
+      //   "addedCollection -------------------------------------------------------------------------------------------------------------------------------------------",
+      //   addedCollection
+      // );
 
       if (addedCollection.hasOwnProperty("error")) {
-        return { error: addedCollection.error };
+        return { error: "No data found" };
       }
 
-      await addCollectionsToUserCollection(collectionIds, user, wallets);
+      // console.log(
+      //   "---------------------------------------------------------------------------------------------------",
+      //   mergedCollectionIds,
+      //   collectionIds,
+      //   typeof collectionIds,
+      //   user,
+      //   wallets
+      // );
+
+      const dbresult = await addCollectionsToUserCollection(collectionIds, user, wallets);
+
+      // console.log("dbresult", dbresult);
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(mergedCollectionIds),
@@ -158,15 +178,15 @@ async function getDashboardData(
       if (collectionIds.error === "No collections found") {
         return { error: collectionIds.error };
       }
-      const collectionIdStrings = collectionIds.map(
-        (item: any) => item.collectionId
-      );
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
-        getCollectionsStats(collectionIdStrings),
-        getCollectionsFloor(collectionIdStrings),
+        getCollectionsStats(collectionIds),
+        getCollectionsFloor(collectionIds),
       ]);
 
+      if (getCollectionsStats.length === 0 || collectionsFloor.length === 0) {
+        return { error: "No data found" };
+      }
       const collectionsStatsMap = collectionsStats.reduce(
         (map: any, collection: any) => {
           map[collection.collection_id] = collection;
