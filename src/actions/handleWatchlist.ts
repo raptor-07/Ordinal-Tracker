@@ -87,12 +87,19 @@ export const addWatchlist = async (slug: string, userRef: any) => {
         method: "GET",
       }
     );
+
+    //verify response
     if (inscription.status !== 200) {
       return { error: "Failed to fetch data from API, Try Again Later" };
     }
     const inscriptionData = await inscription.json();
 
-    const inscriptionNumber = inscriptionData.highest_inscription_num;
+    if (!inscriptionData) {
+      return { error: "Collection not found" };
+    }
+
+    //get lowest inscription number
+    const inscriptionNumber = inscriptionData.lowest_inscription_num;
     console.log("inscription", inscriptionNumber);
 
     //get collection id
@@ -121,18 +128,19 @@ export const addWatchlist = async (slug: string, userRef: any) => {
     }
 
     //check if it exists in collection, get details
+    // console.log("response", response);
     const collectionId = response.collection.collection_id;
-    console.log("collectionId", collectionId);
-    //Add to collections if does not exist
-    let collectionDetails: any;
-    if (collectionId.error) {
-      collectionDetails = await addCollectionsToCollection(
-        [collectionId],
-        user
-      );
+    if (!collectionId) {
+      return { error: "Collection not found" };
     }
-    collectionDetails = await getCollectionById(collectionId);
-    if (collectionDetails.error) {
+    console.log("collectionId", collectionId, typeof collectionId);
+
+    //Add to collections if does not exist
+    await addCollectionsToCollection([collectionId], user);
+
+    const collectionDetails: any = await getCollectionById(collectionId);
+
+    if (collectionDetails == null) {
       return { error: collectionDetails.error };
     }
     console.log("collectionDetails", collectionDetails);
@@ -140,7 +148,7 @@ export const addWatchlist = async (slug: string, userRef: any) => {
     //check if it exists in user_watchlist, if not, create
     const inwatchlist = await isWatchlistCollection(collectionId, user);
     console.log("inwatchlist", inwatchlist);
-    
+
     //return collection details
     return ({
       name: collectionDetails.name,
