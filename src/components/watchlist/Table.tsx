@@ -44,6 +44,7 @@ export default function CollectionTable({
           router.push("/auth/signin");
         }
         alert(data.error);
+        return;
       }
       if (data.watchlists) {
         setWatchlist(data.watchlists);
