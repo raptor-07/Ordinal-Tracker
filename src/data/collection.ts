@@ -21,7 +21,7 @@ export const addCollectionsToCollection = async (
         headers: headers,
       }
     );
-    console.log("response for collections", response);
+    // console.log("response for collections", response);
     if (response.status === 200) {
       const data = await response.json();
 
@@ -41,27 +41,44 @@ export const addCollectionsToCollection = async (
         })
         .filter(Boolean);
 
-      console.log("mergedData", mergedData);
+      console.log(
+        "mergedData to be added to db collections-----------------------------------------------------------------------------------------------------------------------",
+        mergedData.map((collection) => {
+          console.log("collection", collection);
+          return collection?.collectionId;
+        })
+      );
       let collectionsUpdate;
-      mergedData.forEach(async (collection) => {
-        await db.collection.upsert({
-          where: {
-            cId: collection?.collectionId ?? "",
-          },
-          update: {
-            cId: collection?.collectionId ?? "",
-            name: collection?.name ?? "",
-            description: collection?.description ?? "",
-            image: collection?.image ?? "",
-          },
-          create: {
-            cId: collection?.collectionId ?? "",
-            name: collection?.name ?? "",
-            description: collection?.description ?? "",
-            image: collection?.image ?? "",
-          },
-        });
-      });
+      for (const coll of mergedData) {
+        try {
+          const clx = await db.collection.upsert({
+            where: {
+              cId: coll?.collectionId ?? "",
+            },
+            update: {
+              cId: coll?.collectionId ?? "",
+              name: coll?.name ?? "",
+              description: coll?.description ?? "",
+              image: coll?.image ?? "",
+            },
+            create: {
+              cId: coll?.collectionId ?? "",
+              name: coll?.name ?? "",
+              description: coll?.description ?? "",
+              image: coll?.image ?? "",
+            },
+          });
+
+          console.log(
+            "collextion added ==============================================================================================================================================================================",
+            clx
+          );
+        } catch (error) {
+          console.log(
+            `Failed to insert collection with id: ${coll?.collectionId}`
+          );
+        }
+      }
       return {};
     }
     return { error: "Error fetching collection IDs" };
@@ -71,17 +88,23 @@ export const addCollectionsToCollection = async (
 };
 
 export const addCollectionsToUserCollection = async (
-  collections: { [walletId: string]: string[] },
+  collections: any,
   user: User,
   wallets: string | null
 ) => {
   try {
     const addedCollections = [];
+    const avoidedCollections = [];
+
+    console.log("this is the wallets and their collections", collections);
 
     for (const walletId in collections) {
+      console.log("this is walletId", walletId);
       const collectionIds = collections[walletId];
+      console.log("this is collectionIds of the wallet", collectionIds);
 
       for (const collectionId of collectionIds) {
+        console.log("this is collectionId", collectionId);
         const existingCollection = await db.user_Collection.findUnique({
           where: {
             uId_collectionId_walletId: {
@@ -93,26 +116,33 @@ export const addCollectionsToUserCollection = async (
         });
 
         if (!existingCollection) {
-          const addedCollection = await db.user_Collection.create({
-            data: {
-              uId: user.uId,
-              collectionId: collectionId,
-              walletId: walletId,
-            },
-          });
+          try {
+            const addedCollection = await db.user_Collection.create({
+              data: {
+                uId: user.uId,
+                collectionId: collectionId,
+                walletId: walletId,
+              },
+            });
 
-          addedCollections.push(addedCollection);
+            addedCollections.push(addedCollection);
+          } catch (error) {
+            console.log(
+              `Failed to add collection with id: ${collectionId} to the database because of error: ${error}`
+            );
+          }
+        } else {
+          avoidedCollections.push(collectionId);
         }
       }
     }
 
-    return addedCollections;
+    return { addedCollections, avoidedCollections };
   } catch (error) {
     console.error("Error in addCollectionsToUserCollection:", error);
     throw error;
   }
 };
-
 export const getUserCollections = async (user: User) => {
   try {
     const collections = await db.user_Collection.findMany({
@@ -127,6 +157,8 @@ export const getUserCollections = async (user: User) => {
     const uniqueCollectionIds = Array.from(
       new Set(collections.map((item) => item.collectionId))
     );
+
+    console.log("uniqueCollectionIds", uniqueCollectionIds);
 
     return uniqueCollectionIds;
   } catch (error) {
