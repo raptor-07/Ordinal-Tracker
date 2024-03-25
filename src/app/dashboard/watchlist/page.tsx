@@ -12,12 +12,6 @@ const Page: React.FC = () => {
   const user = useCurrentUser();
   const router = useRouter();
 
-  if (typeof window !== "undefined" && !user) {
-    alert("You are not logged in");
-    router.push("/auth/signin");
-    return null;
-  }
-
   const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
     {
       name: "",
@@ -26,6 +20,13 @@ const Page: React.FC = () => {
       description: "",
     },
   ]);
+
+  if (typeof window !== "undefined" && !user) {
+    alert("You are not logged in");
+    router.push("/auth/signin");
+    return null;
+  }
+
   return (
     <Container
       maxWidth={false}
