@@ -88,8 +88,17 @@ const ActiveAlerts: React.FC<ActiveAlertsProps> = (
       <Typography variant="h4" component="h2" align="left" gutterBottom>
         Transaction Alerts
       </Typography>
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer
+        component={Paper}
+        sx={{
+          backgroundColor: "#000000",
+        }}
+      >
+        <Table
+          sx={{
+            backgroundColor: "#000000",
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>

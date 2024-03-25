@@ -46,10 +46,16 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
   ]);
   const router = useRouter();
 
-  const [trackingType, setTrackingType] = React.useState("");
-  const [refPrice, setRefPrice] = React.useState("");
-  const [trackingDirection, setTrackingDirection] = React.useState("");
-  const [trackingValue, setTrackingValue] = React.useState("");
+  // Initialize alertData state as an array of objects
+  const [alertData, setAlertData] = React.useState<Array<any>>(
+    watchlist.map(() => ({
+      trackingType: "",
+      refPrice: "",
+      trackingDirection: "",
+      trackingValue: "",
+      collectionId: "",
+    }))
+  );
 
   React.useEffect(() => {
     //get watchlist data from db - initial fetch
@@ -64,31 +70,35 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
         alert(data.error);
       }
       if (data.watchlists) {
-        console.log("watchlist data in floor alerts component", data.watchlists);
+        console.log(
+          "watchlist data in floor alerts component",
+          data.watchlists
+        );
         setWatchlist(data.watchlists);
+        setAlertData(
+          data.watchlists.map((item: any) => ({
+            trackingType: "",
+            refPrice: "",
+            trackingDirection: "",
+            trackingValue: "",
+            collectionId: item.collection_id,
+          }))
+        );
         console.log(data.watchlists);
       }
     };
     fetchData();
   }, []);
 
-  const setAlert = async () => {
-    const alertData = {
-      trackingType,
-      refPrice,
-      trackingDirection,
-      trackingValue,
-      watchlistId: watchlist[0].collection_id,
-    };
+  const setAlert = async (index: number) => {
+    console.log("alertData sent to server", alertData[index]);
+    // const result: any = await createAlertEntry(userRef, alertData);
 
-    console.log("alertData sent to server", alertData);
-    const result: any = await createAlertEntry(userRef, alertData);
-
-    if (result.error) {
-      alert(result.error);
-      router.push("/auth/signin");
-    }
-    // props.setReload(true);
+    // if (result.error) {
+    //   alert(result.error);
+    //   router.push("/auth/signin");
+    // }
+    // // props.setReload(true);
   };
 
   return isLoading ? (
@@ -155,7 +165,7 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {watchlist.map((item) => (
+            {watchlist.map((item, index) => (
               <TableRow key={item.collection_id}>
                 <TableCell
                   sx={{
@@ -179,23 +189,30 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
                     <Select
                       label="Choose"
                       sx={{ width: "100%" }}
-                      value={trackingType}
-                      onChange={(e) => setTrackingType(e.target.value)}
+                      value={alertData[index].trackingType}
+                      onChange={(e) => {
+                        const newAlertData = [...alertData];
+                        newAlertData[index].trackingType = e.target.value;
+                        setAlertData(newAlertData);
+                      }}
                     >
-                      <MenuItem value={"Percent Movement"}>
-                        Percent Movement
-                      </MenuItem>
-                      <MenuItem value={"Absolute Value"}>
-                        Absolute Value
-                      </MenuItem>
+                      <MenuItem value={"Percent Movement"}>Percent</MenuItem>
+                      <MenuItem value={"Absolute Value"}>Absolute</MenuItem>
                     </Select>
                   </FormControl>
                 </TableCell>
                 <TableCell>
                   <TextField
                     label="Enter Price"
-                    value={refPrice}
-                    onChange={(e) => setRefPrice(e.target.value)}
+                    value={alertData[index].refPrice}
+                    onChange={(e) => {
+                      const newAlertData = [...alertData];
+                      newAlertData[index].refPrice = e.target.value;
+                      setAlertData(newAlertData);
+                    }}
+                    sx={{
+                      width: "100%",
+                    }}
                   />
                 </TableCell>
                 <TableCell>
@@ -210,8 +227,12 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
                       sx={{
                         width: "100%",
                       }}
-                      value={trackingDirection}
-                      onChange={(e) => setTrackingDirection(e.target.value)}
+                      value={alertData[index].trackingDirection}
+                      onChange={(e) => {
+                        const newAlertData = [...alertData];
+                        newAlertData[index].trackingDirection = e.target.value;
+                        setAlertData(newAlertData);
+                      }}
                     >
                       <MenuItem value={"Up"}>Up</MenuItem>
                       <MenuItem value={"Down"}>Down</MenuItem>
@@ -221,15 +242,22 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
                 <TableCell>
                   <TextField
                     label="Enter Value"
-                    value={trackingValue}
-                    onChange={(e) => setTrackingValue(e.target.value)}
+                    value={alertData[index].trackingValue}
+                    onChange={(e) => {
+                      const newAlertData = [...alertData];
+                      newAlertData[index].trackingValue = e.target.value;
+                      setAlertData(newAlertData);
+                    }}
+                    sx={{
+                      width: "100%",
+                    }}
                   />
                 </TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={setAlert}
+                    onClick={() => setAlert(index)}
                   >
                     Set Alert
                   </Button>
