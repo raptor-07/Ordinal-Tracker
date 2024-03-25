@@ -10,5 +10,8 @@ export const getWallets = async (userRef: any) => {
     return null;
   }
   const wallets = await getUserWallets(user);
+
+  // console.log("wallets", wallets);
+
   return wallets;
 };

@@ -47,7 +47,8 @@ async function getCollectionsStats(collectionIds: string[]) {
     return allCollectionStats;
   } catch (error) {
     console.error("Error fetching collection stats:", error);
-    return []; // or handle the error accordingly
+    throw new Error("Error fetching collection stats");
+    return [];
   }
 }
 
