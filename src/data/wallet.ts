@@ -39,8 +39,15 @@ export const addWallet = async (wallets: any[], user: User) => {
         continue;
       }
 
-      let wallet = await db.wallet.create({
-        data: {
+      let wallet = await db.wallet.upsert({
+        where: {
+          wId: walletData.label,
+        },
+        update: {
+          lastTrackedTimeStamp: null,
+          lastTrackedTransaction: null,
+        },
+        create: {
           wId: walletData.label,
           lastTrackedTimeStamp: null,
           lastTrackedTransaction: null,
@@ -79,23 +86,12 @@ export const deleteExistingWallet = async (
       },
     });
     if (wallet) {
-      await db.user_Collection.deleteMany({
-        where: {
-          walletId: walletString,
-        },
-      });
-
       await db.user_Wallet.deleteMany({
         where: {
           wId: walletString,
         },
       });
 
-      await db.wallet.delete({
-        where: {
-          wId: walletString,
-        },
-      });
       return { wallet };
     }
     return { error: "Wallet does not exist" };
@@ -114,8 +110,13 @@ export const getUserWallets = async (user: User) => {
       },
     });
 
-    const wallets = userWallets.map((userWallet) => userWallet.wallet);
-
+    const wallets: any = userWallets.map((userWallet) => {
+      return {
+        wId: userWallet.wId,
+        uId: userWallet.uId,
+        alertsEnabled: userWallet.alertsEnabled,
+      };
+    });
     return wallets;
   } catch (error) {
     console.error("Error in getUserWallets:", error);
