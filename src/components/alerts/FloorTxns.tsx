@@ -26,15 +26,13 @@ import {
   CircularProgress,
   Box,
 } from "@mui/material";
+import { useReloadState } from "@/hooks/sharedReload";
 
-interface FloorTxnsProps {
-  setReload: React.Dispatch<React.SetStateAction<Boolean>>;
-}
-
-const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
+function FloorTxns() {
   const user = useCurrentUser();
   let userRef = React.useRef(user);
 
+  const { reload, setReload } = useReloadState();
   const [isLoading, setIsLoading] = React.useState(true);
   const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
     {
@@ -92,13 +90,15 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
 
   const setAlert = async (index: number) => {
     console.log("alertData sent to server", alertData[index]);
-    // const result: any = await createAlertEntry(userRef, alertData);
 
-    // if (result.error) {
-    //   alert(result.error);
-    //   router.push("/auth/signin");
-    // }
-    // // props.setReload(true);
+    const result: any = await createAlertEntry(userRef, alertData[index]);
+
+    if (result.error) {
+      alert(result.error);
+      router.push("/auth/signin");
+    }
+
+    setReload(!reload);
   };
 
   return isLoading ? (
@@ -269,6 +269,6 @@ const FloorTxns: React.FC<FloorTxnsProps> = (props: FloorTxnsProps) => {
       </TableContainer>
     </Container>
   );
-};
+}
 
 export default FloorTxns;

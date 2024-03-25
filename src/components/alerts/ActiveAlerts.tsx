@@ -18,20 +18,27 @@ import {
 } from "@mui/material";
 import { getAlertEntries } from "@/actions/getAlertEntries";
 import { useCurrentUser } from "@/hooks/current-user";
+import { useReloadState } from "@/hooks/sharedReload";
+import { deleteAlertEntry } from "@/actions/deleteAlertEntry";
 
-interface ActiveAlertsProps {
-  reload: Boolean;
-  setReload: React.Dispatch<React.SetStateAction<Boolean>>;
-}
-
-const ActiveAlerts: React.FC<ActiveAlertsProps> = (
-  props: ActiveAlertsProps
-) => {
+function ActiveAlerts() {
   const user = useCurrentUser();
   let userRef = React.useRef(user);
 
+  const { reload, setReload } = useReloadState();
+
   const [isLoading, setIsLoading] = React.useState(true);
-  const [alertEntries, setAlertEntries] = React.useState<any[]>([]);
+  const [alertEntries, setAlertEntries] = React.useState<any[]>([
+    {
+      aId: "",
+      name: "",
+      Image: "",
+      TrackType: "",
+      refPrice: "",
+      direction: "",
+      value: "",
+    },
+  ]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -42,12 +49,19 @@ const ActiveAlerts: React.FC<ActiveAlertsProps> = (
   };
 
   React.useEffect(() => {
+    setIsLoading(true);
     fetchData();
-  }, [props.reload]);
+  }, [reload]);
 
   const deleteAlertHandler = (aId: string) => {
     // Implement your delete logic here
-    console.log(`Delete alert with id: ${aId}`);
+    const result: any = deleteAlertEntry(userRef, aId);
+
+    if (result.error) {
+      console.error("Error deleting alert entry:", result.error);
+    }
+
+    setReload(!reload);
   };
 
   return isLoading ? (
@@ -132,6 +146,6 @@ const ActiveAlerts: React.FC<ActiveAlertsProps> = (
       </TableContainer>
     </Container>
   );
-};
+}
 
 export default ActiveAlerts;

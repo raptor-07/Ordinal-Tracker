@@ -7,6 +7,7 @@ import WalletTxns from "@/components/alerts/WalletTxns";
 import ActiveAlerts from "@/components/alerts/ActiveAlerts";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
+import { SharedReloadProvider } from "@/hooks/sharedReload";
 
 interface Props {}
 
@@ -20,20 +21,20 @@ const MyComponent: React.FC<Props> = (props) => {
     return null;
   }
 
-  const [reload, setReload] = React.useState<Boolean>(false);
   return (
-    <Container
-      disableGutters
-      sx={{
-        minWidth: "100%",
-        minHeight: "100%",
-      }}
-    >
-      <WalletTxns />
-      <FloorTxns setReload={setReload} />
-      <ActiveAlerts reload={reload} setReload={setReload} />
-    </Container>
+    <SharedReloadProvider>
+      <Container
+        disableGutters
+        sx={{
+          minWidth: "100%",
+          minHeight: "100%",
+        }}
+      >
+        <WalletTxns />
+        <FloorTxns />
+        <ActiveAlerts />
+      </Container>
+    </SharedReloadProvider>
   );
 };
-
 export default MyComponent;
