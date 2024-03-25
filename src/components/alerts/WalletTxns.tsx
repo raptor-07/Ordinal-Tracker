@@ -49,17 +49,17 @@ const WalletTxns: React.FC = () => {
 
   const toggleWalletAlert = async (wId: string, newState: boolean) => {
     console.log("toggleWalletAlert", wId);
-    await markWallet(wId, newState);
-    setWallets(
-      wallets.map((wallet: any) =>
-        wallet.wId === wId ? { ...wallet, alertsEnabled: newState } : wallet
-      )
-    );
+    const result: any = await markWallet(wId, newState, userRef.current);
+    if (result.error) {
+      alert(result.error);
+      return;
+    }
+    setWallets(result);
   };
 
   const formatWalletId = (walletId: string) => {
     return walletId.substring(0, 5) + "..." + walletId.substring(37, 42);
-  }
+  };
 
   return (
     <Container
@@ -97,11 +97,15 @@ const WalletTxns: React.FC = () => {
             {wallets.map((wallet: any) => (
               <TableRow key={wallet.wId}>
                 <TableCell component="th" scope="row">
-                  <Typography variant="body1" color="initial" sx={{
-                   color: "inherit",
-                   fontSize: "1.2rem",
-                  }}>
-                  {formatWalletId(wallet.wId)}
+                  <Typography
+                    variant="body1"
+                    color="initial"
+                    sx={{
+                      color: "inherit",
+                      fontSize: "1.2rem",
+                    }}
+                  >
+                    {formatWalletId(wallet.wId)}
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
