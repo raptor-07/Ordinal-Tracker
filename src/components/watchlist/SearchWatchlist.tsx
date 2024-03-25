@@ -37,11 +37,14 @@ function SearchWatchlist({
           router.push("/auth/signin");
         } else {
           alert(data.error);
+          slug.value = "";
+          return;
         }
       }
       //if watchlist added successfully -> force a rerender of the watchlist page
       console.log("watchlist collections data", data);
       setWatchlist((prevWatchlist: any) => [...prevWatchlist, data]);
+      slug.value = "";
     }
   };
 
