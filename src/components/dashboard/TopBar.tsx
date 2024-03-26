@@ -16,7 +16,7 @@ function TopBar() {
   const pathname = usePathname();
 
   const initialPages = [
-    { name: "Collections", active: false, path: "/dashboard" },
+    { name: "Portfolio", active: false, path: "/dashboard" },
     { name: "Watch List", active: false, path: "/dashboard/watchlist" },
     { name: "Alerts", active: false, path: "/dashboard/alerts" },
   ];
