@@ -17,6 +17,7 @@ model User {
   username         String            @unique
   email            String            @unique
   password         String
+  teleId           String?
   ownedCollections User_Collection[]
   userWallets      User_Wallet[]
   floorAlerts      FloorAlerts[]
