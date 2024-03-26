@@ -37,6 +37,9 @@ export default function CollectionTable({
   let userRef: any = useRef(user);
   // console.log("userRef", userRef);
 
+  //TODO: create a state for sorting
+  //TODO: create a function to sort by sorting state
+
   const router = useRouter();
 
   const [dashBoardData, setDashBoardData] = React.useState<any>([
@@ -72,9 +75,12 @@ export default function CollectionTable({
     }
   }, [wallets]);
 
+
+  // TODO: Should happen just once
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
+      //TODO: Add another field - owners count
       setDashBoardData([
         {
           collection_id: "",
@@ -91,6 +97,7 @@ export default function CollectionTable({
       return;
     }
     const fetchData = async () => {
+      //TODO: check if data exists in local storage -> if not then fetch
       if (userRef.current !== undefined && wallets.length > 0) {
         //Session 1 | Wallet 1 -> check consistency between local storage and db
         console.log("Wallets in fetchData", wallets);
@@ -111,6 +118,7 @@ export default function CollectionTable({
       });
 
       // Race between dataPromise and timeoutPromise
+      //TODO: What type is being returned by timeoutPromise - error handling
       const data = await Promise.race([dataPromise, timeoutPromise]);
 
       if (data !== null && data !== undefined) {
@@ -167,6 +175,9 @@ export default function CollectionTable({
           localStorage.setItem("wallets", data.wallets);
           // console.log("data for dashboard on client", data);
           setDashBoardData(data.data);
+          //TODO: set dashboard data in local storage
+          localStorage.setItem("dashboardData", JSON.stringify(data.data));
+
           if (reload) {
             setReload(false);
           } else {
@@ -176,6 +187,9 @@ export default function CollectionTable({
           return;
         }
         setDashBoardData(data);
+        //TODO: set wallets in local storage
+        localStorage.setItem("dashboardData", JSON.stringify(data));
+
         setIsLoading(false);
       } else {
         alert("Service down, please try again later!");
@@ -349,25 +363,25 @@ export default function CollectionTable({
           </TableRow>
         </TableHead>
         <TableBody>
+          {/* TODO: Sort wrt to sort */}
           {dashBoardData?.map((row: any) => (
             <TableRow
               key={row.collection_id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
+              {/* TODO:add watch icon when clicked -> addWatchlistById */}
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
               <TableCell align="right">{row.floor_price}</TableCell>
+              {/* TODO: Add color coding for positive and negative values */}
               <TableCell align="right">{row.One_D_floor}</TableCell>
               <TableCell align="right">{row.Seven_D_floor}</TableCell>
               <TableCell align="right">{row.volume_1d}</TableCell>
               <TableCell align="right">{row.volume_7d}</TableCell>
               <TableCell align="right">{row.volume_30d}</TableCell>
               <TableCell align="right">{row.market_cap}</TableCell>
-              <TableCell align="right">N/A</TableCell>{" "}
-              {/* Owners (%) data not provided */}
-              <TableCell align="right">N/A</TableCell>{" "}
-              {/* Listings/Supply (%) data not provided */}
+              <TableCell align="right">N/A</TableCell>
             </TableRow>
           ))}
         </TableBody>
