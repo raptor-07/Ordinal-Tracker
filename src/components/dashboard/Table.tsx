@@ -11,9 +11,11 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useCurrentUser } from "@/hooks/current-user";
 import getDashboardData from "@/actions/getDashboardData";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Button, Avatar } from "@mui/material";
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useRouter } from "next/navigation";
 import { addNewWallet } from "@/actions/addNewWallet";
+import { set } from "zod";
 
 export default function CollectionTable({
   wallets,
@@ -75,8 +77,6 @@ export default function CollectionTable({
     }
   }, [wallets]);
 
-
-  // TODO: Should happen just once
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
@@ -98,6 +98,25 @@ export default function CollectionTable({
     }
     const fetchData = async () => {
       //TODO: check if data exists in local storage -> if not then fetch
+      if (
+        localStorage.getItem("dashboardData") !== null &&
+        localStorage.getItem("dashboardData") !== undefined &&
+        localStorage.getItem("dashboardData") !== ""
+      ) {
+        //data exists
+        console.log(
+          "data exists in local storage - using local storage to render data"
+        );
+        const dashboardData: any = localStorage.getItem("dashboardData");
+        setDashBoardData(JSON.parse(dashboardData));
+
+        setIsLoading(false);
+
+        return;
+      }
+
+      //data from api
+      console.log("Fetching data from API!");
       if (userRef.current !== undefined && wallets.length > 0) {
         //Session 1 | Wallet 1 -> check consistency between local storage and db
         console.log("Wallets in fetchData", wallets);
@@ -176,21 +195,17 @@ export default function CollectionTable({
           // console.log("data for dashboard on client", data);
           setDashBoardData(data.data);
           //TODO: set dashboard data in local storage
-          localStorage.setItem("dashboardData", JSON.stringify(data.data));
-
-          if (reload) {
-            setReload(false);
-          } else {
-            setReload(true);
-          }
+          // localStorage.setItem("dashboardData", JSON.stringify(data.data));
+          // setIsLocalData(true);
+          setReload(!reload);
           setIsLoading(false);
           return;
         }
         setDashBoardData(data);
+        setIsLoading(false);
         //TODO: set wallets in local storage
         localStorage.setItem("dashboardData", JSON.stringify(data));
 
-        setIsLoading(false);
       } else {
         alert("Service down, please try again later!");
         return;
@@ -198,6 +213,12 @@ export default function CollectionTable({
     };
     fetchData();
   }, [fetchData]);
+
+  const handleRefetch = () => {
+    localStorage.removeItem("dashboardData");
+    setIsLoading(true);
+    setFetchData(!fetchData);
+  };
 
   return isLoading ? (
     <Box
@@ -229,8 +250,32 @@ export default function CollectionTable({
             padding: "0",
           }}
         >
-          <TableRow>
-            <TableCell>
+          <TableRow sx={{
+            minWidth: "100%",
+          }}>
+            <TableCell
+              sx={{
+                display: "flex",
+                // alignItems: "center",
+                // justifyContent: "center",
+                width: "min-content",
+                // maxWidth: "50px",
+              }}
+            >
+              <Button onClick={handleRefetch} sx={{
+                backgroundColor: "#000000",
+                color: "#ffffff",
+                padding: "0",
+                margin: "0",
+                "&:hover": {
+                  backgroundColor: "#000000",
+                  color: "#ffffff",
+                },
+              }}>
+                <RefreshIcon sx={{
+                  marginLeft: "-24px",
+                }}/>
+              </Button>
               <p
                 style={{
                   fontWeight: 700,
@@ -238,6 +283,7 @@ export default function CollectionTable({
                   textDecorationLine: "underline",
                   textUnderlineOffset: "4px",
                   padding: "0",
+                  margin: "0",
                 }}
               >
                 Name
@@ -347,19 +393,6 @@ export default function CollectionTable({
                 Owners (%)
               </p>
             </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                Listings/Supply (%)
-              </p>
-            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -370,7 +403,12 @@ export default function CollectionTable({
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               {/* TODO:add watch icon when clicked -> addWatchlistById */}
-              <TableCell component="th" scope="row">
+              <TableCell component="th" scope="row" sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "15px",  
+              }}>
+                <Avatar alt={undefined} src={undefined} />
                 {row.name}
               </TableCell>
               <TableCell align="right">{row.floor_price}</TableCell>
