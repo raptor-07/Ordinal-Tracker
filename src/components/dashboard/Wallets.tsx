@@ -43,6 +43,7 @@ function Wallets({
     if (userRef.current !== undefined) {
       //session exists
       const result = await deleteWallet(userRef.current, chipToDelete.label);
+      setIsLoading(true);
       if (result.error) {
         if (result.error == "Wallet does not exist") {
           setWallets((chips) =>
@@ -62,7 +63,7 @@ function Wallets({
     setWallets((chips) =>
       chips.filter((chip) => chip.key !== chipToDelete.key)
     );
-    setIsLoading(true);
+    localStorage.removeItem("dashboardData");
     setFetchData(!fetchData);
   };
 
@@ -89,6 +90,7 @@ function Wallets({
       setWallets((chips) => [...chips, { key: chips.length, label: wallet }]);
       (event.target as HTMLInputElement).value = "";
       setIsLoading(true);
+      localStorage.removeItem("dashboardData");
       setFetchData(!fetchData);
     }
   };
