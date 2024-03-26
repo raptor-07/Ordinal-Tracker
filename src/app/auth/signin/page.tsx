@@ -8,6 +8,7 @@ import {
   Button,
   FormControl,
   Link,
+  CircularProgress,
 } from "@mui/material";
 import { LoginSchema } from "@/schemas";
 import { useState, useRef } from "react";
@@ -30,6 +31,8 @@ export default function SigninPage() {
     name: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -38,6 +41,7 @@ export default function SigninPage() {
     try {
       e.preventDefault();
 
+      setIsLoading(true);
       if (userRef.current !== undefined) {
         //session exists
         signOut();
@@ -55,17 +59,31 @@ export default function SigninPage() {
 
       if (!validateFields.success) {
         console.error("Validation error");
+        setIsLoading(false);
         return;
       }
 
-      await login(validateFields.data, callBackUrl);
+      const result = await login(validateFields.data, callBackUrl);
+
+      setIsLoading(false);
     } catch (error: any) {
-      console.error("Validation error:", error.message);
-      alert("Credentials are wrong! Please try again.");
+      alert("Please try again: " + error.message);
+      setIsLoading(false);
     }
   };
 
-  return (
+  return isLoading ? (
+    <Container
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <CircularProgress />
+    </Container>
+  ) : (
     <Container
       sx={{
         display: "flex",
