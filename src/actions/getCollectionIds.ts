@@ -13,9 +13,9 @@ interface CollectionDetails {
 
 async function getCollectionIds(wallets: string | null): Promise<
   | {
-      collectionIds: Record<string, string[]>;
-      collectionDetails: CollectionDetails[];
-    }
+    collectionIds: Record<string, string[]>;
+    collectionDetails: CollectionDetails[];
+  }
   | undefined
 > {
   let apikey: string = process.env.SIMPLE_HASH ?? "";
@@ -68,21 +68,14 @@ async function getCollectionIds(wallets: string | null): Promise<
       );
 
       const result = Object.assign({}, ...walletCollections);
-      console.log("result", result);
 
       // Remove duplicates and null values from collectionDetails
       collectionDetails = collectionDetails.filter(
         (collection, index, self) =>
           collection.collection_id !== null &&
           index ===
-            self.findIndex((t) => t.collection_id === collection.collection_id)
+          self.findIndex((t) => t.collection_id === collection.collection_id)
       );
-
-      console.log("collectionDetails", {
-        collectionIds: result,
-        collectionDetails: collectionDetails,
-      });
-
       return { collectionIds: result, collectionDetails: collectionDetails };
     }
   } catch (error) {
