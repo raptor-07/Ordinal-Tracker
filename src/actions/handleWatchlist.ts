@@ -209,4 +209,132 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
   }
 };
 
+export const getWatchlistsIds = async (userRef: any) => {
+  try {
+    const user: any = await db.user.findUnique({
+      where: {
+        email: userRef.current.email,
+      },
+    });
 
+    if (!user) {
+      return { error: "Please login to view your watchlist" };
+    }
+
+    const collectionsInWatchlist = await getWatchlistCollections(user);
+
+    const watchlists: any = collectionsInWatchlist.map((collection: any) => {
+      return collection.collectionId;
+    })
+
+    return watchlists;
+  } catch (error: any) {
+    console.error("Error in getWatchlistsIds:", error);
+    return { error: error };
+  }
+}
+
+export const addWatchListById = async (collectionId: string, userRef: any) => {
+  try {
+    const user: any = await db.user.findUnique({
+      where: {
+        email: userRef.current.email,
+      },
+    });
+
+    if (!user) {
+      return { error: "Please login to add a collection to your watchlist" };
+    }
+
+    const isThereInCollection: any = await isInCollection(collectionId);
+
+    console.log("isThereInCollection", isThereInCollection);
+
+    const headers = new Headers();
+    headers.append("x-api-key", process.env.SIMPLE_HASH ?? "");
+
+    if (isThereInCollection.error == "Collection not found") {
+      //add to collection
+
+      //get collection metadata details
+      let collectionResponse: any = await fetch(
+        `https://api.simplehash.com/api/v0/nfts/collections/ids?collection_ids=${collectionId}`,
+        {
+          method: "GET",
+          headers: headers,
+        }
+      );
+
+      collectionResponse = await collectionResponse.json();
+
+      const parsedCollectionResponse = collectionResponse.map((collection: any) => ({
+        collection_id: collection.collection_id,
+        name: collection.name,
+        description: collection.description,
+        image_url: collection.image_url,
+        distinct_owner_count: collection.distinct_owner_count,
+        distinct_nft_count: collection.distinct_nft_count,
+        total_quantity: collection.total_quantity
+      }));
+
+      //Add to collections if does not exist
+      const result: any = await addCollectionsToCollection([collectionId], user, parsedCollectionResponse);
+      if (result.error) {
+        return { error: result.error };
+      }
+
+      //isThereInUserWatchlist -> not -> add
+      const inwatchlist: any = await isWatchlistCollection(collectionId, user);
+
+      if (inwatchlist.error) {
+        return { error: inwatchlist.error };
+      }
+
+      console.log("inwatchlist", inwatchlist);
+      return;
+      //return collection details
+      // return [inwatchlist.collectionId];
+    }
+
+
+    //isThereInUserWatchlist -> not -> add
+    const inwatchlist: any = await isWatchlistCollection(collectionId, user);
+
+    if (inwatchlist.error) {
+      return { error: inwatchlist.error };
+    }
+
+    // console.log("inwatchlist", inwatchlist);
+
+    //return collection details
+    return [inwatchlist.collectionId];
+  } catch (error: any) {
+    console.error("Error in addWatchListById:", error);
+    return { error: error };
+  }
+}
+
+export const deleteWatchlistById = async (collectionId: string, userRef: any) => {
+  try {
+    const user: any = await db.user.findUnique({
+      where: {
+        email: userRef.current.email,
+      },
+    });
+
+    if (!user) {
+      return { error: "Please login to remove a collection from your watchlist" };
+    }
+
+    await deleteWatchlistCollection(collectionId, user);
+
+    return;
+
+  } catch (error: any) {
+    console.error("Error in deleteWatchlistById:", error);
+    return { error: error };
+  }
+}
+//TODO: create addWatchListBySlugById
+//TODO: create removeWatchlistById
+//TODO: create removeWatchlistBySlug
