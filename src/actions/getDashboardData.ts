@@ -26,13 +26,13 @@ async function getDashboardData(
     console.log("userEmail", userEmail);
     console.log("wallets", wallets);
 
+    //Session 0 | Wallets 1
     if (
       (userEmail == null || userEmail === "" || userEmail === undefined) &&
       wallets !== null &&
       wallets !== "" &&
       wallets !== undefined
     ) {
-      //Session 0 | Wallets 1
       console.log("Session 0 | Wallets 1");
       const collectionIds: any = await getCollectionIds(wallets);
 
@@ -75,6 +75,7 @@ async function getDashboardData(
 
       return mergedData;
     } else if (
+      //Session 1 | Wallets 1
       userEmail !== null &&
       userEmail !== "" &&
       userEmail !== undefined &&
@@ -82,19 +83,23 @@ async function getDashboardData(
       wallets !== "" &&
       wallets !== undefined
     ) {
-      //Session 1 | Wallets 1
       console.log("Session 1 | Wallets 1");
       if (userEmail === null || userEmail === "" || userEmail === undefined) {
         return { error: "user does not exist" };
       }
-      // console.log("userEmail", userEmail);
+
       const user = await getUserByEmail(userEmail);
       if (user == null) {
         return { error: "user does not exist" };
       }
-      console.log("user", user);
+      // console.log("user", user);
 
-      const collectionIds: string[] | any = await getCollectionIds(wallets);
+      const resultFromGetCollectionIds: any = await getCollectionIds(wallets);
+
+      const collectionIds: any = resultFromGetCollectionIds.collectionIds;
+      const collectionDetails: any = resultFromGetCollectionIds.collectionDetails;
+
+      console.log("collectionIds", collectionIds);
 
       if (collectionIds.error) {
         return { error: "No data found" };
@@ -103,40 +108,32 @@ async function getDashboardData(
         new Set(Object.values(collectionIds).flat())
       );
 
-      // if (mergedCollectionIds.length > 20) {
-      //   mergedCollectionIds = mergedCollectionIds.slice(0, 20);
-      // }
+      console.log(
+        "number of items in mergedCollectionIds",
+        mergedCollectionIds.length
+      );
+      console.log("mergedCollectionIds", mergedCollectionIds);
 
-      // console.log(
-      //   "number of items in mergedCollectionIds",
-      //   mergedCollectionIds.length
-      // );
-
+      //TODO: use result from get collection ids to get collection metadata to store onto collection table in db
       const addedCollection: any = await addCollectionsToCollection(
         mergedCollectionIds,
-        user
+        user,
+        collectionDetails
       );
-      // console.log(
-      //   "addedCollection -------------------------------------------------------------------------------------------------------------------------------------------",
-      //   addedCollection
-      // );
 
       if (addedCollection.hasOwnProperty("error")) {
         return { error: "No data found" };
       }
 
-      // console.log(
-      //   "---------------------------------------------------------------------------------------------------",
-      //   mergedCollectionIds,
-      //   collectionIds,
-      //   typeof collectionIds,
-      //   user,
-      //   wallets
-      // );
+      //add collections to user collection
+      const addedCollectionsToUserCollection: any = await addCollectionsToUserCollection(
+        collectionIds,
+        user,
+        wallets
+      );
 
-      const dbresult = await addCollectionsToUserCollection(collectionIds, user, wallets);
-
-      // console.log("dbresult", dbresult);
+      console.log("addedCollectionsToUserCollection", addedCollectionsToUserCollection.addedCollections);
+      console.log("addedCollectionsToUserCollection", addedCollectionsToUserCollection.avoidedCollections);
 
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(mergedCollectionIds),
@@ -154,11 +151,23 @@ async function getDashboardData(
         {}
       );
 
+      const collectionDetailsMap = collectionDetails.reduce((map: any, collection: any) => {
+        map[collection.collection_id] = collection;
+        return map;
+      }, {});
+
       const mergedData = collectionsFloor.map((floorPrice: any) => {
         const collectionStats = collectionsStatsMap[floorPrice.collection_id];
+        const collectionDetail = collectionDetailsMap[floorPrice.collection_id];
+
         return {
           ...collectionStats,
           ...floorPrice,
+          // Add additional fields from collectionDetail
+          image_url: collectionDetail?.image_url,
+          distinct_owner_count: collectionDetail?.distinct_owner_count,
+          distinct_nft_count: collectionDetail?.distinct_nft_count,
+          total_quantity: collectionDetail?.total_quantity,
         };
       });
 
@@ -168,7 +177,9 @@ async function getDashboardData(
       //Session 1 | Wallets 0
       console.log("Session 1 | Wallets 0");
       if (userEmail === null || userEmail === "" || userEmail === undefined) {
-        return { error: "user does not exist" };
+        return {
+          error: "user, collectionDetails does not exist"
+        };
       }
       const user = await getUserByEmail(userEmail);
       if (user == null) {
