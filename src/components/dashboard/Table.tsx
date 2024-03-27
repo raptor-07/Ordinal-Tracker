@@ -12,10 +12,19 @@ import Paper from "@mui/material/Paper";
 import { useCurrentUser } from "@/hooks/current-user";
 import getDashboardData from "@/actions/getDashboardData";
 import { Box, CircularProgress, Button, Avatar } from "@mui/material";
-import RefreshIcon from '@mui/icons-material/Refresh';
+import SvgIcon from "@mui/material/SvgIcon";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { Star, StarBorder } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { addNewWallet } from "@/actions/addNewWallet";
+import { motion } from "framer-motion";
+import { isWatchlistCollection } from "@/data/collection";
+import {
+  addWatchListById,
+  deleteWatchlistById,
+} from "@/actions/handleWatchlist";
 import { set } from "zod";
+// import { getUserByEmail } from "@/data/user";
 
 export default function CollectionTable({
   wallets,
@@ -39,6 +48,31 @@ export default function CollectionTable({
   let userRef: any = useRef(user);
   // console.log("userRef", userRef);
 
+  const buttonVariants = {
+    hover: {
+      scale: 1.1,
+      // rotate: 360,
+      transition: {
+        type: "spring",
+        stiffness: 20,
+        damping: 20,
+        duration: 1,
+      },
+    },
+    tap: { scale: 1.2 },
+  };
+
+  const starVariants = {
+    hover: {
+      scale: [1, 1.2, 1, 1.2, 1], // scales up and down
+      transition: {
+        duration: 2,
+        repeat: Infinity, // repeats the animation indefinitely
+      },
+    },
+    tap: { scale: 0.95 },
+  };
+
   //TODO: create a state for sorting
   //TODO: create a function to sort by sorting state
 
@@ -47,6 +81,8 @@ export default function CollectionTable({
   const [dashBoardData, setDashBoardData] = React.useState<any>([
     {
       collection_id: "",
+      name: "",
+      image_url: "",
       floor_price: "",
       One_D_floor: "",
       Seven_D_floor: "",
@@ -54,8 +90,14 @@ export default function CollectionTable({
       volume_7d: "",
       volume_30d: "",
       market_cap: "",
+      total_quantity: "",
+      distinct_owner_count: "",
+      distinct_nft_count: "",
     },
   ]);
+  //set initial from local storage
+
+  const [watchlist, setWatchlist] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
@@ -84,6 +126,8 @@ export default function CollectionTable({
       setDashBoardData([
         {
           collection_id: "",
+          name: "",
+          image_url: "",
           floor_price: "",
           One_D_floor: "",
           Seven_D_floor: "",
@@ -91,6 +135,9 @@ export default function CollectionTable({
           volume_7d: "",
           volume_30d: "",
           market_cap: "",
+          total_quantity: "",
+          distinct_owner_count: "",
+          distinct_nft_count: "",
         },
       ]);
       setIsLoading(false);
@@ -133,10 +180,12 @@ export default function CollectionTable({
       const timeoutPromise = new Promise((resolve, reject) => {
         setTimeout(() => {
           reject(new Error("Timeout occurred"));
+          // alert("Service down, please try again later! from 1");
+          setIsLoading(false);
         }, 120000); // 2 minutes timeout
       });
 
-      // Race between dataPromise and timeoutPromise
+      // Race between dataPromise and timeoutPromise #FIXME
       //TODO: What type is being returned by timeoutPromise - error handling
       const data = await Promise.race([dataPromise, timeoutPromise]);
 
@@ -150,6 +199,8 @@ export default function CollectionTable({
             setDashBoardData([
               {
                 collection_id: "",
+                name: "",
+                image_url: "",
                 floor_price: "",
                 One_D_floor: "",
                 Seven_D_floor: "",
@@ -157,16 +208,21 @@ export default function CollectionTable({
                 volume_7d: "",
                 volume_30d: "",
                 market_cap: "",
+                total_quantity: "",
+                distinct_owner_count: "",
+                distinct_nft_count: "",
               },
             ]);
             setIsLoading(false);
             return;
           }
           if (data.error === "No data found") {
-            alert("Service down, please try again later!");
+            alert("Service down, please try again later! from 2");
             setDashBoardData([
               {
                 collection_id: "",
+                name: "",
+                image_url: "",
                 floor_price: "",
                 One_D_floor: "",
                 Seven_D_floor: "",
@@ -174,6 +230,9 @@ export default function CollectionTable({
                 volume_7d: "",
                 volume_30d: "",
                 market_cap: "",
+                total_quantity: "",
+                distinct_owner_count: "",
+                distinct_nft_count: "",
               },
             ]);
             setIsLoading(false);
@@ -205,14 +264,31 @@ export default function CollectionTable({
         setIsLoading(false);
         //TODO: set wallets in local storage
         localStorage.setItem("dashboardData", JSON.stringify(data));
-
       } else {
-        alert("Service down, please try again later!");
+        alert("Service down, please try again later! from 3");
         return;
       }
+
+      // const watchlistData = await checkDb
+      //error handling
+      //setwatchlist
+      //save in local storage
     };
     fetchData();
   }, [fetchData]);
+
+  React.useEffect(() => {
+    const watchlistIdsString: any = localStorage.getItem("watchlistData");
+
+    const watchlistIds: any =
+      watchlistIdsString !== "" &&
+      watchlistIdsString !== null &&
+      watchlistIdsString !== undefined
+        ? JSON.parse(watchlistIdsString)
+        : [];
+
+    setWatchlist(watchlistIds);
+  }, []);
 
   const handleRefetch = () => {
     localStorage.removeItem("dashboardData");
@@ -220,6 +296,7 @@ export default function CollectionTable({
     setFetchData(!fetchData);
   };
 
+ 
   return isLoading ? (
     <Box
       sx={{
@@ -250,9 +327,11 @@ export default function CollectionTable({
             padding: "0",
           }}
         >
-          <TableRow sx={{
-            minWidth: "100%",
-          }}>
+          <TableRow
+            sx={{
+              minWidth: "100%",
+            }}
+          >
             <TableCell
               sx={{
                 display: "flex",
@@ -262,19 +341,30 @@ export default function CollectionTable({
                 // maxWidth: "50px",
               }}
             >
-              <Button onClick={handleRefetch} sx={{
-                backgroundColor: "#000000",
-                color: "#ffffff",
-                padding: "0",
-                margin: "0",
-                "&:hover": {
+              <Button
+                onClick={handleRefetch}
+                sx={{
                   backgroundColor: "#000000",
                   color: "#ffffff",
-                },
-              }}>
-                <RefreshIcon sx={{
-                  marginLeft: "-24px",
-                }}/>
+                  padding: "0",
+                  margin: "0",
+                  "&:hover": {
+                    backgroundColor: "#000000",
+                    color: "#ffffff",
+                  },
+                }}
+              >
+                <motion.div
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
+                >
+                  <RefreshIcon
+                    sx={{
+                      marginLeft: "-24px",
+                    }}
+                  />
+                </motion.div>
               </Button>
               <p
                 style={{
@@ -396,30 +486,73 @@ export default function CollectionTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {/* TODO: Sort wrt to sort */}
           {dashBoardData?.map((row: any) => (
             <TableRow
               key={row.collection_id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              {/* TODO:add watch icon when clicked -> addWatchlistById */}
-              <TableCell component="th" scope="row" sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "15px",  
-              }}>
-                <Avatar alt={undefined} src={undefined} />
+              <TableCell
+                component="th"
+                scope="row"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "15px",
+                }}
+              >
+                <Avatar alt={row.name} src={row.image_url} />
                 {row.name}
+                <motion.div
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={starVariants}
+                  onClick={() => markAsWatchlist(row.collection_id)}
+                >
+                  {watchlist.includes(row.collection_id) ? (
+                    <Star />
+                  ) : (
+                    <StarBorder />
+                  )}
+                </motion.div>
               </TableCell>
-              <TableCell align="right">{row.floor_price}</TableCell>
-              {/* TODO: Add color coding for positive and negative values */}
-              <TableCell align="right">{row.One_D_floor}</TableCell>
-              <TableCell align="right">{row.Seven_D_floor}</TableCell>
-              <TableCell align="right">{row.volume_1d}</TableCell>
-              <TableCell align="right">{row.volume_7d}</TableCell>
-              <TableCell align="right">{row.volume_30d}</TableCell>
-              <TableCell align="right">{row.market_cap}</TableCell>
-              <TableCell align="right">N/A</TableCell>
+              <TableCell align="right">
+                {formatPercentage({ percentageString: row.floor_price })}
+              </TableCell>
+              <TableCell align="right">
+                {formatPercentage({ percentageString: row.One_D_floor })}
+              </TableCell>
+              <TableCell align="right">
+                {formatPercentage({ percentageString: row.Seven_D_floor })}
+              </TableCell>
+              <TableCell align="right">
+                <p style={{ margin: 0, padding: 0 }}>
+                  {satoshisToBTC(row.volume_1d)}
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p style={{ margin: 0, padding: 0 }}>
+                  {satoshisToBTC(row.volume_7d)}
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p style={{ margin: 0, padding: 0 }}>
+                  {satoshisToBTC(row.volume_30d)}
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p style={{ margin: 0, padding: 0 }}>
+                  {satoshisToBTC(row.market_cap)}
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p style={{ margin: 0, padding: 0 }}>
+                  {(
+                    (row.distinct_owner_count / row.distinct_nft_count) *
+                    100
+                  ).toPrecision(3)}{" "}
+                  %
+                </p>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
