@@ -34,7 +34,10 @@ async function getDashboardData(
       wallets !== undefined
     ) {
       console.log("Session 0 | Wallets 1");
-      const collectionIds: any = await getCollectionIds(wallets);
+
+      const result: any = await getCollectionIds(wallets);
+      const collectionIds = result.collectionIds;
+      const collectionDetails = result.collectionDetails;
 
       if (collectionIds.error) {
         return { error: "No data found" };
@@ -53,6 +56,7 @@ async function getDashboardData(
         getCollectionsFloor(mergedCollectionIds),
       ]);
 
+
       if (collectionsStats.length === 0 || collectionsFloor.length === 0) {
         return { error: "No data found" };
       }
@@ -65,11 +69,23 @@ async function getDashboardData(
         {}
       );
 
+      const collectionDetailsMap = collectionDetails.reduce((map: any, collection: any) => {
+        map[collection.collection_id] = collection;
+        return map;
+      }, {});
+
       const mergedData = collectionsFloor.map((floorPrice: any) => {
         const collectionStats = collectionsStatsMap[floorPrice.collection_id];
+        const collectionDetail = collectionDetailsMap[floorPrice.collection_id];
+
         return {
           ...collectionStats,
           ...floorPrice,
+          // Add additional fields from collectionDetail
+          image_url: collectionDetail?.image_url,
+          distinct_owner_count: collectionDetail?.distinct_owner_count,
+          distinct_nft_count: collectionDetail?.distinct_nft_count,
+          total_quantity: collectionDetail?.total_quantity,
         };
       });
 
