@@ -89,17 +89,22 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     const formatSlug = (slug: string) => {
       //TODO: handle spaces, underscores
       let normalized = slug.toLowerCase();
-
       normalized = normalized.replace(/\s+/g, "");
-
       return normalized;
     };
+
+    const formatSlugAgain = (slug: string) => {
+      let normalized = slug.toLowerCase();
+      normalized = normalized.replace(/\s+/g, "_");
+      return normalized;
+    };
+
     //format slug
-    const formattedSlug: string = formatSlug(slug);
+    let formattedSlug: string = formatSlug(slug);
     console.log("formattedSlug", formattedSlug);
 
     //get inscription
-    const inscription = await fetch(
+    let inscription = await fetch(
       `https://turbo.ordinalswallet.com/collection/${formattedSlug}`,
       {
         method: "GET",
@@ -108,8 +113,23 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
 
     //verify response
     if (inscription.status !== 200) {
-      return { error: "Failed to fetch data from API, Try Again Later" };
+      // If the first attempt fails, try again with the second formatted slug
+      formattedSlug = formatSlugAgain(slug);
+      console.log("formattedSlug", formattedSlug);
+
+      inscription = await fetch(
+        `https://turbo.ordinalswallet.com/collection/${formattedSlug}`,
+        {
+          method: "GET",
+        }
+      );
+
+      // If the second attempt also fails, return an error
+      if (inscription.status !== 200) {
+        return { error: "Failed to fetch data from API, Try Again Later" };
+      }
     }
+
     const inscriptionData = await inscription.json();
 
     if (!inscriptionData) {
@@ -117,7 +137,7 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     }
 
     //get lowest inscription number
-    const inscriptionNumber = inscriptionData.lowest_inscription_num;
+    const inscriptionNumber = inscriptionData.lowest_inscription_num + 5;
     console.log("inscription", inscriptionNumber);
 
     //get collection id
