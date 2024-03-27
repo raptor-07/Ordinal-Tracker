@@ -21,6 +21,8 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useRouter } from "next/navigation";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Star, StarBorder } from "@mui/icons-material";
@@ -80,6 +82,46 @@ export default function CollectionTable({
 
   //TODO: create a state for sorting
   //TODO: create a function to sort by sorting state
+  const sortingTable = (sort: string, data: any[]) => {
+    let sortedData = [...data];
+
+    switch (sort) {
+      case "floor":
+        sortedData.sort((a, b) => b.floor_price - a.floor_price);
+        break;
+      case "1D_floor":
+        sortedData.sort(
+          (a, b) => parseFloat(b.One_D_floor) - parseFloat(a.One_D_floor)
+        );
+        break;
+      case "7D_floor":
+        sortedData.sort(
+          (a, b) => parseFloat(b.Seven_D_floor) - parseFloat(a.Seven_D_floor)
+        );
+        break;
+      case "1D_volume":
+        sortedData.sort((a, b) => b.volume_1d - a.volume_1d);
+        break;
+      case "7D_volume":
+        sortedData.sort((a, b) => b.volume_7d - a.volume_7d);
+        break;
+      case "30D_volume":
+        sortedData.sort((a, b) => b.volume_30d - a.volume_30d);
+        break;
+      case "market_cap":
+        sortedData.sort((a, b) => b.market_cap - a.market_cap);
+        break;
+      case "owners":
+        sortedData.sort(
+          (a, b) => b.distinct_owner_count - a.distinct_owner_count
+        );
+        break;
+      default:
+        break;
+    }
+
+    return sortedData;
+  };
 
   const router = useRouter();
 
@@ -105,6 +147,8 @@ export default function CollectionTable({
   const [watchlist, setWatchlist] = React.useState<string[]>([]);
 
   const [open, setOpen] = React.useState(false);
+
+  const [sort, setSort] = React.useState("floor");
 
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
@@ -201,6 +245,9 @@ export default function CollectionTable({
       // Race between dataPromise and timeoutPromise #FIXME
       //TODO: What type is being returned by timeoutPromise - error handling
       let data = await Promise.race([dataPromise, timeoutPromise]);
+
+      //sort the data here
+      data = sortingTable(sort, data);
 
       if (data !== null && data !== undefined) {
         data = data.filter((obj: any) => Object.keys(obj).length !== 0);
@@ -423,6 +470,11 @@ export default function CollectionTable({
     return <p style={textStyle}>{percentageString}</p>;
   };
 
+  const handleSort = (sort: string) => {
+    setSort(sort);
+    setDashBoardData(sortingTable(sort, dashBoardData));
+  };
+
   return isLoading ? (
     <Box
       sx={{
@@ -518,9 +570,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   Floor
+                  {sort === "floor" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("floor")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -531,9 +600,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   1D Floor Change
+                  {sort === "1D_floor" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("1D_floor")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -544,9 +630,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   7D Floor Change
+                  {sort === "7D_floor" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("7D_floor")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -557,9 +660,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   Volume 1D
+                  {sort === "1D_volume" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("1D_volume")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -570,9 +690,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   Volume 7D
+                  {sort === "7D_volume" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("7D_volume")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -583,9 +720,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   Volume 30D
+                  {sort === "30D_volume" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("30D_volume")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -596,9 +750,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   MCap
+                  {sort === "market_cap" ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort("market_cap")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
               <TableCell align="right">
@@ -609,9 +780,26 @@ export default function CollectionTable({
                     textDecorationLine: "underline",
                     textUnderlineOffset: "4px",
                     padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   Owners (%)
+                  {sort === "owners" ? (
+                    <ArrowDropUpIcon
+                      onClick={() => handleSort("owners")}
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      sx={{
+                        margin: "0",
+                      }}
+                    />
+                  )}
                 </p>
               </TableCell>
             </TableRow>
@@ -652,44 +840,44 @@ export default function CollectionTable({
                     </motion.div>
                   </Box>
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {formatPercentage({ percentageString: row.floor_price })}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {formatPercentage({ percentageString: row.One_D_floor })}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {formatPercentage({ percentageString: row.Seven_D_floor })}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {row.volume_1d !== "" && (
                     <p style={{ margin: 0, padding: 0 }}>
                       {satoshisToBTC(row.volume_1d)}
                     </p>
                   )}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {row.volume_7d !== "" && (
                     <p style={{ margin: 0, padding: 0 }}>
                       {satoshisToBTC(row.volume_7d)}
                     </p>
                   )}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {row.volume_30d !== "" && (
                     <p style={{ margin: 0, padding: 0 }}>
                       {satoshisToBTC(row.volume_30d)}
                     </p>
                   )}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {row.market_cap !== "" && (
                     <p style={{ margin: 0, padding: 0 }}>
                       {satoshisToBTC(row.market_cap)}
                     </p>
                   )}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   {row.distinct_owner_count !== "" &&
                     row.distinct_nft_count !== "" && (
                       <p style={{ margin: 0, padding: 0 }}>
@@ -742,17 +930,23 @@ export default function CollectionTable({
               "&:hover": {
                 color: (theme) => theme.palette.grey[300],
                 backgroundColor: "transparent",
-                boxShadow: "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)"
+                boxShadow:
+                  "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
               },
               padding: 2,
             }}
           >
             <CloseIcon />
           </IconButton>
-          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{
-            textAlign: "center",
-            padding: "20px 0",
-          }}>
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            sx={{
+              textAlign: "center",
+              padding: "20px 0",
+            }}
+          >
             Sign in to track your favorite Ordinals!
           </Typography>
           <Button
