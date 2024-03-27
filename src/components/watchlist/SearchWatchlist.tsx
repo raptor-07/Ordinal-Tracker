@@ -4,7 +4,7 @@ import * as React from "react";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import { Container } from "@mui/material";
-import { getWatchlists, addWatchlist } from "@/actions/handleWatchlist";
+import { getWatchlists, addWatchListBySlug } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
 
@@ -24,11 +24,11 @@ function SearchWatchlist({
   }
   console.log("userRef", userRef, user);
 
-  const handleAddWatchlist = async (event: React.KeyboardEvent) => {
+  const handleaddWatchListBySlug = async (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       const slug = event.target as HTMLInputElement;
       //add watchlist server action
-      const data: any = await addWatchlist(slug.value, userRef);
+      const data: any = await addWatchListBySlug(slug.value, userRef);
       if (data.error) {
         if (
           data.error === "Please login to add a collection to your watchlist"
@@ -76,7 +76,7 @@ function SearchWatchlist({
           id="filled-basic"
           label="Add Collection to watchlist"
           variant="standard"
-          onKeyDown={handleAddWatchlist}
+          onKeyDown={handleaddWatchListBySlug}
           style={{
             borderRadius: "50px",
             margin: "0px",
