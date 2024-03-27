@@ -2,11 +2,15 @@
 
 import {
   addCollectionsToCollection,
+  deleteWatchlistCollection,
   getCollectionById,
   getWatchlistCollections,
+  isInCollection,
   isWatchlistCollection,
 } from "@/data/collection";
 import { db } from "@/lib/db";
+import getCollectionsStats from "./getCollectionsStats";
+import getCollectionsFloor from "./getCollectionsFloor";
 
 interface data {
   watchlists?: {
@@ -37,14 +41,27 @@ export const getWatchlists = async (userRef: any): Promise<data> => {
         const collectionDetails = await getCollectionById(
           collection.collectionId
         );
+        const stats: any[] = await getCollectionsStats([collection.collectionId]);
+        const floor: any[] = await getCollectionsFloor([collection.collectionId]);
         return {
           name: collectionDetails?.name,
           image: collectionDetails?.image,
           collection_id: collection.collectionId,
           description: collectionDetails?.description,
+          owner_count: collectionDetails?.owner_count,
+          nft_count: collectionDetails?.nft_count,
+          quantity: collectionDetails?.quantity,
+          volume_1d: stats[0].volume_1d,
+          volume_7d: stats[0].volume_7d,
+          volume_30d: stats[0].volume_30d,
+          market_cap: stats[0].market_cap,
+          floor_price: floor[0].floor_price,
+          One_D_floor: floor[0].One_D_floor,
+          Seven_D_floor: floor[0].Seven_D_floor,
         };
       })
     );
+
     console.log("watchlists in server action", watchlists);
     return {
       watchlists,
@@ -55,9 +72,9 @@ export const getWatchlists = async (userRef: any): Promise<data> => {
   }
 };
 
-export const addWatchlist = async (slug: string, userRef: any) => {
+export const addWatchListBySlug = async (slug: string, userRef: any) => {
   try {
-    console.log("userRef in addwatchlist", userRef);
+    console.log("userRef in addWatchListBySlug", userRef);
     const user: any = await db.user.findUnique({
       where: {
         email: userRef.current.email,
@@ -70,6 +87,7 @@ export const addWatchlist = async (slug: string, userRef: any) => {
     }
 
     const formatSlug = (slug: string) => {
+      //TODO: handle spaces, underscores
       let normalized = slug.toLowerCase();
 
       normalized = normalized.replace(/\s+/g, "");
@@ -130,14 +148,39 @@ export const addWatchlist = async (slug: string, userRef: any) => {
     //check if it exists in collection, get details
     // console.log("response", response);
     const collectionId = response.collection.collection_id;
-    if (!collectionId) {
-      return { error: "Collection not found" };
+
+    const isThereInCollection: any = await isInCollection(collectionId);
+
+    if (isThereInCollection.error == "Collection not found") {
+      //add to collection
+
+      //get collection metadata details
+      let collectionResponse: any = await fetch(
+        `https://api.simplehash.com/api/v0/nfts/collections/ids?collection_ids=${collectionId}`,
+        {
+          method: "GET",
+          headers: headers,
+        }
+      );
+
+      collectionResponse = await collectionResponse.json();
+
+      const parsedCollectionResponse = collectionResponse.map((collection: any) => ({
+        collection_id: collection.collection_id,
+        name: collection.name,
+        description: collection.description,
+        image_url: collection.image_url,
+        distinct_owner_count: collection.distinct_owner_count,
+        distinct_nft_count: collection.distinct_nft_count,
+        total_quantity: collection.total_quantity
+      }));
+
+      //Add to collections if does not exist
+      await addCollectionsToCollection([collectionId], user, parsedCollectionResponse);
     }
-    console.log("collectionId", collectionId, typeof collectionId);
 
-    //Add to collections if does not exist
-    await addCollectionsToCollection([collectionId], user);
 
+    //get collection details
     const collectionDetails: any = await getCollectionById(collectionId);
 
     if (collectionDetails == null) {
@@ -145,9 +188,10 @@ export const addWatchlist = async (slug: string, userRef: any) => {
     }
     console.log("collectionDetails", collectionDetails);
 
-    //check if it exists in user_watchlist, if not, create
+    //check if it exists in user_watchlist, if not, add to watchlist
     const inwatchlist = await isWatchlistCollection(collectionId, user);
-    console.log("inwatchlist", inwatchlist);
+
+    // console.log("inwatchlist", inwatchlist);
 
     //return collection details
     return ({
@@ -155,9 +199,14 @@ export const addWatchlist = async (slug: string, userRef: any) => {
       image: collectionDetails.image,
       collection_id: collectionDetails.collectionId,
       description: collectionDetails.description,
+      owner_count: collectionDetails.owner_count,
+      nft_count: collectionDetails.nft_count,
+      quantity: collectionDetails.quantity,
     } = collectionDetails);
   } catch (error: any) {
-    console.error("Error in addWatchlist:", error);
+    console.error("Error in addWatchListBySlug:", error);
     return { error: error };
   }
 };
+
+
