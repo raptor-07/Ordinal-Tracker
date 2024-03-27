@@ -4,84 +4,62 @@ import { TrackType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 export const addCollectionsToCollection = async (
-  collections: any[],
-  user: User
+  collections: string[],
+  user: User,
+  collectionData: any[]
 ) => {
   try {
-    //create collection_id request param
-    const collectionParam = collections.join(",");
-
-    const headers = new Headers();
-    headers.append("x-api-key", process.env.SIMPLE_HASH ?? "");
-    console.log("collectionParam", collectionParam);
-    const response = await fetch(
-      `https://api.simplehash.com/api/v0/nfts/collections/ids?collection_ids=${collectionParam}`,
-      {
-        method: "GET",
-        headers: headers,
-      }
-    );
-    // console.log("response for collections", response);
-    if (response.status === 200) {
-      const data = await response.json();
-
-      const mergedData = collections
-        .map((collection) => {
-          const collectionData = data.collections.find(
-            (item: any) => item.collection_id === collection
-          );
-          if (collectionData) {
-            return {
-              collectionId: collectionData.collection_id,
-              name: collectionData.name,
-              description: collectionData.description,
-              image: collectionData.image_url,
-            };
-          }
-        })
-        .filter(Boolean);
-
-      console.log(
-        "mergedData to be added to db collections-----------------------------------------------------------------------------------------------------------------------",
-        mergedData.map((collection) => {
-          console.log("collection", collection);
-          return collection?.collectionId;
-        })
-      );
-      let collectionsUpdate;
-      for (const coll of mergedData) {
-        try {
-          const clx = await db.collection.upsert({
-            where: {
-              cId: coll?.collectionId ?? "",
-            },
-            update: {
-              cId: coll?.collectionId ?? "",
-              name: coll?.name ?? "",
-              description: coll?.description ?? "",
-              image: coll?.image ?? "",
-            },
-            create: {
-              cId: coll?.collectionId ?? "",
-              name: coll?.name ?? "",
-              description: coll?.description ?? "",
-              image: coll?.image ?? "",
-            },
-          });
-
-          console.log(
-            "collextion added ==============================================================================================================================================================================",
-            clx
-          );
-        } catch (error) {
-          console.log(
-            `Failed to insert collection with id: ${coll?.collectionId}`
-          );
+    const mergedData = collections
+      .map((collectionId) => {
+        const collection = collectionData.find(
+          (item: any) => item.collection_id === collectionId
+        );
+        if (collection) {
+          return {
+            collectionId: collection.collection_id,
+            name: collection.name,
+            description: collection.description,
+            image: collection.image_url,
+            owner_count: collection.distinct_owner_count,
+            nft_count: collection.distinct_nft_count,
+            quantity: collection.total_quantity,
+          };
         }
+      })
+      .filter(Boolean);
+
+    for (const coll of mergedData) {
+      try {
+        await db.collection.upsert({
+          where: {
+            cId: coll?.collectionId ?? "",
+          },
+          update: {
+            cId: coll?.collectionId ?? "",
+            name: coll?.name ?? "",
+            description: coll?.description ?? "",
+            image: coll?.image ?? "",
+            owner_count: coll?.owner_count ?? 0,
+            nft_count: coll?.nft_count ?? 0,
+            quantity: coll?.quantity ?? 0,
+          },
+          create: {
+            cId: coll?.collectionId ?? "",
+            name: coll?.name ?? "",
+            description: coll?.description ?? "",
+            image: coll?.image ?? "",
+            owner_count: coll?.owner_count ?? 0,
+            nft_count: coll?.nft_count ?? 0,
+            quantity: coll?.quantity ?? 0,
+          },
+        });
+      } catch (error) {
+        console.log(
+          `Failed to insert collection with id: ${coll?.collectionId} \n Error: ${error}`
+        );
       }
-      return {};
     }
-    return { error: "Error fetching collection IDs" };
+    return {};
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -143,6 +121,7 @@ export const addCollectionsToUserCollection = async (
     throw error;
   }
 };
+
 export const getUserCollections = async (user: User) => {
   try {
     const collections = await db.user_Collection.findMany({
@@ -181,6 +160,7 @@ export const getCollectionById = async (collectionId: string) => {
     throw error;
   }
 };
+
 export const getWatchlistCollections = async (user: any) => {
   try {
     const collections = await db.user_Watchlist.findMany({
@@ -225,6 +205,7 @@ export const isWatchlistCollection = async (
     throw error;
   }
 };
+
 
 export const isInCollection = async (collectionId: string) => {
   try {
