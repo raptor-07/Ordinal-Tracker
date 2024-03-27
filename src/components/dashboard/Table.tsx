@@ -296,7 +296,63 @@ export default function CollectionTable({
     setFetchData(!fetchData);
   };
 
- 
+  const markAsWatchlist = async (collectionId: string) => {
+    try {
+      if (userRef.current === undefined) {
+        //session does not exist
+      }
+      //If session does exist
+      // Determine whether the collectionId is already in the watchlist
+      //true -> remove from watchlist
+      //false -> add to watchlist
+      const isAlreadyInWatchlist = watchlist.includes(collectionId);
+
+      // server action
+      if (isAlreadyInWatchlist) {
+        //delete watchlist server action
+        const result: any = await deleteWatchlistById(collectionId, userRef);
+
+        if (result?.error) {
+          console.error(result.error);
+          alert("Error in deleting collection from watchlist");
+          return;
+        }
+
+        // If the database action is successful, update the state
+        setWatchlist((prevState) => {
+          return prevState.filter((id) => id !== collectionId);
+        });
+
+        setReload(!reload);
+      } else {
+        const result: any = await addWatchListById(collectionId, userRef);
+        console.log("result", result);
+        if (result.error) {
+          console.error(result.error);
+          alert("Error in adding collection to watchlist");
+          return;
+        }
+        // If the database action is successful, update the state
+        if (result) {
+          setWatchlist((prevState) => {
+            return [...prevState, collectionId];
+          });
+        }
+        if (result.error) {
+          console.error(result.error);
+        }
+      }
+      localStorage.setItem("watchlistData", JSON.stringify(watchlist));
+
+      return;
+    } catch (error) {
+      // Handle the error
+      console.error(error);
+    }
+  };
+
+  
+
   return isLoading ? (
     <Box
       sx={{
