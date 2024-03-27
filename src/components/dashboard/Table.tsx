@@ -377,7 +377,26 @@ export default function CollectionTable({
     percentageString: string;
   };
 
-  
+  const formatPercentage = ({
+    percentageString,
+  }: TableCellProps): JSX.Element => {
+    if (typeof percentageString !== "string") {
+      return <p>{percentageString}</p>; // Return as is if not a string
+    }
+
+    const percentage = parseFloat(percentageString.replace("%", ""));
+
+    // Define styles based on the sign of the percentage
+    const textStyle = {
+      margin: 0,
+      padding: 0,
+      fontWeight: "bold" as const,
+      textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)", // Heavy text shadow
+      color: percentage >= 0 ? "green" : "red", // Green if positive, red if negative
+    };
+
+    return <p style={textStyle}>{percentageString}</p>;
+  };
 
   return isLoading ? (
     <Box
