@@ -11,20 +11,25 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useCurrentUser } from "@/hooks/current-user";
 import getDashboardData from "@/actions/getDashboardData";
-import { Box, CircularProgress, Button, Avatar } from "@mui/material";
-import SvgIcon from "@mui/material/SvgIcon";
+import {
+  Box,
+  CircularProgress,
+  Button,
+  Avatar,
+  Modal,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { useRouter } from "next/navigation";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Star, StarBorder } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
 import { addNewWallet } from "@/actions/addNewWallet";
 import { motion } from "framer-motion";
-import { isWatchlistCollection } from "@/data/collection";
 import {
   addWatchListById,
   deleteWatchlistById,
 } from "@/actions/handleWatchlist";
-import { set } from "zod";
-// import { getUserByEmail } from "@/data/user";
 
 export default function CollectionTable({
   wallets,
@@ -99,12 +104,16 @@ export default function CollectionTable({
 
   const [watchlist, setWatchlist] = React.useState<string[]>([]);
 
+  const [open, setOpen] = React.useState(false);
+
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
       setDashBoardData([
         {
           collection_id: "",
+          name: "",
+          image_url: "",
           floor_price: "",
           One_D_floor: "",
           Seven_D_floor: "",
@@ -112,6 +121,9 @@ export default function CollectionTable({
           volume_7d: "",
           volume_30d: "",
           market_cap: "",
+          total_quantity: "",
+          distinct_owner_count: "",
+          distinct_nft_count: "",
         },
       ]);
       setIsLoading(false);
@@ -122,6 +134,7 @@ export default function CollectionTable({
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
+      console.log("No wallets and session");
       //TODO: Add another field - owners count
       setDashBoardData([
         {
@@ -187,10 +200,12 @@ export default function CollectionTable({
 
       // Race between dataPromise and timeoutPromise #FIXME
       //TODO: What type is being returned by timeoutPromise - error handling
-      const data = await Promise.race([dataPromise, timeoutPromise]);
+      let data = await Promise.race([dataPromise, timeoutPromise]);
 
       if (data !== null && data !== undefined) {
+        data = data.filter((obj: any) => Object.keys(obj).length !== 0);
         console.log("data", data);
+        //filtering for empty {} objects
         if (data.error) {
           if (data.error === "No collections found") {
             //Session 1 | Wallets 0
@@ -300,6 +315,7 @@ export default function CollectionTable({
     try {
       if (userRef.current === undefined) {
         //session does not exist
+        handleOpen();
       }
       //If session does exist
       // Determine whether the collectionId is already in the watchlist
@@ -351,6 +367,9 @@ export default function CollectionTable({
     }
   };
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   function satoshisToBTC(satoshis: any) {
     // Convert satoshis to BTC
     const btc = satoshis / 100000000;
@@ -369,6 +388,9 @@ export default function CollectionTable({
       // Multiply the mantissa by the exponent value
       return (parseFloat(mantissa) * exponentValue).toFixed(2);
     }
+    if (btcString == "") {
+      return "";
+    }
 
     return btc.toFixed(2);
   }
@@ -381,7 +403,7 @@ export default function CollectionTable({
     percentageString,
   }: TableCellProps): JSX.Element => {
     if (typeof percentageString !== "string") {
-      return <p>{percentageString}</p>; // Return as is if not a string
+      return <p>{percentageString}</p>;
     }
 
     const percentage = parseFloat(percentageString.replace("%", ""));
@@ -391,8 +413,11 @@ export default function CollectionTable({
       margin: 0,
       padding: 0,
       fontWeight: "bold" as const,
-      textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)", // Heavy text shadow
-      color: percentage >= 0 ? "green" : "red", // Green if positive, red if negative
+      textShadow:
+        "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
+      boxShadow:
+        "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
+      color: percentage >= 0 ? "#7bdb63" : "#e04031",
     };
 
     return <p style={textStyle}>{percentageString}</p>;
@@ -410,254 +435,336 @@ export default function CollectionTable({
       <CircularProgress />
     </Box>
   ) : (
-    <TableContainer
-      component={Paper}
-      sx={{
-        width: "100%",
-        margin: "auto",
-        padding: "0",
-      }}
-    >
-      <Table
-        sx={{ minWidth: 650, backgroundColor: "#000000" }}
-        aria-label="simple table"
+    <>
+      <TableContainer
+        component={Paper}
+        sx={{
+          width: "100%",
+          margin: "auto",
+          padding: "0",
+        }}
       >
-        <TableHead
-          sx={{
-            boxShadow: "0px 0px 5px 0px #c5c2f1",
-            padding: "0",
-          }}
+        <Table
+          sx={{ minWidth: 650, backgroundColor: "#000000" }}
+          aria-label="simple table"
         >
-          <TableRow
+          <TableHead
             sx={{
-              minWidth: "100%",
+              // boxShadow: "0px 0px 5px 0px #c5c2f1",
+              padding: "0",
             }}
           >
-            <TableCell
+            <TableRow
               sx={{
-                display: "flex",
-                // alignItems: "center",
-                // justifyContent: "center",
-                width: "min-content",
-                // maxWidth: "50px",
+                minWidth: "100%",
               }}
             >
-              <Button
-                onClick={handleRefetch}
-                sx={{
-                  backgroundColor: "#000000",
-                  color: "#ffffff",
-                  padding: "0",
-                  margin: "0",
-                  "&:hover": {
-                    backgroundColor: "#000000",
-                    color: "#ffffff",
-                  },
-                }}
-              >
-                <motion.div
-                  whileHover="hover"
-                  whileTap="tap"
-                  variants={buttonVariants}
+              <TableCell>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    // width: "min-content",
+                    // maxWidth: "50px",
+                  }}
                 >
-                  <RefreshIcon
+                  <Button
+                    onClick={handleRefetch}
                     sx={{
-                      marginLeft: "-24px",
+                      backgroundColor: "#000000",
+                      color: "#ffffff",
+                      padding: "0",
+                      margin: "0",
+                      paddingTop: "4px",
+                      "&:hover": {
+                        backgroundColor: "#000000",
+                        color: "#ffffff",
+                      },
                     }}
-                  />
-                </motion.div>
-              </Button>
-              <p
-                style={{
-                  fontWeight: 700,
-                  marginLeft: "8px",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  margin: "0",
-                }}
-              >
-                Name
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                Floor
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                1D Floor Change
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                7D Floor Change
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                Volume 1D
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                Volume 7D
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                Volume 30D
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                MCap
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                }}
-              >
-                Owners (%)
-              </p>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {dashBoardData?.map((row: any) => (
-            <TableRow
-              key={row.collection_id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell
-                component="th"
-                scope="row"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "15px",
-                }}
-              >
-                <Avatar alt={row.name} src={row.image_url} />
-                {row.name}
-                <motion.div
-                  whileHover="hover"
-                  whileTap="tap"
-                  variants={starVariants}
-                  onClick={() => markAsWatchlist(row.collection_id)}
+                  >
+                    <motion.div
+                      whileHover="hover"
+                      whileTap="tap"
+                      variants={buttonVariants}
+                    >
+                      <RefreshIcon
+                        sx={{
+                          marginLeft: "-24px",
+                          marginTop: "10px",
+                        }}
+                      />
+                    </motion.div>
+                  </Button>
+                  <p
+                    style={{
+                      fontWeight: 700,
+                      marginLeft: "8px",
+                      textDecorationLine: "underline",
+                      textUnderlineOffset: "4px",
+                      padding: "0",
+                      margin: "0",
+                    }}
+                  >
+                    Name
+                  </p>
+                </Box>
+              </TableCell>
+              <TableCell align="right">
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
                 >
-                  {watchlist.includes(row.collection_id) ? (
-                    <Star />
-                  ) : (
-                    <StarBorder />
-                  )}
-                </motion.div>
-              </TableCell>
-              <TableCell align="right">
-                {formatPercentage({ percentageString: row.floor_price })}
-              </TableCell>
-              <TableCell align="right">
-                {formatPercentage({ percentageString: row.One_D_floor })}
-              </TableCell>
-              <TableCell align="right">
-                {formatPercentage({ percentageString: row.Seven_D_floor })}
-              </TableCell>
-              <TableCell align="right">
-                <p style={{ margin: 0, padding: 0 }}>
-                  {satoshisToBTC(row.volume_1d)}
+                  Floor
                 </p>
               </TableCell>
               <TableCell align="right">
-                <p style={{ margin: 0, padding: 0 }}>
-                  {satoshisToBTC(row.volume_7d)}
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  1D Floor Change
                 </p>
               </TableCell>
               <TableCell align="right">
-                <p style={{ margin: 0, padding: 0 }}>
-                  {satoshisToBTC(row.volume_30d)}
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  7D Floor Change
                 </p>
               </TableCell>
               <TableCell align="right">
-                <p style={{ margin: 0, padding: 0 }}>
-                  {satoshisToBTC(row.market_cap)}
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  Volume 1D
                 </p>
               </TableCell>
               <TableCell align="right">
-                <p style={{ margin: 0, padding: 0 }}>
-                  {(
-                    (row.distinct_owner_count / row.distinct_nft_count) *
-                    100
-                  ).toPrecision(3)}{" "}
-                  %
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  Volume 7D
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  Volume 30D
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  MCap
+                </p>
+              </TableCell>
+              <TableCell align="right">
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                  }}
+                >
+                  Owners (%)
                 </p>
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {dashBoardData?.map((row: any) => (
+              <TableRow
+                key={row.collection_id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "20px",
+                    }}
+                  >
+                    {row.image_url === "" ? (
+                      <></>
+                    ) : (
+                      <Avatar alt={row.name} src={row.image_url} />
+                    )}
+
+                    {row.name}
+                    <motion.div
+                      whileHover="hover"
+                      whileTap="tap"
+                      variants={starVariants}
+                      onClick={() => markAsWatchlist(row.collection_id)}
+                    >
+                      {row.image_url !== "" &&
+                        (watchlist.includes(row.collection_id) ? (
+                          <Star />
+                        ) : (
+                          <StarBorder />
+                        ))}
+                    </motion.div>
+                  </Box>
+                </TableCell>
+                <TableCell align="right">
+                  {formatPercentage({ percentageString: row.floor_price })}
+                </TableCell>
+                <TableCell align="right">
+                  {formatPercentage({ percentageString: row.One_D_floor })}
+                </TableCell>
+                <TableCell align="right">
+                  {formatPercentage({ percentageString: row.Seven_D_floor })}
+                </TableCell>
+                <TableCell align="right">
+                  {row.volume_1d !== "" && (
+                    <p style={{ margin: 0, padding: 0 }}>
+                      {satoshisToBTC(row.volume_1d)}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.volume_7d !== "" && (
+                    <p style={{ margin: 0, padding: 0 }}>
+                      {satoshisToBTC(row.volume_7d)}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.volume_30d !== "" && (
+                    <p style={{ margin: 0, padding: 0 }}>
+                      {satoshisToBTC(row.volume_30d)}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.market_cap !== "" && (
+                    <p style={{ margin: 0, padding: 0 }}>
+                      {satoshisToBTC(row.market_cap)}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.distinct_owner_count !== "" &&
+                    row.distinct_nft_count !== "" && (
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {(
+                          (row.distinct_owner_count / row.distinct_nft_count) *
+                          100
+                        ).toPrecision(3)}
+                        %
+                      </p>
+                    )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            position: "absolute",
+            width: 400,
+            backgroundColor: "background.paper",
+            boxShadow: 5,
+            p: 5,
+          }}
+        >
+          <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{
+              position: "absolute",
+              right: 18,
+              top: 20,
+              width: 10,
+              height: 10,
+              color: (theme) => theme.palette.grey[500],
+              "&:hover": {
+                color: (theme) => theme.palette.grey[300],
+                backgroundColor: "transparent",
+                boxShadow: "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)"
+              },
+              padding: 2,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{
+            textAlign: "center",
+            padding: "20px 0",
+          }}>
+            Sign in to track your favorite Ordinals!
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push("/auth/signin")}
+            sx={{ mt: 2 }}
+          >
+            Sign In
+          </Button>
+        </Box>
+      </Modal>
+    </>
   );
 }
