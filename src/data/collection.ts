@@ -206,6 +206,25 @@ export const isWatchlistCollection = async (
   }
 };
 
+export const deleteWatchlistCollection = async (
+  collectionId: string,
+  user: any
+) => {
+  try {
+    await db.user_Watchlist.delete({
+      where: {
+        uId_collectionId: {
+          uId: user.uId,
+          collectionId: collectionId,
+        },
+      },
+    });
+    return {};
+  } catch (error) {
+    console.error("Error in deleteWatchlistCollection:", error);
+    throw error;
+  }
+}
 
 export const isInCollection = async (collectionId: string) => {
   try {
