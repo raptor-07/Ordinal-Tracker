@@ -49,6 +49,9 @@ model Collection {
   name            String?
   description     String?
   image           String?
+  owner_count     Int?
+  nft_count       Int?
+  quantity        Int?
   userCollections User_Collection[]
   floorAlerts     FloorAlerts[]
   userWatchlists  User_Watchlist[]
