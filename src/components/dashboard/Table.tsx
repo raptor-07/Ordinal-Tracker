@@ -351,6 +351,32 @@ export default function CollectionTable({
     }
   };
 
+  function satoshisToBTC(satoshis: any) {
+    // Convert satoshis to BTC
+    const btc = satoshis / 100000000;
+
+    // Convert to string to handle exponential notation
+    const btcString = btc.toString();
+
+    // Check if the string contains exponential notation
+    if (btcString.includes("e")) {
+      // Extract the exponent part
+      const [mantissa, exponent] = btcString.split("e");
+
+      // Calculate the value of the exponential notation
+      const exponentValue = Math.pow(10, parseInt(exponent));
+
+      // Multiply the mantissa by the exponent value
+      return (parseFloat(mantissa) * exponentValue).toFixed(2);
+    }
+
+    return btc.toFixed(2);
+  }
+
+  type TableCellProps = {
+    percentageString: string;
+  };
+
   
 
   return isLoading ? (
