@@ -5,6 +5,9 @@ import React from "react";
 import Wallets from "@/components/dashboard/Wallets";
 import { useCurrentUser } from "@/hooks/current-user";
 import { getWallets } from "@/actions/getWallets";
+import { watch } from "fs";
+import { getWatchlistCollections } from "@/data/collection";
+import { getWatchlistsIds } from "@/actions/handleWatchlist";
 
 interface ChipData {
   key: number;
@@ -49,6 +52,15 @@ function DashboardPage() {
   }, [reload]);
 
   React.useEffect(() => {
+    const updateWatchlistData = async () => {
+      localStorage.removeItem("watchlistData");
+      const watchlists = await getWatchlistsIds(userRef);
+
+      localStorage.setItem("watchlistData", JSON.stringify(watchlists));
+
+      console.log("watchlists in dashboard page", watchlists);
+    };
+
     //edge case: checking wallets consistency between local Storage and db at initial render
     if (userRef.current !== undefined) {
       //Session 1
@@ -61,6 +73,8 @@ function DashboardPage() {
           setWallets(newWallets);
         }
       });
+
+      updateWatchlistData();
     }
   }, []);
 
