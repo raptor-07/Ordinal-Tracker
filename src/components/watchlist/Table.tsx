@@ -46,6 +46,8 @@ export default function CollectionTable({
   const user: any = useCurrentUser();
   let userRef: any = React.useRef(user);
 
+  const [sort, setSort] = React.useState<string>("");
+
   const buttonVariants = {
     hover: {
       scale: 1.1,
@@ -105,6 +107,16 @@ export default function CollectionTable({
     // }
   };
 
+  const handleSort = (sort: string) => {
+    // setSort(sort);
+    // if (sort === "floor") {
+    //   const sorted = watchlist.sort((a, b) => {
+    //     return a.description.localeCompare(b.description);
+    //   });
+    //   setWatchlist([...sorted]);
+    // }
+  };
+
   return (
     <TableContainer
       component={Paper}
@@ -120,16 +132,12 @@ export default function CollectionTable({
       >
         <TableHead
           sx={{
-            boxShadow: "0px 0px 5px 0px #c5c2f1",
             padding: "0",
-            minWidth: "100%",
           }}
         >
           <TableRow
             sx={{
-              // display: "flex",
-              // minWidth: "100%",
-              // justifyContent: "space-between",
+              minWidth: "100%",
               margin: "0",
               padding: "0",
             }}
@@ -140,8 +148,6 @@ export default function CollectionTable({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "flex-start",
-                  // width: "min-content",
-                  // maxWidth: "50px",
                 }}
               >
                 <Button
@@ -185,22 +191,244 @@ export default function CollectionTable({
                 </p>
               </Box>
             </TableCell>
-            <TableCell
-              align="left"
-              sx={{
-                flexGrow: 2,
-              }}
-            >
+            <TableCell align="right">
               <p
                 style={{
                   fontWeight: 700,
-                  margin: "0 0 0 8px",
+                  margin: "0",
                   textDecorationLine: "underline",
                   textUnderlineOffset: "4px",
                   padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                Description
+                Floor
+                {sort === "floor" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("floor")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                1D Floor Change
+                {sort === "1D_floor" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("1D_floor")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                7D Floor Change
+                {sort === "7D_floor" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("7D_floor")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                Volume 1D
+                {sort === "1D_volume" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("1D_volume")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                Volume 7D
+                {sort === "7D_volume" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("7D_volume")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                Volume 30D
+                {sort === "30D_volume" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("30D_volume")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                MCap
+                {sort === "market_cap" ? (
+                  <ArrowDropUpIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    onClick={() => handleSort("market_cap")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
+              </p>
+            </TableCell>
+            <TableCell align="right">
+              <p
+                style={{
+                  fontWeight: 700,
+                  margin: "0",
+                  textDecorationLine: "underline",
+                  textUnderlineOffset: "4px",
+                  padding: "0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                Owners (%)
+                {sort === "owners" ? (
+                  <ArrowDropUpIcon
+                    onClick={() => handleSort("owners")}
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                ) : (
+                  <ArrowDropDownIcon
+                    sx={{
+                      margin: "0",
+                    }}
+                  />
+                )}
               </p>
             </TableCell>
           </TableRow>
