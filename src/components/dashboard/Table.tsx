@@ -299,9 +299,29 @@ export default function CollectionTable({
       //TODO: What type is being returned by timeoutPromise - error handling
       let data = await Promise.race([dataPromise, timeoutPromise]);
 
-      //sort the data here
+      if (data.wallets) {
+        //Session 1 | Wallets 0
+        //user has wallets -> update wallets in local storage
+
+        console.log("data.wallets", data.wallets);
+        console.log("wallets", wallets);
+        localStorage.setItem("wallets", data.wallets);
+        localStorage.setItem("dashboardData", JSON.stringify(data.data));
+        // console.log("data for dashboard on client", data);
+        data = sortingTable(sort, data.data);
+        data = data.filter((obj: any) => Object.keys(obj).length !== 0);
+        setDashBoardData(data);
+        //TODO: set dashboard data in local storage
+        // localStorage.setItem("dashboardData", JSON.stringify(data.data));
+        // setIsLocalData(true);
+        setReload(!reload);
+        setIsLoading(false);
+        return;
+      }
 
       if (data !== null && data !== undefined) {
+        console.log("data", data);
+        console.log("type: ");
         data = sortingTable(sort, data);
         data = data.filter((obj: any) => Object.keys(obj).length !== 0);
         console.log("data", data);
@@ -360,21 +380,6 @@ export default function CollectionTable({
           return;
         }
 
-        if (data.wallets) {
-          //Session 1 | Wallets 0
-          //user has wallets -> update wallets in local storage
-          console.log("data.wallets", data.wallets);
-          console.log("wallets", wallets);
-          localStorage.setItem("wallets", data.wallets);
-          // console.log("data for dashboard on client", data);
-          setDashBoardData(data.data);
-          //TODO: set dashboard data in local storage
-          // localStorage.setItem("dashboardData", JSON.stringify(data.data));
-          // setIsLocalData(true);
-          setReload(!reload);
-          setIsLoading(false);
-          return;
-        }
         setDashBoardData(data);
         setIsLoading(false);
         //TODO: set wallets in local storage
