@@ -33,6 +33,99 @@ import {
   deleteWatchlistById,
 } from "@/actions/handleWatchlist";
 
+export const sortingTable = (sort: string, data: any[]) => {
+  let sortedData = [...data];
+
+  switch (sort) {
+    case "floor":
+      sortedData.sort((a, b) => b.floor_price - a.floor_price);
+      break;
+    case "1D_floor":
+      sortedData.sort(
+        (a, b) => parseFloat(b.One_D_floor) - parseFloat(a.One_D_floor)
+      );
+      break;
+    case "7D_floor":
+      sortedData.sort(
+        (a, b) => parseFloat(b.Seven_D_floor) - parseFloat(a.Seven_D_floor)
+      );
+      break;
+    case "1D_volume":
+      sortedData.sort((a, b) => b.volume_1d - a.volume_1d);
+      break;
+    case "7D_volume":
+      sortedData.sort((a, b) => b.volume_7d - a.volume_7d);
+      break;
+    case "30D_volume":
+      sortedData.sort((a, b) => b.volume_30d - a.volume_30d);
+      break;
+    case "market_cap":
+      sortedData.sort((a, b) => b.market_cap - a.market_cap);
+      break;
+    case "owners":
+      sortedData.sort(
+        (a, b) => b.distinct_owner_count - a.distinct_owner_count
+      );
+      break;
+    default:
+      break;
+  }
+
+  return sortedData;
+};
+
+export function satoshisToBTC(satoshis: any) {
+  // Convert satoshis to BTC
+  const btc = satoshis / 100000000;
+
+  // Convert to string to handle exponential notation
+  const btcString = btc.toString();
+
+  // Check if the string contains exponential notation
+  if (btcString.includes("e")) {
+    // Extract the exponent part
+    const [mantissa, exponent] = btcString.split("e");
+
+    // Calculate the value of the exponential notation
+    const exponentValue = Math.pow(10, parseInt(exponent));
+
+    // Multiply the mantissa by the exponent value
+    return (parseFloat(mantissa) * exponentValue).toFixed(2);
+  }
+  if (btcString == "") {
+    return "";
+  }
+
+  return btc.toFixed(2);
+}
+
+export type TableCellProps = {
+  percentageString: string;
+};
+
+export const formatPercentage = ({
+  percentageString,
+}: TableCellProps): JSX.Element => {
+  if (typeof percentageString !== "string") {
+    return <p>{percentageString}</p>;
+  }
+
+  const percentage = parseFloat(percentageString.replace("%", ""));
+
+  // Define styles based on the sign of the percentage
+  const textStyle = {
+    margin: 0,
+    padding: 0,
+    fontWeight: "bold" as const,
+    textShadow:
+      "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
+    boxShadow: "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
+    color: percentage >= 0 ? "#7bdb63" : "#e04031",
+  };
+
+  return <p style={textStyle}>{percentageString}</p>;
+};
+
 export default function CollectionTable({
   wallets,
   reload,
@@ -82,46 +175,6 @@ export default function CollectionTable({
 
   //TODO: create a state for sorting
   //TODO: create a function to sort by sorting state
-  const sortingTable = (sort: string, data: any[]) => {
-    let sortedData = [...data];
-
-    switch (sort) {
-      case "floor":
-        sortedData.sort((a, b) => b.floor_price - a.floor_price);
-        break;
-      case "1D_floor":
-        sortedData.sort(
-          (a, b) => parseFloat(b.One_D_floor) - parseFloat(a.One_D_floor)
-        );
-        break;
-      case "7D_floor":
-        sortedData.sort(
-          (a, b) => parseFloat(b.Seven_D_floor) - parseFloat(a.Seven_D_floor)
-        );
-        break;
-      case "1D_volume":
-        sortedData.sort((a, b) => b.volume_1d - a.volume_1d);
-        break;
-      case "7D_volume":
-        sortedData.sort((a, b) => b.volume_7d - a.volume_7d);
-        break;
-      case "30D_volume":
-        sortedData.sort((a, b) => b.volume_30d - a.volume_30d);
-        break;
-      case "market_cap":
-        sortedData.sort((a, b) => b.market_cap - a.market_cap);
-        break;
-      case "owners":
-        sortedData.sort(
-          (a, b) => b.distinct_owner_count - a.distinct_owner_count
-        );
-        break;
-      default:
-        break;
-    }
-
-    return sortedData;
-  };
 
   const router = useRouter();
 
@@ -247,9 +300,9 @@ export default function CollectionTable({
       let data = await Promise.race([dataPromise, timeoutPromise]);
 
       //sort the data here
-      data = sortingTable(sort, data);
 
       if (data !== null && data !== undefined) {
+        data = sortingTable(sort, data);
         data = data.filter((obj: any) => Object.keys(obj).length !== 0);
         console.log("data", data);
         //filtering for empty {} objects
@@ -417,59 +470,6 @@ export default function CollectionTable({
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function satoshisToBTC(satoshis: any) {
-    // Convert satoshis to BTC
-    const btc = satoshis / 100000000;
-
-    // Convert to string to handle exponential notation
-    const btcString = btc.toString();
-
-    // Check if the string contains exponential notation
-    if (btcString.includes("e")) {
-      // Extract the exponent part
-      const [mantissa, exponent] = btcString.split("e");
-
-      // Calculate the value of the exponential notation
-      const exponentValue = Math.pow(10, parseInt(exponent));
-
-      // Multiply the mantissa by the exponent value
-      return (parseFloat(mantissa) * exponentValue).toFixed(2);
-    }
-    if (btcString == "") {
-      return "";
-    }
-
-    return btc.toFixed(2);
-  }
-
-  type TableCellProps = {
-    percentageString: string;
-  };
-
-  const formatPercentage = ({
-    percentageString,
-  }: TableCellProps): JSX.Element => {
-    if (typeof percentageString !== "string") {
-      return <p>{percentageString}</p>;
-    }
-
-    const percentage = parseFloat(percentageString.replace("%", ""));
-
-    // Define styles based on the sign of the percentage
-    const textStyle = {
-      margin: 0,
-      padding: 0,
-      fontWeight: "bold" as const,
-      textShadow:
-        "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
-      boxShadow:
-        "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
-      color: percentage >= 0 ? "#7bdb63" : "#e04031",
-    };
-
-    return <p style={textStyle}>{percentageString}</p>;
-  };
-
   const handleSort = (sort: string) => {
     setSort(sort);
     setDashBoardData(sortingTable(sort, dashBoardData));
@@ -517,8 +517,6 @@ export default function CollectionTable({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "flex-start",
-                    // width: "min-content",
-                    // maxWidth: "50px",
                   }}
                 >
                   <Button
