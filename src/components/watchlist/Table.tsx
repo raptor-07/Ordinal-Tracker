@@ -158,9 +158,9 @@ export default function CollectionTable({
 
       console.log("watchlist data", data);
       if (data.error) {
-        if (data.error === "Please login to view your watchlist") {
+        if (data.error === "Please login to view your watchlist 18") {
           alert(data.error);
-          router.push("/auth/signin");
+          // router.push("/auth/signin");
         }
         alert(data.error);
         return;

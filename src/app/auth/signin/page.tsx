@@ -67,7 +67,7 @@ export default function SigninPage() {
 
       setIsLoading(false);
     } catch (error: any) {
-      alert("Please try again: " + error.message);
+      alert("Please try again: 1" + error.message);
       setIsLoading(false);
     }
   };

@@ -51,7 +51,7 @@ function Wallets({
           );
           return;
         }
-        alert(result.error);
+        alert(result.error + "11");
         return;
       }
       setWallets((chips) =>

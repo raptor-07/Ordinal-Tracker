@@ -35,9 +35,9 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   if (typeof window !== "undefined" && !userRef.current) {
-    alert("You are not logged in");
-    router.push("/auth/signin");
-    return null;
+    alert("You are not logged in 3");
+    // router.push("/auth/signin");
+    // return null;
   }
 
   return (

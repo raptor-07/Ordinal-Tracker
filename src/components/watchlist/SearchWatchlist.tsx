@@ -28,8 +28,8 @@ function SearchWatchlist({
   const router = useRouter();
   let userRef: any = React.useRef(user);
   if (!userRef) {
-    alert("Please login to add a collection to your watchlist");
-    router.push("/auth/signin");
+    alert("Please login to add a collection to your watchlist 12");
+    // router.push("/auth/signin");
   }
   console.log("userRef", userRef, user);
 
@@ -41,10 +41,10 @@ function SearchWatchlist({
       const data: any = await addWatchListBySlug(slug.value, userRef);
       if (data.error) {
         if (
-          data.error === "Please login to add a collection to your watchlist"
+          data.error === "Please login to add a collection to your watchlist 14"
         ) {
           alert(data.error);
-          router.push("/auth/signin");
+          // router.push("/auth/signin");
         } else {
           alert(data.error);
           slug.value = "";

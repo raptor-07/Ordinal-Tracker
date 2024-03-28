@@ -38,8 +38,8 @@ const WalletTxns: React.FC = () => {
       const data = await getWallets(userRef);
       if (data === null) {
         //logout user
-        alert("User not found, please login again");
-        router.push("/auth/signin");
+        alert("User not found, please login again 5");
+        // router.push("/auth/signin");
       }
       setWallets(data);
       console.log("wallets data has arrived", data);
@@ -51,7 +51,7 @@ const WalletTxns: React.FC = () => {
     console.log("toggleWalletAlert", wId);
     const result: any = await markWallet(wId, newState, userRef.current);
     if (result.error) {
-      alert(result.error);
+      alert(result.error + " 6");
       return;
     }
     setWallets(result);

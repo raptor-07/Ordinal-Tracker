@@ -41,7 +41,7 @@ function FloorTxns() {
       setIsLoading(false);
       if (data.error) {
         alert(data.error);
-        if (data.error === "Please login to view your watchlist") {
+        if (data.error === "Please login to view your watchlist 4") {
           router.push("/auth/signin");
         }
       }

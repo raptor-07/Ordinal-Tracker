@@ -352,7 +352,7 @@ export default function CollectionTable({
             return;
           }
           if (data.error === "No data found") {
-            alert("Service down, please try again later! from 2");
+            alert("Service down, please try again later! from 7");
             setDashBoardData([
               {
                 collection_id: "",
@@ -374,7 +374,7 @@ export default function CollectionTable({
             return;
           }
           console.error("Error in getting data", data.error);
-          alert("Error in getting data. You may need to login again!");
+          alert("Error in getting data. You may need to login again! 8");
           setIsLoading(false);
           router.push("/auth/signin");
           return;
@@ -385,7 +385,7 @@ export default function CollectionTable({
         //TODO: set wallets in local storage
         localStorage.setItem("dashboardData", JSON.stringify(data));
       } else {
-        alert("Service down, please try again later! from 3");
+        alert("Service down, please try again later! from 9");
         return;
       }
 

@@ -17,9 +17,9 @@ const MyComponent: React.FC<Props> = (props) => {
   const router = useRouter();
 
   if (typeof window !== "undefined" && !userRef.current) {
-    alert("You are not logged in");
-    router.push("/auth/signin");
-    return null;
+    alert("You are not logged in 2");
+    // router.push("/auth/signin");
+    // return null;
   }
 
   return (
