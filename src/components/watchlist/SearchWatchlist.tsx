@@ -100,18 +100,24 @@ function SearchWatchlist({
       >
         <TextField
           id="filled-basic"
-          label="Add Collection to watchlist"
           variant="standard"
           onKeyDown={handleaddWatchListBySlug}
           style={{
             borderRadius: "50px",
             margin: "0px",
+            paddingLeft: "0px",
+            color: "#000000",
           }}
+          label="Enter Collection Slug"
           sx={{
             minWidth: "100%",
             "&placeholder": {
+              marginLeft: "10px",
               textAlign: "center",
-              fontSize: "30px",
+              fontSize: "1.5rem",
+            },
+            "&focused": {
+              backgroundColor: "#000000",
             },
           }}
         />
