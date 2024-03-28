@@ -1,133 +1,109 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getWatchlists } from "@/actions/handleWatchlist";
+import { createAlertEntry, getAlertEntries } from "@/actions/createAlertEntry";
+import { deleteAlertEntry } from "@/actions/deleteAlertEntry";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
 import { Watchlist } from "@/components/watchlist/Table";
-import { createAlertEntry } from "@/actions/createAlertEntry";
 import {
-  Table,
   Container,
   Typography,
-  TableBody,
-  TableCell,
+  Box,
+  CircularProgress,
   TableContainer,
+  Paper,
+  Table,
   TableHead,
   TableRow,
-  Paper,
-  Select,
-  MenuItem,
-  TextField,
-  Button,
-  InputLabel,
+  TableCell,
+  TableBody,
   Avatar,
-  FormControl,
-  CircularProgress,
-  Box,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { useReloadState } from "@/hooks/sharedReload";
 
 function FloorTxns() {
   const user = useCurrentUser();
-  let userRef = React.useRef(user);
-
+  let userRef = useRef(user);
   const { reload, setReload } = useReloadState();
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
-    {
-      name: "",
-      image: "",
-      collection_id: "",
-      description: "",
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [watchlist, setWatchlist] = useState<Watchlist[]>([]);
+  const [alertEntries, setAlertEntries] = useState<any[]>([]);
+
   const router = useRouter();
 
-  // Initialize alertData state as an array of objects
-  const [alertData, setAlertData] = React.useState<Array<any>>(
-    watchlist.map(() => ({
-      trackingType: "",
-      refPrice: "",
-      trackingDirection: "",
-      trackingValue: "",
-      collectionId: "",
-    }))
-  );
-
-  React.useEffect(() => {
-    //get watchlist data from db - initial fetch
+  useEffect(() => {
     const fetchData = async () => {
       const data: any = await getWatchlists(userRef);
       setIsLoading(false);
       if (data.error) {
+        alert(data.error);
         if (data.error === "Please login to view your watchlist") {
-          alert(data.error);
           router.push("/auth/signin");
         }
-        alert(data.error);
       }
       if (data.watchlists) {
-        console.log(
-          "watchlist data in floor alerts component",
-          data.watchlists
-        );
+        console.log("watchlist data:", data.watchlists);
         setWatchlist(data.watchlists);
-        setAlertData(
-          data.watchlists.map((item: any) => ({
-            trackingType: "",
-            refPrice: "",
-            trackingDirection: "",
-            trackingValue: "",
-            collectionId: item.collection_id,
-          }))
-        );
-        console.log(data.watchlists);
       }
     };
     fetchData();
   }, []);
 
-  const setAlert = async (index: number) => {
-    console.log("alertData sent to server", alertData[index]);
-
-    const result: any = await createAlertEntry(userRef, alertData[index]);
-
-    if (result.error) {
-      alert(result.error);
-      router.push("/auth/signin");
+  useEffect(() => {
+    const fetchAlertEntries = async () => {
+      const alerts: any = await getAlertEntries(userRef);
+      console.log("alerts data", alerts);
+      setAlertEntries(alerts);
+    };
+    if (watchlist.length > 0) {
+      fetchAlertEntries();
     }
+  }, [watchlist]);
 
+  const setAlert = async (index: number) => {
+    const isAlert = alertEntries.some(
+      (item: any) => item.collectionId === watchlist[index].collection_id
+    );
+    if (isAlert) {
+      const alertId = alertEntries.find(
+        (item: any) => item.collectionId === watchlist[index].collection_id
+      ).aId;
+      await deleteAlertEntry(userRef, alertId);
+    } else {
+      await createAlertEntry(userRef, watchlist[index].collection_id);
+    }
     setReload(!reload);
   };
 
   return isLoading ? (
-    <>
-      <Container
-        disableGutters
+    <Container
+      disableGutters
+      sx={{
+        padding: "3%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        minWidth: "75%",
+      }}
+    >
+      <Typography variant="h4" component="h2" align="left" gutterBottom>
+        Floor Alerts
+      </Typography>
+      <Box
         sx={{
-          padding: "3%",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
-          minWidth: "75%",
+          alignItems: "center",
+          minHeight: "40vh",
         }}
       >
-        <Typography variant="h4" component="h2" align="left" gutterBottom>
-          Floor Alerts
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "40vh",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      </Container>
-    </>
+        <CircularProgress />
+      </Box>
+    </Container>
   ) : (
     <Container
       sx={{
@@ -146,22 +122,14 @@ function FloorTxns() {
         sx={{
           backgroundColor: "#000000",
           boxShadow: "0px 0px 1px 0px #c5c2f1",
-          overflow: "hidden", // Add this to disable the scroll bar
+          overflow: "hidden",
         }}
       >
-        <Table
-          sx={{
-            backgroundColor: "#000000",
-          }}
-        >
+        <Table sx={{ backgroundColor: "#000000" }}>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Tracking Type</TableCell>
-              <TableCell>Ref Price</TableCell>
-              <TableCell>Tracking Direction</TableCell>
-              <TableCell>Tracking Value(%)</TableCell>
-              <TableCell></TableCell>
+              <TableCell align="right">Alerts Enabled</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -179,88 +147,20 @@ function FloorTxns() {
                   <Avatar src={item.image} alt={item.name} />
                   <Typography variant="body1">{item.name}</Typography>
                 </TableCell>
-                <TableCell>
-                  <FormControl
-                    sx={{
-                      width: "100%",
-                    }}
-                  >
-                    <InputLabel style={{ color: "#989a9c" }}>Choose</InputLabel>
-                    <Select
-                      label="Choose"
-                      sx={{ width: "100%" }}
-                      value={alertData[index].trackingType}
-                      onChange={(e) => {
-                        const newAlertData = [...alertData];
-                        newAlertData[index].trackingType = e.target.value;
-                        setAlertData(newAlertData);
-                      }}
-                    >
-                      <MenuItem value={"Percent Movement"}>Percent</MenuItem>
-                      <MenuItem value={"Absolute Value"}>Absolute</MenuItem>
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Enter Price"
-                    value={alertData[index].refPrice}
-                    onChange={(e) => {
-                      const newAlertData = [...alertData];
-                      newAlertData[index].refPrice = e.target.value;
-                      setAlertData(newAlertData);
-                    }}
-                    sx={{
-                      width: "100%",
-                    }}
+                <TableCell align="right">
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={alertEntries.some(
+                          (alert: any) =>
+                            alert.collectionId === item.collection_id
+                        )}
+                        onChange={() => setAlert(index)}
+                        inputProps={{ "aria-label": "alerts enabled" }}
+                      />
+                    }
+                    label={""}
                   />
-                </TableCell>
-                <TableCell>
-                  <FormControl
-                    sx={{
-                      width: "100%",
-                    }}
-                  >
-                    <InputLabel style={{ color: "#989a9c" }}>Choose</InputLabel>
-                    <Select
-                      label="Choose"
-                      sx={{
-                        width: "100%",
-                      }}
-                      value={alertData[index].trackingDirection}
-                      onChange={(e) => {
-                        const newAlertData = [...alertData];
-                        newAlertData[index].trackingDirection = e.target.value;
-                        setAlertData(newAlertData);
-                      }}
-                    >
-                      <MenuItem value={"Up"}>Up</MenuItem>
-                      <MenuItem value={"Down"}>Down</MenuItem>
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Enter Value"
-                    value={alertData[index].trackingValue}
-                    onChange={(e) => {
-                      const newAlertData = [...alertData];
-                      newAlertData[index].trackingValue = e.target.value;
-                      setAlertData(newAlertData);
-                    }}
-                    sx={{
-                      width: "100%",
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setAlert(index)}
-                  >
-                    Set Alert
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
