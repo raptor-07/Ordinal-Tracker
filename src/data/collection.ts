@@ -245,12 +245,7 @@ export const isInCollection = async (collectionId: string) => {
   }
 };
 
-export const createAlertEntryForUser = async (user: any, alertData: any) => {
-  const {
-    collectionId,
-  } = alertData;
-
-  console.log("alertData", alertData);
+export const createAlertEntryForUser = async (user: any, collectionId: any) => {
 
   const trackTypeEnum = {
     "Percent Movement": "percentage",
