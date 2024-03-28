@@ -247,29 +247,21 @@ export const isInCollection = async (collectionId: string) => {
 
 export const createAlertEntryForUser = async (user: any, alertData: any) => {
   const {
-    trackingType,
-    refPrice,
-    trackingDirection,
-    trackingValue,
     collectionId,
   } = alertData;
 
   console.log("alertData", alertData);
 
-  if (
-    !trackingType ||
-    !refPrice ||
-    !trackingDirection ||
-    !trackingValue ||
-    !collectionId
-  ) {
-    throw new Error("Invalid alert data");
-  }
-
   const trackTypeEnum = {
     "Percent Movement": "percentage",
     "Absolute Value": "absolute_value",
   };
+
+  // Hard coded values
+  const trackingType = "Percent Movement";
+  const refPrice = "100";
+  const trackingDirection = "Up";
+  const trackingValue = "10";
 
   try {
     const newAlert = await db.floorAlerts.create({
@@ -303,6 +295,21 @@ export const createAlertEntryForUser = async (user: any, alertData: any) => {
     throw error;
   }
 };
+
+export const getAlertEntriesForUser = async (user: any) => {
+  try {
+    const alerts = await db.floorAlerts.findMany({
+      where: {
+        uId: user.uId,
+      },
+    });
+
+    return alerts;
+  } catch (error) {
+    console.error("Error getting alert entries for user:", error);
+    throw error;
+  }
+}
 
 export const deleteAlertEnryById = async (user: any, alertId: string) => {
   try {
