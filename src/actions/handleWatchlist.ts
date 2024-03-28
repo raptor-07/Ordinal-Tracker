@@ -214,6 +214,9 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     // console.log("inwatchlist", inwatchlist);
 
     //return collection details
+    const stats: any[] = await getCollectionsStats([collectionId]);
+    const floor: any[] = await getCollectionsFloor([collectionId]);
+
     return ({
       name: collectionDetails.name,
       image: collectionDetails.image,
@@ -222,6 +225,13 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
       owner_count: collectionDetails.owner_count,
       nft_count: collectionDetails.nft_count,
       quantity: collectionDetails.quantity,
+      volume_1d: stats[0].volume_1d,
+      volume_7d: stats[0].volume_7d,
+      volume_30d: stats[0].volume_30d,
+      market_cap: stats[0].market_cap,
+      floor_price: floor[0].floor_price,
+      One_D_floor: floor[0].One_D_floor,
+      Seven_D_floor: floor[0].Seven_D_floor,
     } = collectionDetails);
   } catch (error: any) {
     console.error("Error in addWatchListBySlug:", error);
