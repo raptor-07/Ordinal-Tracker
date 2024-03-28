@@ -18,6 +18,8 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -35,6 +37,9 @@ import {
   formatPercentage,
   satoshisToBTC,
 } from "../dashboard/Table";
+import { getAlertEntries } from "@/actions/getAlertEntries";
+import { createAlertEntry } from "@/actions/createAlertEntry";
+import { deleteAlertEntry } from "@/actions/deleteAlertEntry";
 
 export interface Watchlist {
   name: string;
@@ -68,14 +73,15 @@ export default function CollectionTable({
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const router = useRouter();
-
   const user: any = useCurrentUser();
+  const router = useRouter();
   let userRef: any = React.useRef(user);
+  console.log("userRef in Table", userRef, user);
 
   const [fetchData, setFetchData] = React.useState<boolean>(true);
   const watchlistCollectionIds = React.useRef([]);
   const [reloadTable, setReloadTable] = React.useState<boolean>(false);
+  const [alerts, setAlerts] = React.useState<any>([]);
 
   const buttonVariants = {
     hover: {
@@ -113,6 +119,20 @@ export default function CollectionTable({
     console.log("watchlistCollectionIds", watchlistCollectionIds);
     setReloadTable(!reloadTable);
   }, [watchlist, fetchData]);
+
+  React.useEffect(() => {
+    //get alerts data
+    const fetchAlerts = async () => {
+      try {
+        const alertsData = await getAlertEntries(userRef);
+        setAlerts(alertsData);
+      } catch (error) {
+        console.error("Error fetching alerts:", error);
+      }
+    };
+
+    fetchAlerts();
+  }, []);
 
   React.useEffect(() => {
     //get watchlist data
@@ -213,6 +233,57 @@ export default function CollectionTable({
     } catch (error) {
       // Handle the error
       console.error(error);
+    }
+  };
+
+  const setAlertsHandler = async (collectionId: string) => {
+    //create alert or delete alert
+    const isInAlerts = alerts.some(
+      (alert: any) => alert.collectionId === collectionId
+    );
+    if (isInAlerts) {
+      //delete alert
+      const alertToDelete = alerts.find(
+        (alert: any) => alert.collectionId === collectionId
+      );
+      try {
+        const result: any = await deleteAlertEntry(userRef, alertToDelete.aId);
+
+        if (result?.error) {
+          console.error(result.error);
+          alert("Error in deleting alert");
+          return;
+        }
+
+        // If the database action is successful, update the Ref, localstorage
+        const updatedAlerts = alerts.filter(
+          (alert: any) => alert.collectionId !== collectionId
+        );
+        setAlerts(updatedAlerts);
+        return;
+      } catch (error) {
+        // Handle the error
+        console.error(error);
+      }
+    } else {
+      //create alert
+      try {
+        const result: any = await createAlertEntry(userRef, { collectionId });
+
+        if (result?.error) {
+          console.error(result.error);
+          alert("Error in adding alert");
+          return;
+        }
+
+        // If the database action is successful, update the Ref, localstorage
+        const updatedAlerts = [...alerts, result];
+        setAlerts(updatedAlerts);
+        return;
+      } catch (error) {
+        // Handle the error
+        console.error(error);
+      }
     }
   };
 
@@ -579,6 +650,22 @@ export default function CollectionTable({
                           ) : (
                             <></>
                           ))}
+                      </motion.div>
+                      <motion.div
+                        whileHover="hover"
+                        whileTap="tap"
+                        variants={starVariants}
+                        onClick={() => setAlertsHandler(row.collection_id)}
+                      >
+                        {row.image !== "" &&
+                        alerts.some(
+                          (alert: any) =>
+                            alert.collectionId === row.collection_id
+                        ) ? (
+                          <NotificationsActiveIcon />
+                        ) : (
+                          <NotificationsNoneIcon />
+                        )}
                       </motion.div>
                     </Box>
                   </TableCell>
