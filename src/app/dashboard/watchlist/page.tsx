@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
   const user = useCurrentUser();
+  const userRef: any = React.useRef(user);
   const router = useRouter();
 
   const [watchlist, setWatchlist] = React.useState<Watchlist[]>([
@@ -33,7 +34,7 @@ const Page: React.FC = () => {
   const [sort, setSort] = React.useState<string>("floor");
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
-  if (typeof window !== "undefined" && !user) {
+  if (typeof window !== "undefined" && !userRef.current) {
     alert("You are not logged in");
     router.push("/auth/signin");
     return null;

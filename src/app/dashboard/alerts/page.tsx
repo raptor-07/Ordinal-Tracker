@@ -13,9 +13,10 @@ interface Props {}
 
 const MyComponent: React.FC<Props> = (props) => {
   const user = useCurrentUser();
+  const userRef: any = React.useRef(user);
   const router = useRouter();
 
-  if (typeof window !== "undefined" && !user) {
+  if (typeof window !== "undefined" && !userRef.current) {
     alert("You are not logged in");
     router.push("/auth/signin");
     return null;
