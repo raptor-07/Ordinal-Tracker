@@ -32,7 +32,7 @@ const MyComponent: React.FC<Props> = (props) => {
       >
         <WalletTxns />
         <FloorTxns />
-        <ActiveAlerts />
+        {/* <ActiveAlerts />s */}
       </Container>
     </SharedReloadProvider>
   );
