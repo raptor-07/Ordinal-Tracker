@@ -18,8 +18,20 @@ const Page: React.FC = () => {
       image: "",
       collection_id: "",
       description: "",
+      owner_count: 0,
+      nft_count: 0,
+      quantity: 0,
+      volume_1d: 0,
+      volume_7d: 0,
+      volume_30d: 0,
+      market_cap: 0,
+      floor_price: 0,
+      One_D_floor: 0,
+      Seven_D_floor: 0,
     },
   ]);
+  const [sort, setSort] = React.useState<string>("floor");
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   if (typeof window !== "undefined" && !user) {
     alert("You are not logged in");
@@ -40,8 +52,8 @@ const Page: React.FC = () => {
         minWidth: "100%",
       }}
     >
-      <SearchWatchlist watchlist={watchlist} setWatchlist={setWatchlist} />
-      <CollectionTable watchlist={watchlist} setWatchlist={setWatchlist} />
+      <SearchWatchlist watchlist={watchlist} setWatchlist={setWatchlist} sort={sort} setSort={setSort} isLoading={isLoading} setIsLoading={setIsLoading}/>
+      <CollectionTable watchlist={watchlist} setWatchlist={setWatchlist} sort={sort} setSort={setSort} isLoading={isLoading} setIsLoading={setIsLoading}/>
     </Container>
   );
 };
