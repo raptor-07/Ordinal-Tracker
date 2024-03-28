@@ -26,27 +26,56 @@ import { getWatchlists } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import {
+  addWatchListById,
+  deleteWatchlistById,
+} from "@/actions/handleWatchlist";
+import {
+  sortingTable,
+  formatPercentage,
+  satoshisToBTC,
+} from "../dashboard/Table";
 
 export interface Watchlist {
   name: string;
   image: string;
   collection_id: string;
   description: string;
+  owner_count: number;
+  nft_count: number;
+  quantity: number;
+  volume_1d: number;
+  volume_7d: number;
+  volume_30d: number;
+  market_cap: number;
+  floor_price: number;
+  One_D_floor: number;
+  Seven_D_floor: number;
 }
 
 export default function CollectionTable({
   watchlist,
   setWatchlist,
+  sort,
+  setSort,
+  isLoading,
+  setIsLoading,
 }: {
   watchlist: Watchlist[];
   setWatchlist: React.Dispatch<React.SetStateAction<any>>;
+  sort: string;
+  setSort: React.Dispatch<React.SetStateAction<string>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const router = useRouter();
 
   const user: any = useCurrentUser();
   let userRef: any = React.useRef(user);
 
-  const [sort, setSort] = React.useState<string>("");
+  const [fetchData, setFetchData] = React.useState<boolean>(true);
+  const watchlistCollectionIds = React.useRef([]);
+  const [reloadTable, setReloadTable] = React.useState<boolean>(false);
 
   const buttonVariants = {
     hover: {
@@ -74,9 +103,40 @@ export default function CollectionTable({
   };
 
   React.useEffect(() => {
-    //get watchlist data from db - initial fetch
+    //get watchlist collection ids
+    const watchlistCollections: any = [];
+    watchlist.forEach((collection) => {
+      watchlistCollections.push(collection.collection_id);
+    });
+    watchlistCollectionIds.current = watchlistCollections;
+
+    console.log("watchlistCollectionIds", watchlistCollectionIds);
+    setReloadTable(!reloadTable);
+  }, [watchlist, fetchData]);
+
+  React.useEffect(() => {
+    //get watchlist data
     const fetchData = async () => {
+      const watchlistTableData = localStorage.getItem("watchlistTableData");
+      if (watchlistTableData) {
+        // Data exists locally - use it
+        console.log(
+          "Data exists in local storage - using local storage to render data"
+        );
+        setWatchlist(JSON.parse(watchlistTableData));
+        setIsLoading(false);
+        return;
+      }
+
+      //fetch from api
       const data = await getWatchlists(userRef);
+      //store data in local storage
+      localStorage.setItem(
+        "watchlistTableData",
+        JSON.stringify(data.watchlists)
+      );
+
+      console.log("watchlist data", data);
       if (data.error) {
         if (data.error === "Please login to view your watchlist") {
           alert(data.error);
@@ -86,38 +146,88 @@ export default function CollectionTable({
         return;
       }
       if (data.watchlists) {
-        setWatchlist(data.watchlists);
+        const sortedData = sortingTable(sort, data.watchlists);
+        console.log("sortedData", sortedData);
+        setWatchlist(sortedData);
+        localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
+        setIsLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleRefetch = async () => {
-    // const data = await getWatchlists(userRef);
-    // if (data.error) {
-    //   if (data.error === "Please login to view your watchlist") {
-    //     alert(data.error);
-    //     router.push("/auth/signin");
-    //   }
-    //   alert(data.error);
-    //   return;
-    // }
-    // if (data.watchlists) {
-    //   setWatchlist(data.watchlists);
-    // }
+    localStorage.removeItem("watchlistTableData");
+    setIsLoading(true);
+    setFetchData(!fetchData);
   };
 
   const handleSort = (sort: string) => {
-    // setSort(sort);
-    // if (sort === "floor") {
-    //   const sorted = watchlist.sort((a, b) => {
-    //     return a.description.localeCompare(b.description);
-    //   });
-    //   setWatchlist([...sorted]);
-    // }
+    const sortedData = sortingTable(sort, watchlist);
+    setWatchlist(sortedData);
+    setSort(sort);
   };
 
-  return (
+  const markAsWatchlist = async (collectionId: string) => {
+    try {
+      const result: any = await deleteWatchlistById(collectionId, userRef);
+
+      if (result?.error) {
+        console.error(result.error);
+        alert("Error in deleting collection from watchlist");
+        return;
+      }
+
+      // If the database action is successful, update the Ref, localstorage
+      watchlistCollectionIds.current.filter((id: any) => id !== collectionId);
+
+      const currentWatchlistTableData: any =
+        localStorage.getItem("watchlistTableData");
+      const updatedWatchlistData = JSON.parse(currentWatchlistTableData).filter(
+        (collection: any) => collection.collection_id !== collectionId
+      );
+      localStorage.setItem(
+        "watchlistTableData",
+        JSON.stringify(updatedWatchlistData)
+      );
+      console.log("updatedWatchlistData", updatedWatchlistData);
+
+      const currentWatchlistCollectionIds: any =
+        localStorage.getItem("watchlistData");
+      const updatedWatchlistCollectionIds = JSON.parse(
+        currentWatchlistCollectionIds
+      ).filter((id: any) => id !== collectionId);
+      localStorage.setItem(
+        "watchlistData",
+        JSON.stringify(updatedWatchlistCollectionIds)
+      );
+      console.log(
+        "updatedWatchlistCollectionIds",
+        updatedWatchlistCollectionIds
+      );
+
+      setWatchlist(updatedWatchlistData);
+      setReloadTable(!reloadTable);
+
+      return;
+    } catch (error) {
+      // Handle the error
+      console.error(error);
+    }
+  };
+
+  return isLoading ? (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "80vh",
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  ) : (
     <TableContainer
       component={Paper}
       sx={{
@@ -434,42 +544,100 @@ export default function CollectionTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {watchlist.map((item, index) => (
-            <TableRow key={index}>
-              <TableCell
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  borderBottom: "none",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Avatar alt={item.name} src={item.image} />
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      marginLeft: "10px",
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell
-                sx={{
-                  borderBottom: "none",
-                }}
-              >
-                {item.description}
-              </TableCell>
-            </TableRow>
-          ))}
+          {watchlist.map(
+            (row, index) =>
+              watchlistCollectionIds.current.includes(
+                row.collection_id as never
+              ) && (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row">
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                      }}
+                    >
+                      {row.image === "" ? (
+                        <></>
+                      ) : (
+                        <Avatar alt={row.name} src={row.image} />
+                      )}
+
+                      {row.name}
+                      <motion.div
+                        whileHover="hover"
+                        whileTap="tap"
+                        variants={starVariants}
+                        onClick={() => markAsWatchlist(row.collection_id)}
+                      >
+                        {row.image !== "" &&
+                          (watchlistCollectionIds.current.includes(
+                            row.collection_id as never
+                          ) ? (
+                            <Star />
+                          ) : (
+                            <></>
+                          ))}
+                      </motion.div>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.floor_price !== 0 && (
+                      <p style={{ margin: 0, padding: 0 }}>{row.floor_price}</p>
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {formatPercentage({
+                      percentageString: String(String(row.One_D_floor)),
+                    })}
+                  </TableCell>
+                  <TableCell align="center">
+                    {formatPercentage({
+                      percentageString: String(row.Seven_D_floor),
+                    })}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.volume_1d !== 0 && (
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {satoshisToBTC(row.volume_1d)}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.volume_7d !== 0 && (
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {satoshisToBTC(row.volume_7d)}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.volume_30d !== 0 && (
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {satoshisToBTC(row.volume_30d)}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.market_cap !== 0 && (
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {satoshisToBTC(row.market_cap)}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.owner_count !== 0 && row.nft_count !== 0 && (
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {((row.owner_count / row.nft_count) * 100).toPrecision(
+                          3
+                        )}
+                        %
+                      </p>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )
+          )}
         </TableBody>
       </Table>
     </TableContainer>
