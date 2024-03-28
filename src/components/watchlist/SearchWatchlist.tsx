@@ -7,13 +7,22 @@ import { Container } from "@mui/material";
 import { getWatchlists, addWatchListBySlug } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
+import { sortingTable } from "../dashboard/Table";
 
 function SearchWatchlist({
   watchlist,
   setWatchlist,
+  sort,
+  setSort,
+  isLoading,
+  setIsLoading,
 }: {
   watchlist: any;
   setWatchlist: React.Dispatch<React.SetStateAction<any>>;
+  sort: string;
+  setSort: React.Dispatch<React.SetStateAction<string>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const user: any = useCurrentUser();
   const router = useRouter();
@@ -26,6 +35,7 @@ function SearchWatchlist({
 
   const handleaddWatchListBySlug = async (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
+      setIsLoading(true);
       const slug = event.target as HTMLInputElement;
       //add watchlist server action
       const data: any = await addWatchListBySlug(slug.value, userRef);
@@ -42,9 +52,25 @@ function SearchWatchlist({
         }
       }
       //if watchlist added successfully -> force a rerender of the watchlist page
-      console.log("watchlist collections data", data);
-      setWatchlist((prevWatchlist: any) => [...prevWatchlist, data]);
+      // console.log("latest watchlist table data", data);
+      const currentWatchlistTableData: any =
+        localStorage.getItem("watchlistTableData");
+      // console.log("currentWatchlistTableData", currentWatchlistTableData);
+      const appendedWatchlistData = JSON.parse(currentWatchlistTableData).push(
+        data
+      );
+      // console.log("appendedWatchlistData", appendedWatchlistData);
+      const sortedData = sortingTable(sort, [appendedWatchlistData]);
+
+      // console.log("sortedData", sortedData);
+      localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
+
+      setWatchlist(sortedData);
+      setIsLoading(false);
+
       slug.value = "";
+
+      return;
     }
   };
 
