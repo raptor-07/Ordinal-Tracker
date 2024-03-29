@@ -7,7 +7,7 @@ import { Container } from "@mui/material";
 import { getWatchlists, addWatchListBySlug } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
-import { sortingTable } from "../dashboard/Table";
+import { cleanData, sortingTable } from "../dashboard/Table";
 
 function SearchWatchlist({
   watchlist,
@@ -16,6 +16,8 @@ function SearchWatchlist({
   setSort,
   isLoading,
   setIsLoading,
+  sortDirections,
+  setSortDirections,
 }: {
   watchlist: any;
   setWatchlist: React.Dispatch<React.SetStateAction<any>>;
@@ -23,6 +25,8 @@ function SearchWatchlist({
   setSort: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  sortDirections: any;
+  setSortDirections: React.Dispatch<React.SetStateAction<any>>;
 }) {
   const user: any = useCurrentUser();
   const router = useRouter();
@@ -38,7 +42,12 @@ function SearchWatchlist({
       setIsLoading(true);
       const slug = event.target as HTMLInputElement;
       //add watchlist server action
+      // console.log(
+      //   "data before fetch:: \n",
+      //   JSON.parse(localStorage.getItem("watchlistTableData") as string)
+      // );
       const data: any = await addWatchListBySlug(slug.value, userRef);
+
       if (data.error) {
         if (
           data.error === "Please login to add a collection to your watchlist"
@@ -53,19 +62,28 @@ function SearchWatchlist({
       }
       //if watchlist added successfully -> force a rerender of the watchlist page
       // console.log("latest watchlist table data", data);
-      const currentWatchlistTableData: any =
-        localStorage.getItem("watchlistTableData");
-      // console.log("currentWatchlistTableData", currentWatchlistTableData);
-      const appendedWatchlistData = JSON.parse(currentWatchlistTableData).push(
-        data
+      const currentWatchlistTableData: any = JSON.parse(
+        localStorage.getItem("watchlistTableData") as string
       );
-      // console.log("appendedWatchlistData", appendedWatchlistData);
-      const sortedData = sortingTable(sort, [appendedWatchlistData]);
+
+      // console.log("currentWatchlistTableData", currentWatchlistTableData);
+
+      const appendedData = [...currentWatchlistTableData, data];
+
+      let sortedData = sortingTable(
+        sort,
+        appendedData,
+        sortDirections[sort as keyof typeof sortDirections]
+      );
 
       // console.log("sortedData", sortedData);
-      localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
+
+      sortedData = cleanData(sortedData);
+
+      // console.log("cleaned data", sortedData);
 
       setWatchlist(sortedData);
+      localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
       setIsLoading(false);
 
       slug.value = "";
