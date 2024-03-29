@@ -8,10 +8,13 @@ async function getCollectionsStats(collectionIds: string[]) {
     headers.append("x-api-key", apikey);
 
     let allCollectionStats: any = [];
+    // console.log("Inside getCollectionsStats");
 
     for (let i = 0; i < collectionIds.length; i += 5) {
       const currentCollectionIds = collectionIds.slice(i, i + 5);
       const currentCollectionIdsParam = currentCollectionIds.join(",");
+
+      // console.log("currentCollectionIdsParam", currentCollectionIdsParam);
 
       const response = await fetch(
         `https://api.simplehash.com/api/v0/nfts/collections_activity?collection_ids=${currentCollectionIdsParam}`,
@@ -20,6 +23,8 @@ async function getCollectionsStats(collectionIds: string[]) {
           headers: headers,
         }
       );
+
+      // console.log("response", response);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch data from API. Status: ${response.status}`);

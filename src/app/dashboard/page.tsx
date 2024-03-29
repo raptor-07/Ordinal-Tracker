@@ -5,8 +5,6 @@ import React from "react";
 import Wallets from "@/components/dashboard/Wallets";
 import { useCurrentUser } from "@/hooks/current-user";
 import { getWallets } from "@/actions/getWallets";
-import { watch } from "fs";
-import { getWatchlistCollections } from "@/data/collection";
 import { getWatchlistsIds } from "@/actions/handleWatchlist";
 
 interface ChipData {
@@ -22,14 +20,14 @@ function DashboardPage() {
 
   console.log("user", userRef);
 
-  if (typeof window !== "undefined") {
-    console.log("local storage initially", localStorage);
-    localStorageWallets = localStorage.getItem("wallets") || "";
-    // console.log("initialWallets in dashboard page", localStorageWallets);
-    if (localStorageWallets === null || localStorageWallets === "") {
-      localStorage.setItem("wallets", "");
-    }
-  }
+  // if (typeof window !== "undefined") {
+  //   console.log("local storage initially", localStorage);
+  //   localStorageWallets = localStorage.getItem("wallets") || "";
+  //   // console.log("initialWallets in dashboard page", localStorageWallets);
+  //   if (localStorageWallets === null || localStorageWallets === "") {
+  //     localStorage.setItem("wallets", "");
+  //   }
+  // }
 
   let initialWallets: ChipData[];
 
@@ -56,9 +54,11 @@ function DashboardPage() {
       localStorage.removeItem("watchlistData");
       const watchlists = await getWatchlistsIds(userRef);
 
+      // console.log("watchlists in dashboard page", watchlists);
+
       localStorage.setItem("watchlistData", JSON.stringify(watchlists));
 
-      console.log("watchlists in dashboard page", watchlists);
+      // console.log("watchlists in dashboard page", watchlists);
     };
 
     //edge case: checking wallets consistency between local Storage and db at initial render

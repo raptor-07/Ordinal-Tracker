@@ -34,6 +34,8 @@ export const getWatchlists = async (userRef: any): Promise<data> => {
       return { error: "Please login to view your watchlist" };
     }
 
+    // console.log("inside getWatchlists", user);
+
     const collectionsInWatchlist = await getWatchlistCollections(user);
 
     const watchlists: any = await Promise.all(
@@ -81,13 +83,11 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
       },
     });
     console.log("user from db", user);
-    //TODO: handle logout here, Remove session
     if (!user) {
       return { error: "Please login to add a collection to your watchlist" };
     }
 
     const formatSlug = (slug: string) => {
-      //TODO: handle spaces, underscores
       let normalized = slug.toLowerCase();
       normalized = normalized.replace(/\s+/g, "");
       return normalized;
@@ -251,6 +251,8 @@ export const getWatchlistsIds = async (userRef: any) => {
       return { error: "Please login to view your watchlist" };
     }
 
+    // console.log("inside getWatchlistsIds", user);
+
     const collectionsInWatchlist = await getWatchlistCollections(user);
 
     const watchlists: any = collectionsInWatchlist.map((collection: any) => {
@@ -365,6 +367,3 @@ export const deleteWatchlistById = async (collectionId: string, userRef: any) =>
     return { error: error };
   }
 }
-//TODO: create addWatchListBySlugById
-//TODO: create removeWatchlistById
-//TODO: create removeWatchlistBySlug

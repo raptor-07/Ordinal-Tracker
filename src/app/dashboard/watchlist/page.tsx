@@ -34,11 +34,11 @@ const Page: React.FC = () => {
   const [sort, setSort] = React.useState<string>("floor");
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
-  if (typeof window !== "undefined" && !userRef.current) {
-    alert("You are not logged in");
-    router.push("/auth/signin");
-    return null;
-  }
+  // if (typeof window !== "undefined" && !userRef.current) {
+  //   alert("You are not logged in");
+  //   router.push("/auth/signin");
+  //   return null;
+  // }
 
   return (
     <Container

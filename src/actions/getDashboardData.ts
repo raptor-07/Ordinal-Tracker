@@ -129,8 +129,6 @@ async function getDashboardData(
         mergedCollectionIds.length
       );
       console.log("mergedCollectionIds", mergedCollectionIds);
-
-      //TODO: use result from get collection ids to get collection metadata to store onto collection table in db
       const addedCollection: any = await addCollectionsToCollection(
         mergedCollectionIds,
         user,
@@ -201,15 +199,19 @@ async function getDashboardData(
       if (user == null) {
         return { error: "user does not exist" };
       }
+      // console.log("user inside S1WO", user);
       const collectionIds: any = await getUserCollections(user);
       if (collectionIds.error === "No collections found") {
         return { error: collectionIds.error };
       }
 
+      // console.log("collectionIds", collectionIds);
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(collectionIds),
         getCollectionsFloor(collectionIds),
       ]);
+      // console.log("collectionsStats", collectionsStats);
+      // console.log("collectionsFloor", collectionsFloor);
 
       if (getCollectionsStats.length === 0 || collectionsFloor.length === 0) {
         return { error: "No data found" };
@@ -229,6 +231,8 @@ async function getDashboardData(
           ...floorPrice,
         };
       });
+
+      console.log("mergedData", mergedData);
 
       const userWallets = await getUserWallets(user);
       const userWalletsString = userWallets
