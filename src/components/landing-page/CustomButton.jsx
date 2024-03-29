@@ -39,7 +39,7 @@ function CustomButton() {
         <Link href="/dashboard" passHref>
           <Button
             variant="outlined"
-            component="a"
+            component="div"
             sx={{
               color: "primary.main",
               borderColor: "primary.main",

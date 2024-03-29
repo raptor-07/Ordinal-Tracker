@@ -33,43 +33,60 @@ import {
   deleteWatchlistById,
 } from "@/actions/handleWatchlist";
 
-export const sortingTable = (sort: string, data: any[]) => {
+export const sortingTable = (sort: string, data: any[], type: boolean) => {
   let sortedData = [...data];
+
+  // console.log("sortedData before sorting", sortedData);
+
+  const sortFunction = (a: any, b: any, key: string, reverse = false) => {
+    let aValue = a[key];
+    let bValue = b[key];
+
+    // Convert percentage strings to numbers
+    if (typeof aValue === "string" && aValue.endsWith("%")) {
+      aValue = parseFloat(aValue.replace("%", ""));
+    }
+    if (typeof bValue === "string" && bValue.endsWith("%")) {
+      bValue = parseFloat(bValue.replace("%", ""));
+    }
+
+    if (aValue === "-" || bValue === "-") {
+      if (aValue === "-" && bValue === "-") return 0;
+      return aValue === "-" ? 1 : -1;
+    }
+    return type !== reverse ? bValue - aValue : aValue - bValue;
+  };
 
   switch (sort) {
     case "floor":
-      sortedData.sort((a, b) => b.floor_price - a.floor_price);
+      sortedData.sort((a, b) => sortFunction(a, b, "floor_price"));
       break;
     case "1D_floor":
-      sortedData.sort(
-        (a, b) => parseFloat(b.One_D_floor) - parseFloat(a.One_D_floor)
-      );
+      sortedData.sort((a, b) => sortFunction(a, b, "One_D_floor"));
       break;
     case "7D_floor":
-      sortedData.sort(
-        (a, b) => parseFloat(b.Seven_D_floor) - parseFloat(a.Seven_D_floor)
-      );
+      sortedData.sort((a, b) => sortFunction(a, b, "Seven_D_floor"));
       break;
     case "1D_volume":
-      sortedData.sort((a, b) => b.volume_1d - a.volume_1d);
+      sortedData.sort((a, b) => sortFunction(a, b, "volume_1d"));
       break;
     case "7D_volume":
-      sortedData.sort((a, b) => b.volume_7d - a.volume_7d);
+      sortedData.sort((a, b) => sortFunction(a, b, "volume_7d"));
       break;
     case "30D_volume":
-      sortedData.sort((a, b) => b.volume_30d - a.volume_30d);
+      sortedData.sort((a, b) => sortFunction(a, b, "volume_30d"));
       break;
     case "market_cap":
-      sortedData.sort((a, b) => b.market_cap - a.market_cap);
+      sortedData.sort((a, b) => sortFunction(a, b, "market_cap"));
       break;
     case "owners":
-      sortedData.sort(
-        (a, b) => b.distinct_owner_count - a.distinct_owner_count
-      );
+      sortedData.sort((a, b) => sortFunction(a, b, "distinct_owner_count"));
       break;
     default:
       break;
   }
+
+  // console.log("sortedData after sorting", sortedData);
 
   return sortedData;
 };
@@ -96,16 +113,13 @@ export function satoshisToBTC(satoshis: any) {
     return "";
   }
 
-  return btc.toFixed(2);
+  return isNaN(btc) ? 0.0 : btc.toFixed(2);
 }
-
-export type TableCellProps = {
-  percentageString: string;
-};
 
 export const formatPercentage = ({
   percentageString,
 }: TableCellProps): JSX.Element => {
+  // console.log("percentageString", percentageString, typeof percentageString);
   if (typeof percentageString !== "string") {
     return <p>{percentageString}</p>;
   }
@@ -117,13 +131,40 @@ export const formatPercentage = ({
     margin: 0,
     padding: 0,
     fontWeight: "bold" as const,
-    textShadow:
-      "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
+    textShadow: "0px 0px 16px",
     boxShadow: "2px 2px 4px rgba(0, 0, 0.8, 0.3), 0 0 8px rgba(0, 0, 0.8, 0.3)",
-    color: percentage >= 0 ? "#7bdb63" : "#e04031",
+    color: percentage >= 0 ? "rgb(173, 226, 93)" : "#f52c16",
   };
 
   return <p style={textStyle}>{percentageString}</p>;
+};
+
+export const cleanData = (data: any) => {
+  // Clean the data for NaN, "Infinity", null, undefined, ""
+  // Replace these values with a hyphen "-"
+  const cleanedData = data.map((item: any) => {
+    const cleanedItem = { ...item };
+    // console.log("cleaned item before:", cleanedItem);
+    Object.keys(cleanedItem).forEach((key) => {
+      if (
+        cleanedItem[key] === "NaN%" ||
+        cleanedItem[key] == "Infinity%" ||
+        cleanedItem[key] === null ||
+        cleanedItem[key] === undefined ||
+        cleanedItem[key] === 0 ||
+        cleanedItem[key] === ""
+      ) {
+        cleanedItem[key] = "-";
+      }
+    });
+    // console.log("cleanedItem After", cleanedItem);
+    return cleanedItem;
+  });
+  return cleanedData;
+};
+
+export type TableCellProps = {
+  percentageString: string;
 };
 
 export default function CollectionTable({
@@ -173,9 +214,6 @@ export default function CollectionTable({
     tap: { scale: 0.95 },
   };
 
-  //TODO: create a state for sorting
-  //TODO: create a function to sort by sorting state
-
   const router = useRouter();
 
   const [dashBoardData, setDashBoardData] = React.useState<any>([
@@ -202,6 +240,30 @@ export default function CollectionTable({
   const [open, setOpen] = React.useState(false);
 
   const [sort, setSort] = React.useState("floor");
+
+  const [sortDirections, setSortDirections] = React.useState({
+    floor: false,
+    "1D_floor": true,
+    "7D_floor": true,
+    "1D_volume": true,
+    "7D_volume": true,
+    "30D_volume": true,
+    market_cap: true,
+    owners: true,
+  });
+
+  const [activeSort, setActiveSort] = React.useState("floor");
+
+  const tableCells = [
+    "floor",
+    "1D_floor",
+    "7D_floor",
+    "1D_volume",
+    "7D_volume",
+    "30D_volume",
+    "market_cap",
+    "owners",
+  ];
 
   React.useEffect(() => {
     if (wallets.length == 0 && userRef.current == undefined) {
@@ -232,7 +294,6 @@ export default function CollectionTable({
     if (wallets.length == 0 && userRef.current == undefined) {
       //Session 0 | Wallets 0
       console.log("No wallets and session");
-      //TODO: Add another field - owners count
       setDashBoardData([
         {
           collection_id: "",
@@ -254,7 +315,6 @@ export default function CollectionTable({
       return;
     }
     const fetchData = async () => {
-      //TODO: check if data exists in local storage -> if not then fetch
       if (
         localStorage.getItem("dashboardData") !== null &&
         localStorage.getItem("dashboardData") !== undefined &&
@@ -264,8 +324,15 @@ export default function CollectionTable({
         console.log(
           "data exists in local storage - using local storage to render data"
         );
-        const dashboardData: any = localStorage.getItem("dashboardData");
-        setDashBoardData(JSON.parse(dashboardData));
+        let dashboardData: any = localStorage.getItem("dashboardData");
+
+        dashboardData = sortingTable(sort, JSON.parse(dashboardData), true);
+
+        dashboardData = cleanData(dashboardData);
+
+        // console.log("dashboardData", dashboardData);
+
+        setDashBoardData(dashboardData);
 
         setIsLoading(false);
 
@@ -296,8 +363,9 @@ export default function CollectionTable({
       });
 
       // Race between dataPromise and timeoutPromise #FIXME
-      //TODO: What type is being returned by timeoutPromise - error handling
       let data = await Promise.race([dataPromise, timeoutPromise]);
+
+      console.log("data", data);
 
       if (data.wallets) {
         //Session 1 | Wallets 0
@@ -306,12 +374,21 @@ export default function CollectionTable({
         console.log("data.wallets", data.wallets);
         console.log("wallets", wallets);
         localStorage.setItem("wallets", data.wallets);
-        localStorage.setItem("dashboardData", JSON.stringify(data.data));
+
+        let dataFormat = data.data;
+        dataFormat = sortingTable(sort, dataFormat, true);
+        dataFormat = cleanData(dataFormat);
+        dataFormat = dataFormat.filter(
+          (obj: any) => Object.keys(obj).length !== 0
+        );
+        // console.log("dataFormat", dataFormat);
+
+        localStorage.setItem("dashboardData", JSON.stringify(dataFormat));
         // console.log("data for dashboard on client", data);
-        data = sortingTable(sort, data.data);
+        data = sortingTable(sort, data.data, true);
+        data = cleanData(data);
         data = data.filter((obj: any) => Object.keys(obj).length !== 0);
         setDashBoardData(data);
-        //TODO: set dashboard data in local storage
         // localStorage.setItem("dashboardData", JSON.stringify(data.data));
         // setIsLocalData(true);
         setReload(!reload);
@@ -322,9 +399,7 @@ export default function CollectionTable({
       if (data !== null && data !== undefined) {
         console.log("data", data);
         console.log("type: ");
-        data = sortingTable(sort, data);
-        data = data.filter((obj: any) => Object.keys(obj).length !== 0);
-        console.log("data", data);
+
         //filtering for empty {} objects
         if (data.error) {
           if (data.error === "No collections found") {
@@ -380,19 +455,17 @@ export default function CollectionTable({
           return;
         }
 
+        data = sortingTable(sort, data, true);
+        data = cleanData(data);
+        data = data.filter((obj: any) => Object.keys(obj).length !== 0);
+        console.log("data", data);
         setDashBoardData(data);
         setIsLoading(false);
-        //TODO: set wallets in local storage
         localStorage.setItem("dashboardData", JSON.stringify(data));
       } else {
         alert("Service down, please try again later! from 9");
         return;
       }
-
-      // const watchlistData = await checkDb
-      //error handling
-      //setwatchlist
-      //save in local storage
     };
     fetchData();
   }, [fetchData]);
@@ -477,7 +550,28 @@ export default function CollectionTable({
 
   const handleSort = (sort: string) => {
     setSort(sort);
-    setDashBoardData(sortingTable(sort, dashBoardData));
+    setDashBoardData(
+      sortingTable(
+        sort,
+        dashBoardData,
+        sortDirections[sort as keyof typeof sortDirections]
+      )
+    );
+
+    // Set all sortDirections values to false
+    const newSortDirections = Object.keys(sortDirections).reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {}
+    );
+
+    setActiveSort(sort);
+
+    // Toggle the clicked cell's value
+    setSortDirections((prevState: any) => ({
+      ...prevState,
+      ...newSortDirections,
+      [sort]: !prevState[sort],
+    }));
   };
 
   return isLoading ? (
@@ -565,246 +659,41 @@ export default function CollectionTable({
                   </p>
                 </Box>
               </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  Floor
-                  {sort === "floor" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("floor")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  1D Floor Change
-                  {sort === "1D_floor" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("1D_floor")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  7D Floor Change
-                  {sort === "7D_floor" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("7D_floor")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  Volume 1D
-                  {sort === "1D_volume" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("1D_volume")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  Volume 7D
-                  {sort === "7D_volume" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("7D_volume")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  Volume 30D
-                  {sort === "30D_volume" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("30D_volume")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  MCap
-                  {sort === "market_cap" ? (
-                    <ArrowDropUpIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      onClick={() => handleSort("market_cap")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
-              <TableCell align="right">
-                <p
-                  style={{
-                    fontWeight: 700,
-                    margin: "0",
-                    textDecorationLine: "underline",
-                    textUnderlineOffset: "4px",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  Owners (%)
-                  {sort === "owners" ? (
-                    <ArrowDropUpIcon
-                      onClick={() => handleSort("owners")}
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  ) : (
-                    <ArrowDropDownIcon
-                      sx={{
-                        margin: "0",
-                      }}
-                    />
-                  )}
-                </p>
-              </TableCell>
+              {tableCells.map((cell) => (
+                <TableCell align="right" key={cell}>
+                  <p
+                    style={{
+                      fontWeight: 700,
+                      margin: "0",
+                      textDecorationLine: "underline",
+                      textUnderlineOffset: "4px",
+                      padding: "0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {cell.charAt(0).toUpperCase() + cell.slice(1)}
+                    {sortDirections[cell as keyof typeof sortDirections] ? (
+                      <ArrowDropUpIcon
+                        sx={{
+                          margin: "0",
+                          color: activeSort === cell ? "white" : "grey",
+                        }}
+                        onClick={() => handleSort(cell)}
+                      />
+                    ) : (
+                      <ArrowDropDownIcon
+                        onClick={() => handleSort(cell)}
+                        sx={{
+                          margin: "0",
+                          color: activeSort === cell ? "white" : "grey",
+                        }}
+                      />
+                    )}
+                  </p>
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -844,7 +733,11 @@ export default function CollectionTable({
                   </Box>
                 </TableCell>
                 <TableCell align="center">
-                  {formatPercentage({ percentageString: row.floor_price })}
+                  {row.volume_1d !== "" && (
+                    <p style={{ margin: 0, padding: 0 }}>
+                      {satoshisToBTC(row.floor_price)}
+                    </p>
+                  )}
                 </TableCell>
                 <TableCell align="center">
                   {formatPercentage({ percentageString: row.One_D_floor })}

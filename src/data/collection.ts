@@ -168,7 +168,7 @@ export const getWatchlistCollections = async (user: any) => {
         uId: user.uId,
       },
     });
-    console.log("collections", collections);
+    // console.log("collections", collections);
     return collections;
   } catch (error) {
     console.error("Error in getWatchlistCollections:", error);

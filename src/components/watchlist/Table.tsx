@@ -36,10 +36,12 @@ import {
   sortingTable,
   formatPercentage,
   satoshisToBTC,
+  cleanData,
 } from "../dashboard/Table";
 import { getAlertEntries } from "@/actions/getAlertEntries";
 import { createAlertEntry } from "@/actions/createAlertEntry";
 import { deleteAlertEntry } from "@/actions/deleteAlertEntry";
+import { set } from "zod";
 
 export interface Watchlist {
   name: string;
@@ -65,6 +67,8 @@ export default function CollectionTable({
   setSort,
   isLoading,
   setIsLoading,
+  sortDirections,
+  setSortDirections,
 }: {
   watchlist: Watchlist[];
   setWatchlist: React.Dispatch<React.SetStateAction<any>>;
@@ -72,6 +76,8 @@ export default function CollectionTable({
   setSort: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  sortDirections: any;
+  setSortDirections: React.Dispatch<React.SetStateAction<any>>;
 }) {
   const user: any = useCurrentUser();
   const router = useRouter();
@@ -82,6 +88,22 @@ export default function CollectionTable({
   const watchlistCollectionIds = React.useRef([]);
   const [reloadTable, setReloadTable] = React.useState<boolean>(false);
   const [alerts, setAlerts] = React.useState<any>([]);
+  const [open, setOpen] = React.useState(false);
+
+  const [activeSort, setActiveSort] = React.useState("floor");
+
+  const tableCells = [
+    "floor",
+    "1D_floor",
+    "7D_floor",
+    "1D_volume",
+    "7D_volume",
+    "30D_volume",
+    "market_cap",
+    "owners",
+  ];
+
+  const [loadStar, setLoadStar] = React.useState(false);
 
   const buttonVariants = {
     hover: {
@@ -136,6 +158,7 @@ export default function CollectionTable({
 
   React.useEffect(() => {
     //get watchlist data
+    setLoadStar(true);
     const fetchData = async () => {
       const watchlistTableData = localStorage.getItem("watchlistTableData");
       if (watchlistTableData) {
@@ -144,6 +167,7 @@ export default function CollectionTable({
           "Data exists in local storage - using local storage to render data"
         );
         setWatchlist(JSON.parse(watchlistTableData));
+        setLoadStar(false);
         setIsLoading(false);
         return;
       }
@@ -166,10 +190,12 @@ export default function CollectionTable({
         return;
       }
       if (data.watchlists) {
-        const sortedData = sortingTable(sort, data.watchlists);
+        let sortedData = sortingTable(sort, data.watchlists, true);
+        sortedData = cleanData(sortedData);
         console.log("sortedData", sortedData);
         setWatchlist(sortedData);
         localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
+        setLoadStar(false);
         setIsLoading(false);
       }
     };
@@ -183,13 +209,33 @@ export default function CollectionTable({
   };
 
   const handleSort = (sort: string) => {
-    const sortedData = sortingTable(sort, watchlist);
-    setWatchlist(sortedData);
     setSort(sort);
+    const sortedData = sortingTable(
+      sort,
+      watchlist,
+      sortDirections[sort as keyof typeof sortDirections]
+    );
+    setWatchlist(sortedData);
+
+    // Set all sortDirections values to false
+    const newSortDirections = Object.keys(sortDirections).reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {}
+    );
+
+    setActiveSort(sort);
+
+    // Toggle the clicked cell's value
+    setSortDirections((prevState: any) => ({
+      ...prevState,
+      ...newSortDirections,
+      [sort]: !prevState[sort],
+    }));
   };
 
   const markAsWatchlist = async (collectionId: string) => {
     try {
+      setLoadStar(true);
       const result: any = await deleteWatchlistById(collectionId, userRef);
 
       if (result?.error) {
@@ -227,6 +273,7 @@ export default function CollectionTable({
       );
 
       setWatchlist(updatedWatchlistData);
+      setLoadStar(false);
       setReloadTable(!reloadTable);
 
       return;
@@ -372,246 +419,41 @@ export default function CollectionTable({
                 </p>
               </Box>
             </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                Floor
-                {sort === "floor" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("floor")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                1D Floor Change
-                {sort === "1D_floor" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("1D_floor")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                7D Floor Change
-                {sort === "7D_floor" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("7D_floor")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                Volume 1D
-                {sort === "1D_volume" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("1D_volume")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                Volume 7D
-                {sort === "7D_volume" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("7D_volume")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                Volume 30D
-                {sort === "30D_volume" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("30D_volume")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                MCap
-                {sort === "market_cap" ? (
-                  <ArrowDropUpIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    onClick={() => handleSort("market_cap")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
-            <TableCell align="right">
-              <p
-                style={{
-                  fontWeight: 700,
-                  margin: "0",
-                  textDecorationLine: "underline",
-                  textUnderlineOffset: "4px",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                Owners (%)
-                {sort === "owners" ? (
-                  <ArrowDropUpIcon
-                    onClick={() => handleSort("owners")}
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                ) : (
-                  <ArrowDropDownIcon
-                    sx={{
-                      margin: "0",
-                    }}
-                  />
-                )}
-              </p>
-            </TableCell>
+            {tableCells.map((cell) => (
+              <TableCell align="right" key={cell}>
+                <p
+                  style={{
+                    fontWeight: 700,
+                    margin: "0",
+                    textDecorationLine: "underline",
+                    textUnderlineOffset: "4px",
+                    padding: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {cell.charAt(0).toUpperCase() + cell.slice(1)}
+                  {sortDirections[cell as keyof typeof sortDirections] ? (
+                    <ArrowDropUpIcon
+                      sx={{
+                        margin: "0",
+                        color: activeSort === cell ? "white" : "grey",
+                      }}
+                      onClick={() => handleSort(cell)}
+                    />
+                  ) : (
+                    <ArrowDropDownIcon
+                      onClick={() => handleSort(cell)}
+                      sx={{
+                        margin: "0",
+                        color: activeSort === cell ? "white" : "grey",
+                      }}
+                    />
+                  )}
+                </p>
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -648,7 +490,14 @@ export default function CollectionTable({
                           ) ? (
                             <Star />
                           ) : (
-                            <></>
+                            <>
+                              <CircularProgress
+                                sx={{
+                                  width: "20px",
+                                  height: "20px",
+                                }}
+                              />
+                            </>
                           ))}
                       </motion.div>
                       <motion.div

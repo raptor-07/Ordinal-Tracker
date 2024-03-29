@@ -34,11 +34,22 @@ const Page: React.FC = () => {
   const [sort, setSort] = React.useState<string>("floor");
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
-  if (typeof window !== "undefined" && !userRef.current) {
-    alert("You are not logged in 3");
-    // router.push("/auth/signin");
-    // return null;
-  }
+  const [sortDirections, setSortDirections] = React.useState({
+    floor: false,
+    "1D_floor": true,
+    "7D_floor": true,
+    "1D_volume": true,
+    "7D_volume": true,
+    "30D_volume": true,
+    market_cap: true,
+    owners: true,
+  });
+
+  // if (typeof window !== "undefined" && !userRef.current) {
+  //   alert("You are not logged in");
+  //   router.push("/auth/signin");
+  //   return null;
+  // }
 
   return (
     <Container
@@ -53,8 +64,26 @@ const Page: React.FC = () => {
         minWidth: "100%",
       }}
     >
-      <SearchWatchlist watchlist={watchlist} setWatchlist={setWatchlist} sort={sort} setSort={setSort} isLoading={isLoading} setIsLoading={setIsLoading}/>
-      <CollectionTable watchlist={watchlist} setWatchlist={setWatchlist} sort={sort} setSort={setSort} isLoading={isLoading} setIsLoading={setIsLoading}/>
+      <SearchWatchlist
+        watchlist={watchlist}
+        setWatchlist={setWatchlist}
+        sort={sort}
+        setSort={setSort}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        sortDirections={sortDirections}
+        setSortDirections={setSortDirections}
+      />
+      <CollectionTable
+        watchlist={watchlist}
+        setWatchlist={setWatchlist}
+        sort={sort}
+        setSort={setSort}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        sortDirections={sortDirections}
+        setSortDirections={setSortDirections}
+      />
     </Container>
   );
 };

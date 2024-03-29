@@ -7,6 +7,7 @@ import getCollectionsFloor from "./getCollectionsFloor";
 import {
   addCollectionsToCollection,
   addCollectionsToUserCollection,
+  getCollectionById,
   getUserCollections,
 } from "@/data/collection";
 import { getUserWallets } from "@/data/wallet";
@@ -129,8 +130,6 @@ async function getDashboardData(
         mergedCollectionIds.length
       );
       console.log("mergedCollectionIds", mergedCollectionIds);
-
-      //TODO: use result from get collection ids to get collection metadata to store onto collection table in db
       const addedCollection: any = await addCollectionsToCollection(
         mergedCollectionIds,
         user,
@@ -201,15 +200,34 @@ async function getDashboardData(
       if (user == null) {
         return { error: "user does not exist" };
       }
+      // console.log("user inside S1WO", user);
       const collectionIds: any = await getUserCollections(user);
       if (collectionIds.error === "No collections found") {
         return { error: collectionIds.error };
       }
 
+      //get collection details for every id
+      const collectionDetails: any = await Promise.all(
+        collectionIds.map(async (collection: any) => {
+          const result: any = await getCollectionById(collection);
+          return {
+            collection, image_url: result.image, distinct_owner_count: result.owner_count, distinct_nft_count: result.nft_count,
+            total_quantity: result.nft_count
+          };
+        })
+      );
+      const collectionDetailsMap = collectionDetails.reduce((map: any, collection: any) => {
+        map[collection.collection] = { image_url: collection.image_url, distinct_owner_count: collection.distinct_owner_count, distinct_nft_count: collection.distinct_nft_count, total_quantity: collection.total_quantity };
+        return map;
+      }, {})
+
+      // console.log("collectionIds", collectionIds);
       const [collectionsStats, collectionsFloor] = await Promise.all([
         getCollectionsStats(collectionIds),
         getCollectionsFloor(collectionIds),
       ]);
+      // console.log("collectionsStats", collectionsStats);
+      // console.log("collectionsFloor", collectionsFloor);
 
       if (getCollectionsStats.length === 0 || collectionsFloor.length === 0) {
         return { error: "No data found" };
@@ -224,11 +242,15 @@ async function getDashboardData(
 
       const mergedData = collectionsFloor.map((floorPrice: any) => {
         const collectionStats = collectionsStatsMap[floorPrice.collection_id];
+        const collectionDetail = collectionDetailsMap[floorPrice.collection_id];
         return {
           ...collectionStats,
           ...floorPrice,
+          ...collectionDetail,
         };
       });
+
+      console.log("mergedData", mergedData);
 
       const userWallets = await getUserWallets(user);
       const userWalletsString = userWallets
