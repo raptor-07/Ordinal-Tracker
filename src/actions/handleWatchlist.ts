@@ -168,6 +168,7 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     //check if it exists in collection, get details
     // console.log("response", response);
     const collectionId = response.collection.collection_id;
+    // console.log("collectionId to get metadata for", collectionId);
 
     const isThereInCollection: any = await isInCollection(collectionId);
 
@@ -185,7 +186,9 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
 
       collectionResponse = await collectionResponse.json();
 
-      const parsedCollectionResponse = collectionResponse.map((collection: any) => ({
+      // console.log("collectionResponse", collectionResponse);
+
+      const parsedCollectionResponse = collectionResponse.collections.map((collection: any) => ({
         collection_id: collection.collection_id,
         name: collection.name,
         description: collection.description,
@@ -206,7 +209,9 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     if (collectionDetails == null) {
       return { error: collectionDetails.error };
     }
-    console.log("collectionDetails", collectionDetails);
+    // console.log("collectionDetails", collectionDetails);
+
+    // return;
 
     //check if it exists in user_watchlist, if not, add to watchlist
     const inwatchlist = await isWatchlistCollection(collectionId, user);
@@ -217,10 +222,10 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     const stats: any[] = await getCollectionsStats([collectionId]);
     const floor: any[] = await getCollectionsFloor([collectionId]);
 
-    return ({
+    const result = {
       name: collectionDetails.name,
       image: collectionDetails.image,
-      collection_id: collectionDetails.collectionId,
+      collection_id: collectionDetails.cId,
       description: collectionDetails.description,
       owner_count: collectionDetails.owner_count,
       nft_count: collectionDetails.nft_count,
@@ -232,7 +237,11 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
       floor_price: floor[0].floor_price,
       One_D_floor: floor[0].One_D_floor,
       Seven_D_floor: floor[0].Seven_D_floor,
-    } = collectionDetails);
+    };
+
+    console.log("result", result);
+
+    return result;
   } catch (error: any) {
     console.error("Error in addWatchListBySlug:", error);
     return { error: error };
@@ -295,6 +304,27 @@ export const addWatchListById = async (collectionId: string, userRef: any) => {
           method: "GET",
           headers: headers,
         }
+      );
+
+      const [collectionsStats, collectionsFloor] = await Promise.all([
+        getCollectionsStats([collectionId]),
+        getCollectionsFloor([collectionId]),
+      ]);
+
+      console.log("collectionsStats", collectionsStats);
+      console.log("collectionsFloor", collectionsFloor);
+      console.log(collectionResponse.json());
+
+      if (collectionsStats.length === 0 || collectionsFloor.length === 0) {
+        return { error: "No data found" };
+      }
+
+      const collectionsStatsMap = collectionsStats.reduce(
+        (map: any, collection: any) => {
+          map[collection.collection_id] = collection;
+          return map;
+        },
+        {}
       );
 
       collectionResponse = await collectionResponse.json();
