@@ -86,6 +86,8 @@ export const sortingTable = (sort: string, data: any[], type: boolean) => {
       break;
   }
 
+  // console.log("sortedData after sorting", sortedData);
+
   return sortedData;
 };
 
@@ -148,8 +150,9 @@ export const cleanData = (data: any) => {
         cleanedItem[key] === "NaN%" ||
         cleanedItem[key] == "Infinity%" ||
         cleanedItem[key] === null ||
-        cleanedItem[key] === undefined
-        // cleanedItem[key] === ""
+        cleanedItem[key] === undefined ||
+        cleanedItem[key] === 0 ||
+        cleanedItem[key] === ""
       ) {
         cleanedItem[key] = "-";
       }
@@ -323,11 +326,13 @@ export default function CollectionTable({
         );
         let dashboardData: any = localStorage.getItem("dashboardData");
 
-        // dashboardData = sortingTable(sort, JSON.parse(dashboardData), true);
+        dashboardData = sortingTable(sort, JSON.parse(dashboardData), true);
 
-        console.log("dashboardData", dashboardData);
+        dashboardData = cleanData(dashboardData);
 
-        setDashBoardData(JSON.parse(dashboardData));
+        // console.log("dashboardData", dashboardData);
+
+        setDashBoardData(dashboardData);
 
         setIsLoading(false);
 
@@ -369,7 +374,16 @@ export default function CollectionTable({
         console.log("data.wallets", data.wallets);
         console.log("wallets", wallets);
         localStorage.setItem("wallets", data.wallets);
-        localStorage.setItem("dashboardData", JSON.stringify(data.data));
+
+        let dataFormat = data.data;
+        dataFormat = sortingTable(sort, dataFormat, true);
+        dataFormat = cleanData(dataFormat);
+        dataFormat = dataFormat.filter(
+          (obj: any) => Object.keys(obj).length !== 0
+        );
+        // console.log("dataFormat", dataFormat);
+
+        localStorage.setItem("dashboardData", JSON.stringify(dataFormat));
         // console.log("data for dashboard on client", data);
         data = sortingTable(sort, data.data, true);
         data = cleanData(data);
@@ -452,11 +466,6 @@ export default function CollectionTable({
         alert("Service down, please try again later! from 3");
         return;
       }
-
-      // const watchlistData = await checkDb
-      //error handling
-      //setwatchlist
-      //save in local storage
     };
     fetchData();
   }, [fetchData]);
@@ -724,7 +733,11 @@ export default function CollectionTable({
                   </Box>
                 </TableCell>
                 <TableCell align="center">
-                  {satoshisToBTC(row.floor_price)}
+                  {row.volume_1d !== "" && (
+                    <p style={{ margin: 0, padding: 0 }}>
+                      {satoshisToBTC(row.floor_price)}
+                    </p>
+                  )}
                 </TableCell>
                 <TableCell align="center">
                   {formatPercentage({ percentageString: row.One_D_floor })}
