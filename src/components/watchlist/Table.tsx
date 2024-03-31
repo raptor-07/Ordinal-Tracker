@@ -131,15 +131,19 @@ export default function CollectionTable({
   };
 
   React.useEffect(() => {
-    //get watchlist collection ids
-    const watchlistCollections: any = [];
-    watchlist.forEach((collection) => {
-      watchlistCollections.push(collection.collection_id);
-    });
-    watchlistCollectionIds.current = watchlistCollections;
+    const getWatchlistCollectionIds = async () => {
+      const watchlistCollections: any = [];
+      //use watchlist
+      watchlist.forEach((collection) => {
+        watchlistCollections.push(collection.collection_id);
+      });
+      watchlistCollectionIds.current = watchlistCollections;
 
-    console.log("watchlistCollectionIds", watchlistCollectionIds);
-    setReloadTable(!reloadTable);
+      console.log("watchlistCollectionIds", watchlistCollectionIds);
+      setReloadTable(!reloadTable);
+    };
+
+    getWatchlistCollectionIds();
   }, [watchlist, fetchData]);
 
   React.useEffect(() => {
@@ -153,7 +157,38 @@ export default function CollectionTable({
       }
     };
 
+    const fetchWatchlist = async () => {
+      setIsLoading(true);
+      //fetch from api
+      const data = await getWatchlists(userRef);
+      //store data in local storage
+      localStorage.setItem(
+        "watchlistTableData",
+        JSON.stringify(data.watchlists)
+      );
+
+      console.log("watchlist data", data);
+      if (data.error) {
+        if (data.error === "Please login to view your watchlist") {
+          alert(data.error);
+          router.push("/auth/signin");
+        }
+        alert(data.error);
+        return;
+      }
+      if (data.watchlists) {
+        let sortedData = sortingTable(sort, data.watchlists, true);
+        sortedData = cleanData(sortedData);
+        console.log("sortedData", sortedData);
+        setWatchlist(sortedData);
+        localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
+        setIsLoading(false);
+        return;
+      }
+    };
+
     fetchAlerts();
+    if (watchlist.length === 0) fetchWatchlist();
   }, []);
 
   React.useEffect(() => {
@@ -290,6 +325,7 @@ export default function CollectionTable({
     );
     if (isInAlerts) {
       //delete alert
+      console.log("alertToDelete now @ 328", alerts);
       const alertToDelete = alerts.find(
         (alert: any) => alert.collectionId === collectionId
       );
@@ -314,8 +350,9 @@ export default function CollectionTable({
       }
     } else {
       //create alert
+      console.log("alertToAdd now @ 353", alerts);
       try {
-        const result: any = await createAlertEntry(userRef, { collectionId });
+        const result: any = await createAlertEntry(userRef, collectionId);
 
         if (result?.error) {
           console.error(result.error);
@@ -324,7 +361,7 @@ export default function CollectionTable({
         }
 
         // If the database action is successful, update the Ref, localstorage
-        const updatedAlerts = [...alerts, result];
+        const updatedAlerts = [...alerts, result.data];
         setAlerts(updatedAlerts);
         return;
       } catch (error) {
