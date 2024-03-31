@@ -58,7 +58,10 @@ const WalletTxns: React.FC = () => {
   };
 
   const formatWalletId = (walletId: string) => {
-    return walletId.substring(0, 5) + "..." + walletId.substring(37, 42);
+    console.log("walletId @ 61", walletId);
+    const firstFive = walletId.substring(0, 5);
+    const lastFive = walletId.substring(walletId.length - 5);
+    return `${firstFive}...${lastFive}`;
   };
 
   return (
