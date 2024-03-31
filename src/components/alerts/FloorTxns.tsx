@@ -72,11 +72,20 @@ function FloorTxns() {
       const alertId = alertEntries.find(
         (item: any) => item.collectionId === watchlist[index].collection_id
       ).aId;
-      await deleteAlertEntry(userRef, alertId);
+      const deleteResult = await deleteAlertEntry(userRef, alertId);
+      if (deleteResult.success) {
+  
+        setAlertEntries(alertEntries.filter(item => item.aId !== alertId));
+        setReload(!reload);
+      }
     } else {
-      await createAlertEntry(userRef, watchlist[index].collection_id);
+      const createResult = await createAlertEntry(userRef, watchlist[index].collection_id);
+      if (createResult.success) {
+        // Add the new alert to the local state
+        setAlertEntries([...alertEntries, createResult.data]);
+        setReload(!reload);
+      }
     }
-    setReload(!reload);
   };
 
   return isLoading ? (
