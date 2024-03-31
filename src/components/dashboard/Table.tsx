@@ -458,7 +458,14 @@ export default function CollectionTable({
           return;
         }
 
-        data = sortingTable(sort, data.data, true);
+        if (Array.isArray(data)) {
+          console.log("data for no session", data);
+          data = sortingTable(sort, data, true);
+        } else if (data.data !== null && data.data !== undefined) {
+          console.log("data for session exists", data);
+          data = sortingTable(sort, data.data, true);
+        }
+
         data = cleanData(data);
         data = data.filter((obj: any) => Object.keys(obj).length !== 0);
         console.log("data", data);
