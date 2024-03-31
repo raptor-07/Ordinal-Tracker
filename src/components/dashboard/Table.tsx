@@ -34,9 +34,11 @@ import {
 } from "@/actions/handleWatchlist";
 
 export const sortingTable = (sort: string, data: any[], type: boolean) => {
+  console.log("sort", sort);
+  console.log("data", data);
   let sortedData = [...data];
 
-  // console.log("sortedData before sorting", sortedData);
+  console.log("sortedData before sorting", sortedData);
 
   const sortFunction = (a: any, b: any, key: string, reverse = false) => {
     let aValue = a[key];
@@ -365,9 +367,9 @@ export default function CollectionTable({
       // Race between dataPromise and timeoutPromise #FIXME
       let data = await Promise.race([dataPromise, timeoutPromise]);
 
-      console.log("data", data);
+      console.log("data @ 370", data);
 
-      if (data.wallets) {
+      if (data.wallets == "" && data.data !== null && data.data !== undefined) {
         //Session 1 | Wallets 0
         //user has wallets -> update wallets in local storage
 
@@ -376,6 +378,7 @@ export default function CollectionTable({
         localStorage.setItem("wallets", data.wallets);
 
         let dataFormat = data.data;
+        console.log("dataFormat", dataFormat);
         dataFormat = sortingTable(sort, dataFormat, true);
         dataFormat = cleanData(dataFormat);
         dataFormat = dataFormat.filter(
@@ -455,7 +458,7 @@ export default function CollectionTable({
           return;
         }
 
-        data = sortingTable(sort, data, true);
+        data = sortingTable(sort, data.data, true);
         data = cleanData(data);
         data = data.filter((obj: any) => Object.keys(obj).length !== 0);
         console.log("data", data);
@@ -494,6 +497,7 @@ export default function CollectionTable({
       if (userRef.current === undefined) {
         //session does not exist
         handleOpen();
+        return;
       }
       //If session does exist
       // Determine whether the collectionId is already in the watchlist
