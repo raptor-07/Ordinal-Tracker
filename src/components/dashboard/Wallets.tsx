@@ -7,8 +7,6 @@ import { Container } from "@mui/material";
 import { validate, Network } from "bitcoin-address-validation";
 import { useCurrentUser } from "@/hooks/current-user";
 import { deleteWallet } from "@/actions/deleteWallet";
-import { set } from "zod";
-
 export interface ChipData {
   key: number;
   label: string;
