@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { markWallet } from "@/actions/markWallet";
-import { format } from "path";
 
 const WalletTxns: React.FC = () => {
   const router = useRouter();
@@ -41,8 +40,13 @@ const WalletTxns: React.FC = () => {
         alert("User not found, please login again");
         router.push("/auth/signin");
       }
-      setWallets(data);
-      console.log("wallets data has arrived", data);
+      // Ensure alertsEnabled is always defined
+      const wallets = data.map((wallet: any) => ({
+        ...wallet,
+        alertsEnabled: wallet.alertsEnabled || false,
+      }));
+      setWallets(wallets);
+      console.log("wallets data has arrived", wallets);
     };
     fetchWallets();
   }, []);
@@ -54,10 +58,30 @@ const WalletTxns: React.FC = () => {
       alert(result.error);
       return;
     }
-    setWallets(result);
+
+    // Find the updated wallet in the result array
+    const updatedWallet = result.find((wallet: any) => wallet.wId === wId);
+    if (!updatedWallet) {
+      console.error("Updated wallet not found in result");
+      return;
+    }
+
+    // Find the index of the wallet in the wallets array
+    const index = wallets.findIndex((wallet: any) => wallet.wId === wId);
+    if (index === -1) {
+      console.error("Wallet not found in state");
+      return;
+    }
+
+    // Replace the wallet in the wallets array with the updated wallet
+    const updatedWallets = [...wallets];
+    updatedWallets[index] = updatedWallet;
+
+    setWallets(updatedWallets);
   };
 
   const formatWalletId = (walletId: string) => {
+    console.log("wallets @ 60", wallets);
     console.log("walletId @ 61", walletId);
     const firstFive = walletId.substring(0, 5);
     const lastFive = walletId.substring(walletId.length - 5);
