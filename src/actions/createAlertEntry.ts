@@ -8,13 +8,18 @@ export const createAlertEntry = async (userRef: any, alertData: any) => {
 
   if (!user) {
     return {
+      success: false,
       error: "User not found",
     };
   }
 
   try {
+    console.log("Creating alert entry for user @ 16", alertData);
     const alertEntry = await createAlertEntryForUser(user, alertData);
-    return alertEntry;
+    return {
+      success: true,
+      data: alertEntry
+    };
   } catch (error) {
     console.error("Error in createAlertEntry:", error);
     throw error;
