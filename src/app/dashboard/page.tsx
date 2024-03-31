@@ -64,12 +64,14 @@ function DashboardPage() {
     //edge case: checking wallets consistency between local Storage and db at initial render
     if (userRef.current !== undefined) {
       //Session 1
+      console.log("initially getting walltets @ 67");
       getWallets(userRef).then((wallets) => {
         if (wallets !== null) {
           const newWallets = wallets.map((wallet: any, index: any) => ({
             key: index,
             label: wallet.wId,
           }));
+          console.log("wallets in dashboard page @74", newWallets);
           setWallets(newWallets);
         }
       });
