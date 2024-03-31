@@ -23,7 +23,7 @@ export default function SigninPage() {
 
   const user = useCurrentUser();
   const userRef = useRef(user);
-  console.log("user", userRef);
+  // console.log("user", userRef);
 
   const [formData, setFormData] = useState({
     email: "",
