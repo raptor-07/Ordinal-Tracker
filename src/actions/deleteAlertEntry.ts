@@ -16,7 +16,10 @@ export const deleteAlertEntry = async (userRef: any, alertId: any) => {
 
   try {
     const alertEntry = await deleteAlertEnryById(user, alertId);
-    return alertEntry;
+    return {
+      success: true,
+      data: alertEntry,
+    };
   } catch (error) {
     console.error("Error in createAlertEntry:", error);
     throw error;
