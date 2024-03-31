@@ -259,6 +259,9 @@ export const createAlertEntryForUser = async (user: any, collectionId: any) => {
   const trackingValue = "10";
 
   try {
+    console.log("user", user);
+    console.log("collectionId @ 263", collectionId, typeof collectionId);
+
     const newAlert = await db.floorAlerts.create({
       data: {
         aId: uuidv4(),
