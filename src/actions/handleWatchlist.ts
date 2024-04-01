@@ -137,7 +137,7 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     }
 
     //get lowest inscription number
-    const inscriptionNumber = inscriptionData.lowest_inscription_num + 5;
+    const inscriptionNumber = inscriptionData.highest_inscription_number;
     console.log("inscription", inscriptionNumber);
 
     //get collection id
