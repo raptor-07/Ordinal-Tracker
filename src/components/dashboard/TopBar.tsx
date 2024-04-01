@@ -59,6 +59,7 @@ function TopBar() {
     );
     // router.push(path);
     window.location.href = path;
+    return;
   };
 
   const handleOpen = () => setOpen(true);
