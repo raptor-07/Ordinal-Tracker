@@ -1,6 +1,6 @@
 "use client";
 
-import { Container } from "@mui/material";
+import { Alert, Container, Typography } from "@mui/material";
 import React from "react";
 import FloorTxns from "@/components/alerts/FloorTxns";
 import WalletTxns from "@/components/alerts/WalletTxns";
@@ -31,6 +31,18 @@ const MyComponent: React.FC<Props> = (props) => {
           minHeight: "100%",
         }}
       >
+        <Alert severity="warning" sx={{
+          marginBottom: "20px",
+          marginTop: "20px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+          <Typography variant="h6">
+          Make Sure to drop your Telegram chatID in your profile for some lightning-fast alerts!
+          </Typography>
+          </ Alert>
         <WalletTxns />
         <FloorTxns />
         {/* <ActiveAlerts />s */}
