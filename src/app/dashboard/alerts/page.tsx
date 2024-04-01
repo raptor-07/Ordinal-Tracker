@@ -31,18 +31,22 @@ const MyComponent: React.FC<Props> = (props) => {
           minHeight: "100%",
         }}
       >
-        <Alert severity="warning" sx={{
-          marginBottom: "20px",
-          marginTop: "20px",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}>
+        <Alert
+          severity="warning"
+          sx={{
+            marginBottom: "20px",
+            marginTop: "20px",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6">
-          Make Sure to drop your Telegram chatID in your profile for some lightning-fast alerts!
+            Make Sure to drop your Telegram chatID in your profile to enable
+            lightning-fast alerts!
           </Typography>
-          </ Alert>
+        </Alert>
         <WalletTxns />
         <FloorTxns />
         {/* <ActiveAlerts />s */}
