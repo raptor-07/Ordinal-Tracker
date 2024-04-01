@@ -58,7 +58,7 @@ function TopBar() {
       )
     );
     router.push(path);
-    router.refresh();
+    window.location.reload();
   };
 
   const handleOpen = () => setOpen(true);
