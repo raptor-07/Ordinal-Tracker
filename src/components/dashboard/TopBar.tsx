@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useCurrentUser } from "@/hooks/current-user";
 import CloseIcon from "@mui/icons-material/Close";
+import Profile from "./Profile";
 
 function TopBar() {
   const router = useRouter();
@@ -42,7 +43,10 @@ function TopBar() {
   }, [pathname]);
 
   const handlePageClick = (pageName: string, path: string) => {
-    if ((userRef.current === null || userRef.current === undefined) && (pageName === "Watch List" || pageName === "Alerts")) {
+    if (
+      (userRef.current === null || userRef.current === undefined) &&
+      (pageName === "Watch List" || pageName === "Alerts")
+    ) {
       setOpen(true);
       return;
     }
@@ -73,124 +77,138 @@ function TopBar() {
           margin: 0,
           padding: 0,
           boxShadow: "0px 0px 2px 0px #c5c2f1",
+          display: "flex",
         }}
+        sx={{}}
       >
-        <Container
-          maxWidth="xl"
-          sx={{
-            margin: "0",
-            minWidth: "100%",
-            padding: "0",
-          }}
-          style={{
-            backgroundColor: "#000000",
-          }}
-        >
-          <Toolbar
+        <div style={{ display: "flex", width: "100%" }}>
+          <Container
+            maxWidth="xl"
+            sx={{
+              margin: "0",
+              minWidth: "95%", // take up 90% of the space
+              padding: "0",
+            }}
             style={{
               backgroundColor: "#000000",
             }}
           >
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
-              sx={{
-                m: 2,
-                display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-                minWidth: "min-content",
+            <Toolbar
+              style={{
+                backgroundColor: "#000000",
               }}
             >
-              OrdiTrack
-            </Typography>
+              <Typography
+                variant="h6"
+                noWrap
+                component="a"
+                href="#app-bar-with-responsive-menu"
+                sx={{
+                  m: 2,
+                  display: { xs: "none", md: "flex" },
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  letterSpacing: ".3rem",
+                  color: "inherit",
+                  textDecoration: "none",
+                  minWidth: "min-content",
+                }}
+              >
+                OrdiTrack
+              </Typography>
 
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
-              sx={{
-                mr: 2,
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".4rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-              style={{
-                backgroundColor: "#000000",
-              }}
-            >
-              OrdiTrack
-            </Typography>
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                justifyContent: "space-around",
-                alignItems: "center",
-                width: "100%",
-                m: "0 30px 0 0",
-                maxHeight: "80%",
-              }}
-              style={{
-                backgroundColor: "#000000",
-              }}
-            >
-              {pages.map((page) => (
-                <Paper
-                  elevation={0}
-                  key={page.name}
-                  onClick={() => handlePageClick(page.name, page.path)}
-                  sx={{
-                    my: 2,
-                    padding: "1.4%",
-                    flexGrow: 1,
-                    m: 0,
-                    color: "white",
-                    display: "block",
-                    backgroundColor: "transparent",
-                    cursor: "pointer",
-                    boxShadow: "none",
-                    position: "relative",
-                    borderBottom: page.active ? "2px solid #6a67c9" : "none",
-                    "&:hover": {
-                      borderBottom: "1px solid #6a67c9",
-                      "& p": {
-                        textShadow: "0 0 5px #6a67c9",
-                        color: "#C5C2F1",
-                        fontWeight: "700",
+              <Typography
+                variant="h5"
+                noWrap
+                component="a"
+                href="#app-bar-with-responsive-menu"
+                sx={{
+                  mr: 2,
+                  display: { xs: "flex", md: "none" },
+                  flexGrow: 1,
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  letterSpacing: ".4rem",
+                  color: "inherit",
+                  textDecoration: "none",
+                }}
+                style={{
+                  backgroundColor: "#000000",
+                }}
+              >
+                OrdiTrack
+              </Typography>
+              <Box
+                sx={{
+                  display: { xs: "none", md: "flex" },
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                  width: "100%",
+                  m: "0 30px 0 0",
+                  maxHeight: "80%",
+                }}
+                style={{
+                  backgroundColor: "#000000",
+                }}
+              >
+                {pages.map((page) => (
+                  <Paper
+                    elevation={0}
+                    key={page.name}
+                    onClick={() => handlePageClick(page.name, page.path)}
+                    sx={{
+                      my: 2,
+                      padding: "1.4%",
+                      flexGrow: 1,
+                      m: 0,
+                      color: "white",
+                      display: "block",
+                      backgroundColor: "transparent",
+                      cursor: "pointer",
+                      boxShadow: "none",
+                      position: "relative",
+                      borderBottom: page.active ? "2px solid #6a67c9" : "none",
+                      "&:hover": {
+                        borderBottom: "1px solid #6a67c9",
+                        "& p": {
+                          textShadow: "0 0 5px #6a67c9",
+                          color: "#C5C2F1",
+                          fontWeight: "700",
+                        },
                       },
-                    },
-                    "&:active": {
-                      borderBottom: "2px solid #6a67c9",
-                    },
-                  }}
-                  style={{
-                    backgroundColor: "#000000",
-                  }}
-                >
-                  <p
+                      "&:active": {
+                        borderBottom: "2px solid #6a67c9",
+                      },
+                    }}
                     style={{
-                      textAlign: "center",
-                      margin: 0,
-                      transition: "text-shadow 0.3s ease, color 0.3s ease",
+                      backgroundColor: "#000000",
                     }}
                   >
-                    {page.name}
-                  </p>
-                </Paper>
-              ))}
-            </Box>
-          </Toolbar>
-        </Container>
+                    <p
+                      style={{
+                        textAlign: "center",
+                        margin: 0,
+                        transition: "text-shadow 0.3s ease, color 0.3s ease",
+                      }}
+                    >
+                      {page.name}
+                    </p>
+                  </Paper>
+                ))}
+              </Box>
+            </Toolbar>
+          </Container>
+          <div
+            style={{
+              minWidth: "5%",
+              backgroundColor: "#000000",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Profile />
+          </div>
+        </div>
       </AppBar>
       <Modal
         open={open}
