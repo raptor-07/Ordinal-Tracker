@@ -31,7 +31,8 @@ const Profile: React.FC<ProfileProps> = () => {
 
   const currentUser = useCurrentUser();
   const userRef = React.useRef(currentUser);
-  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(userRef.current));
+  const init = userRef.current === undefined ? false : true;
+  const [isLoggedIn, setIsLoggedIn] = useState(init);
 
   const handleTelegramIdChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -40,12 +41,15 @@ const Profile: React.FC<ProfileProps> = () => {
   };
 
   const handleTelegramIdEnter = async (event: React.KeyboardEvent) => {
-    if (Boolean(userRef.current)) {
-      alert("Log in to use this feature!");
-      return;
-    }
 
     if (event.key === "Enter") {
+      if (userRef.current === undefined) {
+        (event.target as HTMLInputElement).value = "";
+        alert("Log in to use this feature!");
+        setTelegramId("");
+        (event.target as HTMLInputElement).value = "";
+        return;
+      }
       //call addTelegramId server action
       const result: any = await addTelegramId(userRef, telegramId);
 
@@ -176,7 +180,14 @@ const Profile: React.FC<ProfileProps> = () => {
         </MenuItem>
         <MenuItem>
           <StyledLink href="https://www.alphr.com/find-chat-id-telegram/">
-            What's chat ID?
+            <p
+              style={{
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              Whats chat ID?
+            </p>
           </StyledLink>
         </MenuItem>
         {isLoggedIn && (
