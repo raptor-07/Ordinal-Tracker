@@ -57,8 +57,8 @@ function TopBar() {
           : { ...page, active: false }
       )
     );
-    router.push(path);
-    window.location.reload();
+    // router.push(path);
+    window.location.href = path;
   };
 
   const handleOpen = () => setOpen(true);
