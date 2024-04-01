@@ -557,7 +557,9 @@ export default function CollectionTable({
                   </TableCell>
                   <TableCell align="center">
                     {row.floor_price !== 0 && (
-                      <p style={{ margin: 0, padding: 0 }}>{row.floor_price}</p>
+                      <p style={{ margin: 0, padding: 0 }}>
+                        {satoshisToBTC(row.floor_price)}
+                      </p>
                     )}
                   </TableCell>
                   <TableCell align="center">

@@ -115,7 +115,7 @@ export function satoshisToBTC(satoshis: any) {
     return "";
   }
 
-  return isNaN(btc) ? 0.0 : btc.toFixed(2);
+  return isNaN(btc) ? 0.0 : btc.toFixed(4);
 }
 
 export const formatPercentage = ({
