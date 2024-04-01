@@ -10,6 +10,21 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
+export const addTelegramIdToUser = async (uId: string, telegramId: string) => {
+  try {
+    const user = await db.user.update({
+      where: { uId },
+      data: {
+        teleId: telegramId,
+      },
+    });
+
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export const getUserById = async (uId: string) => {
   try {
     const user = await db.user.findUnique({ where: { uId } });
