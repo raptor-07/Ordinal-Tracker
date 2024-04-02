@@ -40,7 +40,6 @@ const Profile: React.FC<ProfileProps> = () => {
   };
 
   const handleTelegramIdEnter = async (event: React.KeyboardEvent) => {
-
     if (event.key === "Enter") {
       if (userRef.current === undefined) {
         (event.target as HTMLInputElement).value = "";
@@ -100,7 +99,7 @@ const Profile: React.FC<ProfileProps> = () => {
       //redirect to landing page
       setIsLoggedIn(false);
       window.location.href = "/";
-      return;
+      router.push("/");
     } else {
       console.log("Error logging out", result.error);
     }

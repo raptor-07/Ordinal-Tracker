@@ -3,9 +3,12 @@ import { signOut } from "@/auth";
 
 const logout = async () => {
     try {
-        signOut();
+        const result: boolean = await signOut();
+        if (result) {
+            return { success: true };
+        }
+        throw new Error("Logout failed");
 
-        return { success: true };
     } catch (error: any) {
         // Handle the error here
         console.error("An error occurred during logout:", error);
