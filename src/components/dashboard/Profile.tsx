@@ -12,7 +12,6 @@ import { Box, Typography } from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import addTelegramId from "@/actions/addTelegramId";
 import { useCurrentUser } from "@/hooks/current-user";
-import { set } from "zod";
 import logout from "@/actions/signout";
 import { useRouter } from "next/navigation";
 
@@ -100,8 +99,7 @@ const Profile: React.FC<ProfileProps> = () => {
 
       //redirect to landing page
       setIsLoggedIn(false);
-      router.push("/");
-
+      window.location.href = "/";
       return;
     } else {
       console.log("Error logging out", result.error);
