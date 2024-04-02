@@ -126,7 +126,7 @@ function SearchWatchlist({
             paddingLeft: "0px",
             color: "#000000",
           }}
-          label="Enter Collection Slug"
+          label="Enter Collection Slug Or MagicEden Url"
           sx={{
             minWidth: "100%",
             "&placeholder": {

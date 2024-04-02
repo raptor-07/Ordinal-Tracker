@@ -74,6 +74,33 @@ export const getWatchlists = async (userRef: any): Promise<data> => {
   }
 };
 
+// Fetch collection id function
+async function fetchCollectionId(inscriptionNumber: number, headers: Headers) {
+  const collectionIdFromSlug = await fetch(
+    `https://api.simplehash.com/api/v0/nfts/bitcoin/inscription_number/${inscriptionNumber}`,
+    {
+      method: "GET",
+      headers: headers,
+    }
+  );
+
+  //verify response
+  const response = await collectionIdFromSlug.json();
+
+  // console.log("response", response);
+  if (response.status !== 200) {
+    if (response.status === 404) {
+      if (response.message === "Not Found") {
+        return { error: "Collection not found" };
+      }
+      return { error: "Failed to fetch data from API, Try Again Later" };
+    }
+  }
+
+  return response;
+}
+
+
 export const addWatchListBySlug = async (slug: string, userRef: any) => {
   try {
     console.log("userRef in addWatchListBySlug", userRef);
@@ -88,8 +115,31 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
     }
 
     const formatSlug = (slug: string) => {
-      let normalized = slug.toLowerCase();
-      normalized = normalized.replace(/\s+/g, "");
+      if (typeof slug !== 'string') {
+        throw new Error('Invalid slug: must be a string');
+      }
+
+      let normalized;
+      if (slug.includes("magiceden")) {
+        //get slug name from url of type [https://magiceden.io/ordinals/marketplace/<slug>]
+        const slugName = slug.split("/").pop();
+
+        if (!slugName) {
+          throw new Error('Invalid slug: slugName cannot be null or undefined');
+        }
+
+        normalized = slugName.toLowerCase();
+        normalized = normalized.replace(/\s+/g, "");
+      } else {
+        normalized = slug.toLowerCase();
+        normalized = normalized.replace(/\s+/g, "");
+      }
+
+      // Check for URL injection
+      if (normalized.includes('http://') || normalized.includes('https://')) {
+        throw new Error('Invalid slug: URL injection detected');
+      }
+
       return normalized;
     };
 
@@ -136,39 +186,39 @@ export const addWatchListBySlug = async (slug: string, userRef: any) => {
       return { error: "Collection not found" };
     }
 
-    //get lowest inscription number
-    const inscriptionNumber = inscriptionData.highest_inscription_number;
-    console.log("inscription", inscriptionNumber);
+    //get inscription numbers
+    console.log("inscriptionData", inscriptionData);
+    const highestInscriptionNumber = inscriptionData.highest_inscription_num;
+    const lowestInscriptionNumber = inscriptionData.lowest_inscription_num;
+    console.log("inscription", highestInscriptionNumber);
 
     //get collection id
     const headers = new Headers();
     headers.append("x-api-key", process.env.SIMPLE_HASH ?? "");
 
-    const collectionIdFromSlug = await fetch(
-      `https://api.simplehash.com/api/v0/nfts/bitcoin/inscription_number/${inscriptionNumber}`,
-      {
-        method: "GET",
-        headers: headers,
-      }
-    );
+    let collectionId;
+    let response;
 
-    //verify response
-    const response = await collectionIdFromSlug.json();
+    // Try with highest inscription number first
+    response = await fetchCollectionId(highestInscriptionNumber, headers);
+    collectionId = response.collection?.collection_id;
 
-    // console.log("response", response);
-    if (response.status !== 200) {
-      if (response.status === 404) {
-        if (response.message === "Not Found") {
-          return { error: "Collection not found" };
-        }
-        return { error: "Failed to fetch data from API, Try Again Later" };
-      }
+    // If collection id is not found, try with lowest inscription number
+    if (!collectionId) {
+      response = await fetchCollectionId(lowestInscriptionNumber, headers);
+      collectionId = response.collection?.collection_id;
     }
 
-    //check if it exists in collection, get details
-    // console.log("response", response);
-    const collectionId = response.collection.collection_id;
-    // console.log("collectionId to get metadata for", collectionId);
+    // If collection id is still not found, try with lowest inscription number + 5
+    if (!collectionId) {
+      response = await fetchCollectionId(lowestInscriptionNumber + 5, headers);
+      collectionId = response.collection?.collection_id;
+    }
+
+    if (!collectionId) {
+      return { error: "Failed to fetch collection id" };
+    }
+
 
     const isThereInCollection: any = await isInCollection(collectionId);
 
