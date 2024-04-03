@@ -99,7 +99,6 @@ const Profile: React.FC<ProfileProps> = () => {
       //redirect to landing page
       setIsLoggedIn(false);
       window.location.href = "/";
-      window.location.reload();
     } else {
       console.log("Error logging out", result.error);
     }
