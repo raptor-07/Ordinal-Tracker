@@ -98,7 +98,7 @@ const Profile: React.FC<ProfileProps> = () => {
 
       //redirect to landing page
       setIsLoggedIn(false);
-      window.location.href = "https://orditracker-beige.vercel.app/";
+      router.push('/');
       return;
     } else {
       console.log("Error logging out", result.error);
