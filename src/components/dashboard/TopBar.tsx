@@ -115,7 +115,7 @@ function TopBar() {
                   textDecoration: "none",
                   minWidth: "min-content",
                 }}
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push("/")}
               >
                 OrdiTrack
               </Typography>
