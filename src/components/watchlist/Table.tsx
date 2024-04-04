@@ -40,8 +40,10 @@ import {
 } from "../dashboard/Table";
 import { getAlertEntries } from "@/actions/getAlertEntries";
 import { createAlertEntry } from "@/actions/createAlertEntry";
-import { deleteAlertEntry } from "@/actions/deleteAlertEntry";
-import { set } from "zod";
+import {
+  deleteAlertEntry,
+  deleteAlertEntryByCollection,
+} from "@/actions/deleteAlertEntry";
 
 export interface Watchlist {
   name: string;
@@ -306,6 +308,9 @@ export default function CollectionTable({
         "updatedWatchlistCollectionIds",
         updatedWatchlistCollectionIds
       );
+
+      //delete related alert entries in watchlist
+      await deleteAlertEntryByCollection(userRef, collectionId);
 
       setWatchlist(updatedWatchlistData);
       setLoadStar(false);
