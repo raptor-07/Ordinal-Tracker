@@ -2,6 +2,7 @@
 
 import { getUserByEmail } from "@/data/user";
 import { createAlertEntryForUser, getAlertEntriesForUser } from "@/data/collection";
+import getCollectionsFloor from "./getCollectionsFloor";
 
 export const createAlertEntry = async (userRef: any, alertData: any) => {
   const user: any = await getUserByEmail(userRef.current.email);
@@ -14,12 +15,20 @@ export const createAlertEntry = async (userRef: any, alertData: any) => {
   }
 
   try {
+    //get latest floor
+    const latestFloor = await getCollectionsFloor([alertData]);
+
     console.log("Creating alert entry for user @ 16", alertData);
-    const alertEntry = await createAlertEntryForUser(user, alertData);
-    return {
-      success: true,
-      data: alertEntry
-    };
+
+    if (latestFloor.length > 0 && typeof latestFloor[0] === 'object' && 'floor_price' in latestFloor[0]) {
+      const alertEntry = await createAlertEntryForUser(user, alertData, latestFloor[0].floor_price);
+      return {
+        success: true,
+        data: alertEntry
+      };
+    } else {
+      throw new Error("Latest floor not found");
+    }
   } catch (error) {
     console.error("Error in createAlertEntry:", error);
     throw error;
