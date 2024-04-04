@@ -245,7 +245,7 @@ export const isInCollection = async (collectionId: string) => {
   }
 };
 
-export const createAlertEntryForUser = async (user: any, collectionId: any) => {
+export const createAlertEntryForUser = async (user: any, collectionId: any, latestFloor: number) => {
 
   const trackTypeEnum = {
     "Percent Movement": "percentage",
@@ -261,6 +261,8 @@ export const createAlertEntryForUser = async (user: any, collectionId: any) => {
   try {
     console.log("user", user);
     console.log("collectionId @ 263", collectionId, typeof collectionId);
+
+    const timestamp = new Date().toISOString();
 
     const newAlert = await db.floorAlerts.create({
       data: {
@@ -281,7 +283,8 @@ export const createAlertEntryForUser = async (user: any, collectionId: any) => {
         refPrice: parseInt(refPrice),
         direction: trackingDirection === "Up",
         value: parseInt(trackingValue),
-        latestFloor: null,
+        latestFloor,
+        timeStamp: timestamp,
       },
     });
 
@@ -336,6 +339,20 @@ export const deleteUserCollectionsByWallet = async (
     });
   } catch (error) {
     console.error("Error deleting user collections by wallet: ", error);
+    throw error;
+  }
+};
+
+export const deleteAlertEntryByCollectionId = async (user: any, collectionId: string) => {
+  try {
+    await db.floorAlerts.deleteMany({
+      where: {
+        uId: user.uId,
+        collectionId: collectionId,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting alert entry by collection id:", error);
     throw error;
   }
 };
