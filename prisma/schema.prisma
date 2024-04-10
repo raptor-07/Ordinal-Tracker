@@ -14,7 +14,7 @@ enum TrackType {
 
 model User {
   uId                String               @id @default(cuid())
-  username           String               @unique
+  username           String
   email              String               @unique
   password           String
   emailVerified      DateTime?
