@@ -13,15 +13,38 @@ enum TrackType {
 }
 
 model User {
-  uId              String            @id @default(cuid())
-  username         String            @unique
-  email            String            @unique
-  password         String
-  teleId           String?
-  ownedCollections User_Collection[]
-  userWallets      User_Wallet[]
-  floorAlerts      FloorAlerts[]
-  userWatchlists   User_Watchlist[]
+  uId                String               @id @default(cuid())
+  username           String               @unique
+  email              String               @unique
+  password           String
+  emailVerified      DateTime?
+  teleId             String?
+  ownedCollections   User_Collection[]
+  userWallets        User_Wallet[]
+  floorAlerts        FloorAlerts[]
+  userWatchlists     User_Watchlist[]
+  VerificationToken  VerificationToken[]
+  PasswordResetToken PasswordResetToken[]
+}
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  email   String
+  user    User     @relation(fields: [email], references: [email])
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  user    User     @relation(fields: [email], references: [email])
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
 }
 
 model User_Collection {

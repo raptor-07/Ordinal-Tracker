@@ -12,6 +12,7 @@ import { RegisterSchema } from "@/schemas";
 import { useState } from "react";
 import register from "@/actions/register";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function SignupPage() {
 
       console.log("Form submitted");
 
-      router.push("/auth/signin");
+      // router.push("/auth/signin");
     } catch (error: any) {
       console.error("Validation error:", error.message);
     }
@@ -123,6 +124,17 @@ export default function SignupPage() {
             </Button>
           </FormControl>
         </form>
+        <Link
+          href="/auth/signin"
+          style={{
+            color: "#ffffff",
+            textDecoration: "underline",
+            textAlign: "center",
+            fontSize: "14px",
+          }}
+        >
+          Already have an account?
+        </Link>
       </Box>
     </Container>
   );
