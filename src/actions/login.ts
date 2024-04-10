@@ -2,6 +2,10 @@
 
 import { LoginSchema } from "@/schemas";
 import { signIn } from "@/auth";
+import { getUserByEmail } from "@/data/user";
+import { sendEmailVerification } from "@/lib/email";
+import { generateVerificationToken } from "@/lib/tokens";
+import { VerificationToken } from "@prisma/client";
 
 const login = async (
   values: {
@@ -16,6 +20,18 @@ const login = async (
     return { error: "Validation error" };
   }
   const { email, password } = validateFields.data;
+
+  const user = await getUserByEmail(email);
+
+  if (user?.emailVerified === null) {
+    const token: VerificationToken = await generateVerificationToken(email);
+    console.log("Token generated", token);
+
+    //send verification email
+    await sendEmailVerification(token.email, token.token);
+
+    return { error: "Email not verified" };
+  }
 
   await signIn("credentials", {
     email,

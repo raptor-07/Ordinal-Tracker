@@ -9,7 +9,9 @@ import {
   FormControl,
   Link,
   CircularProgress,
+  Alert,
 } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
 import { LoginSchema } from "@/schemas";
 import { useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -32,6 +34,7 @@ export default function SigninPage() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -64,6 +67,13 @@ export default function SigninPage() {
       }
 
       const result = await login(validateFields.data, callBackUrl);
+
+      if (result?.error == "Email not verified") {
+        setEmailSuccess(true);
+        setTimeout(() => {
+          setEmailSuccess(false);
+        }, 4000);
+      }
 
       setIsLoading(false);
     } catch (error: any) {
@@ -135,6 +145,11 @@ export default function SigninPage() {
               value={formData.password}
               onChange={handleChange}
             />
+            {emailSuccess && (
+              <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+                Confirmation email sent successfully!
+              </Alert>
+            )}
             <Button
               type="submit"
               variant="text"
