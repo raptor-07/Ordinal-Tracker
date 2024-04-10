@@ -7,7 +7,9 @@ import {
   TextField,
   Button,
   FormControl,
+  Alert,
 } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
 import { RegisterSchema } from "@/schemas";
 import { useState } from "react";
 import register from "@/actions/register";
@@ -22,6 +24,8 @@ export default function SignupPage() {
     password: "",
     name: "",
   });
+
+  const [emailSuccess, setEmailSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,7 +47,11 @@ export default function SignupPage() {
 
       console.log("Form submitted");
 
-      // router.push("/auth/signin");
+      setEmailSuccess(true);
+
+      setTimeout(() => {
+        setEmailSuccess(false);
+      }, 4000);
     } catch (error: any) {
       console.error("Validation error:", error.message);
     }
@@ -67,7 +75,7 @@ export default function SignupPage() {
           display: "flex",
           flexDirection: "column",
           gap: "20px",
-          width: "300px",
+          width: "400px",
         }}
       >
         <Avatar
@@ -108,6 +116,11 @@ export default function SignupPage() {
               value={formData.name}
               onChange={handleChange}
             />
+            {emailSuccess && ( // Render the Alert component only if emailSuccess is true
+              <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+                Confirmation email sent successfully!
+              </Alert>
+            )}
             <Button
               type="submit"
               variant="text"
