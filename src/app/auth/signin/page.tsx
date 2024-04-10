@@ -111,7 +111,7 @@ export default function SigninPage() {
           display: "flex",
           flexDirection: "column",
           gap: "20px",
-          width: "300px",
+          width: "50vh",
         }}
       >
         <Avatar
@@ -145,6 +145,18 @@ export default function SigninPage() {
               value={formData.password}
               onChange={handleChange}
             />
+            <Link
+              href="/auth/forgot-password"
+              color="inherit"
+              sx={{
+                marginTop: "-16px",
+                padding: "0",
+                fontSize: "0.7rem",
+                textAlign: "right",
+              }}
+            >
+              {"Forgot Password?"}
+            </Link>
             {emailSuccess && (
               <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
                 Confirmation email sent successfully!
