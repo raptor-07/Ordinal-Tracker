@@ -16,7 +16,26 @@ export const sendEmailVerification = async (email: string, token: string) => {
     resend.emails.send({
         from: 'OrdiFy@hurmaan.biz',
         to: email,
-        subject: 'Hello World',
+        subject: 'Confirm Email for Ordi Track',
+        html: Template,
+    });
+}
+
+export const sendPasswordResetEmail = async (email: string, token: string) => {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const resetLink = `${process.env.BASE_URL}/auth/reset-password?token=${token}`;
+
+    const Template = `
+    <h1>Reset Password</h1>
+    <p>Click the link below to reset your password</p>
+    <a href="${resetLink}">Reset Password</a>
+    `;
+
+    resend.emails.send({
+        from: 'OrdiFy@hurmaan.biz',
+        to: email,
+        subject: 'Password Reset for Ordi Track',
         html: Template,
     });
 }
