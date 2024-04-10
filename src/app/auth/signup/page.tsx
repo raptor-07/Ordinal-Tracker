@@ -15,6 +15,7 @@ import { useState } from "react";
 import register from "@/actions/register";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { set } from "zod";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function SignupPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       localStorage.clear();
@@ -43,7 +44,16 @@ export default function SignupPage() {
         console.error("Validation error");
         return;
       }
-      register(validateFields.data);
+      const result = await register(validateFields.data);
+
+      console.log("result", result);
+
+      if (result?.error) {
+        //user already exists
+        console.error("User already exists");
+        setFormData({ email: "", password: "", name: "" });
+        return;
+      }
 
       console.log("Form submitted");
 
@@ -75,7 +85,7 @@ export default function SignupPage() {
           display: "flex",
           flexDirection: "column",
           gap: "20px",
-          width: "400px",
+          width: "50vh",
         }}
       >
         <Avatar
@@ -116,7 +126,7 @@ export default function SignupPage() {
               value={formData.name}
               onChange={handleChange}
             />
-            {emailSuccess && ( // Render the Alert component only if emailSuccess is true
+            {emailSuccess && (
               <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
                 Confirmation email sent successfully!
               </Alert>
