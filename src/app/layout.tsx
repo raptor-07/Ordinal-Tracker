@@ -10,6 +10,12 @@ import "./globals.css";
 import { MuiContext } from "./context/MuiContext";
 import { ReactNode } from "react";
 import { ToastContainer } from "react-toastify";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "OrdiTrack",
+  description: "Get Instant Floor Alerts or Ordinals",
+};
 
 export default async function RootLayout({
   children,
