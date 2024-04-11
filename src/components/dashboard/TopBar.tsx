@@ -16,7 +16,9 @@ import { usePathname } from "next/navigation";
 import { useCurrentUser } from "@/hooks/current-user";
 import CloseIcon from "@mui/icons-material/Close";
 import Profile from "./Profile";
+import StormLogo from "@/assets/Stormglass1.png";
 import { signIn } from "@/auth";
+import Image from "next/image";
 
 function TopBar() {
   const router = useRouter();
@@ -71,9 +73,21 @@ function TopBar() {
   return (
     <>
       <div className="flex justify-between  py-2 items-center">
-        <p onClick={() => router.push("/")} className="text-2xl text-green-600">
-          OrdiTrack
-        </p>
+        <div className="flex items-center gap-2">
+          <Image
+            src={StormLogo}
+            alt="Storm"
+            width={20}
+            height={20}
+            className="w-10 h-10"
+          />
+          <p
+            onClick={() => router.push("/")}
+            className="text-2xl text-orange-600"
+          >
+            Storm<span className="text-yellow-500">Glass</span>
+          </p>
+        </div>
 
         <div className="flex gap-10">
           {pages.map((page) => (
@@ -83,8 +97,8 @@ function TopBar() {
               className="cursor-pointer"
             >
               <Button
-                className={`hover:text-green-700 ${
-                  page.active ? "text-green-700" : ""
+                className={`hover:text-orange-700 ${
+                  page.active ? "text-orange-700" : ""
                 }`}
               >
                 {page.name}

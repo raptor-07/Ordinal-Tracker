@@ -13,7 +13,7 @@ import { ToastContainer } from "react-toastify";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "OrdiTrack",
+  title: "StormGlass",
   description: "Get Instant Floor Alerts or Ordinals",
 };
 
