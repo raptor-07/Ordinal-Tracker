@@ -28,7 +28,7 @@ const login = async (
     console.log("Token generated", token);
 
     //send verification email
-    await sendEmailVerification(token.email, token.token);
+    await sendEmailVerification(email, token.token);
 
     return { error: "Email not verified" };
   }

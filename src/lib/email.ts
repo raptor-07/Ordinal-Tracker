@@ -1,41 +1,36 @@
 "use server";
 
+import EmailTemplate from "@/components/Templates";
 import { Resend } from "resend";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const sendEmailVerification = async (email: string, token: string) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const confirmLink = `${process.env.BASE_URL}/auth/confirm-email?token=${
+    token || ""
+  }`;
 
-  const confirmLink = `${process.env.BASE_URL}/auth/confirm-email?token=${token}`;
-
-  const Template = `
-    <h1>Confirm your email</h1>
-    <p>Click the link below to confirm your email</p>
-    <a href="${confirmLink}">Confirm Email</a>
-    `;
-
-  resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: email,
+  await resend.emails.send({
+    from: "OrdiFy@hurmaan.biz",
+    to: [email],
     subject: "Confirm Email for Ordi Track",
-    html: Template,
+    react: EmailTemplate({ emailType: "confirmation", link: confirmLink }),
   });
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  // const resend = new Resend(process.env.RESEND_API_KEY);
 
-  const resetLink = `${process.env.BASE_URL}/auth/reset-password?token=${token}`;
+  const resetLink = `${process.env.BASE_URL}/auth/reset-password?token=${
+    token || ""
+  }`;
 
-  const Template = `
-    <h1>Reset Password</h1>
-    <p>Click the link below to reset your password</p>
-    <a href="${resetLink}">Reset Password</a>
-    `;
-
-  resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: email,
+  const { data, error } = await resend.emails.send({
+    from: "OrdiFy@hurmaan.biz",
+    to: [email],
     subject: "Password Reset for Ordi Track",
-    html: Template,
+    react: EmailTemplate({ emailType: "reset", link: resetLink }),
   });
+
+  console.log(data, error);
 };
