@@ -97,8 +97,8 @@ const Profile: React.FC<ProfileProps> = () => {
       });
 
       //redirect to landing page
-      setIsLoggedIn(false);
-      router.push('/');
+
+      router.push("/");
       return;
     } else {
       console.log("Error logging out", result.error);
@@ -106,17 +106,7 @@ const Profile: React.FC<ProfileProps> = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        width: "100%",
-      }}
-      style={{
-        backgroundColor: "#000000",
-      }}
-    >
+    <div>
       <IconButton
         edge="end"
         aria-label="account of current user"
@@ -133,11 +123,7 @@ const Profile: React.FC<ProfileProps> = () => {
             backgroundColor: "#000000",
           }}
         >
-          <PersonOutlineIcon
-            style={{
-              fill: "#ffffff",
-            }}
-          />
+          <PersonOutlineIcon className="fill-white" />
         </Avatar>
       </IconButton>
       <Menu
@@ -207,7 +193,7 @@ const Profile: React.FC<ProfileProps> = () => {
           </MenuItem>
         )}
       </Menu>
-    </Box>
+    </div>
   );
 };
 

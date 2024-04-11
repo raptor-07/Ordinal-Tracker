@@ -8,6 +8,7 @@ import { getWatchlists, addWatchListBySlug } from "@/actions/handleWatchlist";
 import { useCurrentUser } from "@/hooks/current-user";
 import { useRouter } from "next/navigation";
 import { cleanData, sortingTable } from "../dashboard/Table";
+import { helperToast } from "@/lib/helperToast";
 
 function SearchWatchlist({
   watchlist,
@@ -32,7 +33,7 @@ function SearchWatchlist({
   const router = useRouter();
   let userRef: any = React.useRef(user);
   if (!userRef) {
-    alert("Please login to add a collection to your watchlist");
+    helperToast.error("Please login to add a collection to your watchlist");
     router.push("/auth/signin");
   }
   console.log("userRef", userRef, user);
@@ -52,10 +53,10 @@ function SearchWatchlist({
         if (
           data.error === "Please login to add a collection to your watchlist"
         ) {
-          alert(data.error);
+          helperToast.error(data.error);
           router.push("/auth/signin");
         } else {
-          alert(data.error);
+          helperToast.error(data.error);
           slug.value = "";
           return;
         }
@@ -100,7 +101,7 @@ function SearchWatchlist({
         listStyle: "none",
         p: 0,
         m: 0,
-        backgroundColor: "#000000",
+        // backgroundColor: "#000000",
       }}
       component="ul"
     >
@@ -108,17 +109,17 @@ function SearchWatchlist({
         sx={{
           display: "flex",
           backgroundColor: "#000000",
-          padding: "10px 0 0px 0",
+          padding: "10px",
           margin: "0px",
           minWidth: "100%",
           height: "100%",
-          boxShadow: "0px 0px 2px 0px #c5c2f1",
+          // boxShadow: "0px 0px 2px 0px #c5c2f1",
         }}
         disableGutters
       >
         <TextField
           id="filled-basic"
-          variant="standard"
+          variant="outlined"
           onKeyDown={handleaddWatchListBySlug}
           style={{
             borderRadius: "50px",
@@ -128,7 +129,7 @@ function SearchWatchlist({
           }}
           label="Enter Collection Slug Or MagicEden Url"
           sx={{
-            minWidth: "100%",
+            width: "50%",
             "&placeholder": {
               marginLeft: "10px",
               textAlign: "center",

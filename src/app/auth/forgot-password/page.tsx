@@ -18,6 +18,7 @@ import { useSearchParams } from "next/navigation";
 import { Label } from "@mui/icons-material";
 import { sendResetPassword } from "@/actions/passwordReset";
 import { set } from "zod";
+import { helperToast } from "@/lib/helperToast";
 
 export default function ResetPage() {
   const searchParams = useSearchParams();
@@ -54,7 +55,7 @@ export default function ResetPage() {
         setEmailSuccess(false);
       }, 5000);
     } catch (error: any) {
-      alert("Please try again: " + error.message);
+      helperToast.error("Please try again: " + error.message);
       setIsLoading(false);
     }
   };
