@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { markWallet } from "@/actions/markWallet";
+import { helperToast } from "@/lib/helperToast";
 
 const WalletTxns: React.FC = () => {
   const router = useRouter();
@@ -37,7 +38,7 @@ const WalletTxns: React.FC = () => {
       const data = await getWallets(userRef);
       if (data === null) {
         //logout user
-        alert("User not found, please login again");
+        helperToast.error("User not found, please login again");
         router.push("/auth/signin");
       }
       // Ensure alertsEnabled is always defined
@@ -55,7 +56,7 @@ const WalletTxns: React.FC = () => {
     console.log("toggleWalletAlert", wId);
     const result: any = await markWallet(wId, newState, userRef.current);
     if (result.error) {
-      alert(result.error);
+      helperToast.error(result.error);
       return;
     }
 

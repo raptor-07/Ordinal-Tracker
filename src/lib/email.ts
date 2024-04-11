@@ -1,41 +1,36 @@
 "use server";
 
-import { Resend } from 'resend';
+import EmailTemplate from "@/components/Templates";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmailVerification = async (email: string, token: string) => {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+  const confirmLink = `${process.env.BASE_URL}/auth/confirm-email?token=${
+    token || ""
+  }`;
 
-    const confirmLink = `${process.env.BASE_URL}/auth/confirm-email?token=${token}`;
-
-    const Template = `
-    <h1>Confirm your email</h1>
-    <p>Click the link below to confirm your email</p>
-    <a href="${confirmLink}">Confirm Email</a>
-    `;
-
-    resend.emails.send({
-        from: 'OrdiFy@hurmaan.biz',
-        to: email,
-        subject: 'Confirm Email for Ordi Track',
-        html: Template,
-    });
-}
+  await resend.emails.send({
+    from: "OrdiFy@hurmaan.biz",
+    to: [email],
+    subject: "Confirm Email for Ordi Track",
+    react: EmailTemplate({ emailType: "confirmation", link: confirmLink }),
+  });
+};
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+  // const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const resetLink = `${process.env.BASE_URL}/auth/reset-password?token=${token}`;
+  const resetLink = `${process.env.BASE_URL}/auth/reset-password?token=${
+    token || ""
+  }`;
 
-    const Template = `
-    <h1>Reset Password</h1>
-    <p>Click the link below to reset your password</p>
-    <a href="${resetLink}">Reset Password</a>
-    `;
+  const { data, error } = await resend.emails.send({
+    from: "OrdiFy@hurmaan.biz",
+    to: [email],
+    subject: "Password Reset for Ordi Track",
+    react: EmailTemplate({ emailType: "reset", link: resetLink }),
+  });
 
-    resend.emails.send({
-        from: 'OrdiFy@hurmaan.biz',
-        to: email,
-        subject: 'Password Reset for Ordi Track',
-        html: Template,
-    });
-}
+  console.log(data, error);
+};

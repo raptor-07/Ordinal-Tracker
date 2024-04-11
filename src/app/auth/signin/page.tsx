@@ -18,6 +18,7 @@ import { useSearchParams } from "next/navigation";
 import login from "@/actions/login";
 import { useCurrentUser } from "@/hooks/current-user";
 import { signOut } from "@/auth";
+import { helperToast } from "@/lib/helperToast";
 
 export default function SigninPage() {
   const searchParams = useSearchParams();
@@ -47,7 +48,7 @@ export default function SigninPage() {
       setIsLoading(true);
       if (userRef.current !== undefined) {
         //session exists
-        signOut();
+        // signOut();
         //clear local storage
         localStorage.clear();
         console.log("Local Storage Cleared", localStorage);
@@ -77,7 +78,7 @@ export default function SigninPage() {
 
       setIsLoading(false);
     } catch (error: any) {
-      alert("Please try again: " + error.message);
+      helperToast.error("Please try again: " + error.message);
       setIsLoading(false);
     }
   };

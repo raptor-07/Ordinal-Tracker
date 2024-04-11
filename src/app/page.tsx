@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import CustomButton from "../components/landing-page/CustomButton";

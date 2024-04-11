@@ -16,6 +16,7 @@ import register from "@/actions/register";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { set } from "zod";
+import { helperToast } from "@/lib/helperToast";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function SignupPage() {
       const validateFields = RegisterSchema.safeParse(formData);
 
       if (!validateFields.success) {
-        console.error("Validation error");
+        helperToast.error("Validation error");
         return;
       }
       const result = await register(validateFields.data);
@@ -50,7 +51,7 @@ export default function SignupPage() {
 
       if (result?.error) {
         //user already exists
-        console.error("User already exists");
+        helperToast.error("User already exists");
         setFormData({ email: "", password: "", name: "" });
         return;
       }

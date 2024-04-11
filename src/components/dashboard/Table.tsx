@@ -32,6 +32,7 @@ import {
   addWatchListById,
   deleteWatchlistById,
 } from "@/actions/handleWatchlist";
+import { helperToast } from "@/lib/helperToast";
 
 export const sortingTable = (sort: string, data: any[], type: boolean) => {
   console.log("sort", sort);
@@ -243,6 +244,8 @@ export default function CollectionTable({
 
   const [sort, setSort] = React.useState("floor");
 
+  const [loading, setLoading] = React.useState(false);
+
   const [sortDirections, setSortDirections] = React.useState({
     floor: false,
     "1D_floor": true,
@@ -430,7 +433,7 @@ export default function CollectionTable({
             return;
           }
           if (data.error === "No data found") {
-            alert("Service down, please try again later! from 2");
+            helperToast.error("Service down, please try again later! from 2");
             setDashBoardData([
               {
                 collection_id: "",
@@ -452,7 +455,9 @@ export default function CollectionTable({
             return;
           }
           console.error("Error in getting data", data.error);
-          alert("Error in getting data. You may need to login again!");
+          helperToast.error(
+            "Error in getting data. You may need to login again!"
+          );
           setIsLoading(false);
           router.push("/auth/signin");
           return;
@@ -473,7 +478,7 @@ export default function CollectionTable({
         setIsLoading(false);
         localStorage.setItem("dashboardData", JSON.stringify(data));
       } else {
-        alert("Service down, please try again later! from 3");
+        helperToast.error("Service down, please try again later! from 3");
         return;
       }
     };
@@ -501,6 +506,7 @@ export default function CollectionTable({
 
   const markAsWatchlist = async (collectionId: string) => {
     try {
+      setLoading(true);
       if (userRef.current === undefined) {
         //session does not exist
         handleOpen();
@@ -519,7 +525,7 @@ export default function CollectionTable({
 
         if (result?.error) {
           console.error(result.error);
-          alert("Error in deleting collection from watchlist");
+          helperToast.error("Error in deleting collection from watchlist");
           return;
         }
 
@@ -534,7 +540,7 @@ export default function CollectionTable({
         console.log("result", result);
         if (result.error) {
           console.error(result.error);
-          alert("Error in adding collection to watchlist");
+          helperToast.error("Error in adding collection to watchlist");
           return;
         }
         // If the database action is successful, update the state
@@ -553,6 +559,8 @@ export default function CollectionTable({
     } catch (error) {
       // Handle the error
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -728,19 +736,20 @@ export default function CollectionTable({
                     )}
 
                     {row.name}
-                    <motion.div
-                      whileHover="hover"
-                      whileTap="tap"
-                      variants={starVariants}
+                    <IconButton
                       onClick={() => markAsWatchlist(row.collection_id)}
                     >
-                      {row.image_url !== "" &&
+                      {loading ? (
+                        <CircularProgress size={16} color="inherit" />
+                      ) : (
+                        row.image_url !== "" &&
                         (watchlist.includes(row.collection_id) ? (
                           <Star />
                         ) : (
                           <StarBorder />
-                        ))}
-                    </motion.div>
+                        ))
+                      )}
+                    </IconButton>
                   </Box>
                 </TableCell>
                 <TableCell align="center">

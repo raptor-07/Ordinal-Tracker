@@ -44,6 +44,7 @@ import {
   deleteAlertEntry,
   deleteAlertEntryByCollection,
 } from "@/actions/deleteAlertEntry";
+import { helperToast } from "@/lib/helperToast";
 
 export interface Watchlist {
   name: string;
@@ -104,8 +105,6 @@ export default function CollectionTable({
     "market_cap",
     "owners",
   ];
-
-  const [loadStar, setLoadStar] = React.useState(false);
 
   const buttonVariants = {
     hover: {
@@ -172,10 +171,10 @@ export default function CollectionTable({
       console.log("watchlist data", data);
       if (data.error) {
         if (data.error === "Please login to view your watchlist") {
-          alert(data.error);
+          helperToast.error(data.error);
           router.push("/auth/signin");
         }
-        alert(data.error);
+        helperToast.error(data.error);
         return;
       }
       if (data.watchlists) {
@@ -195,7 +194,6 @@ export default function CollectionTable({
 
   React.useEffect(() => {
     //get watchlist data
-    setLoadStar(true);
     const fetchData = async () => {
       const watchlistTableData = localStorage.getItem("watchlistTableData");
       if (watchlistTableData) {
@@ -204,7 +202,6 @@ export default function CollectionTable({
           "Data exists in local storage - using local storage to render data"
         );
         setWatchlist(JSON.parse(watchlistTableData));
-        setLoadStar(false);
         setIsLoading(false);
         return;
       }
@@ -220,10 +217,10 @@ export default function CollectionTable({
       console.log("watchlist data", data);
       if (data.error) {
         if (data.error === "Please login to view your watchlist") {
-          alert(data.error);
+          helperToast.error(data.error);
           router.push("/auth/signin");
         }
-        alert(data.error);
+        helperToast.error(data.error);
         return;
       }
       if (data.watchlists) {
@@ -232,8 +229,6 @@ export default function CollectionTable({
         console.log("sortedData", sortedData);
         setWatchlist(sortedData);
         localStorage.setItem("watchlistTableData", JSON.stringify(sortedData));
-        setLoadStar(false);
-        setIsLoading(false);
       }
     };
     fetchData();
@@ -272,12 +267,11 @@ export default function CollectionTable({
 
   const markAsWatchlist = async (collectionId: string) => {
     try {
-      setLoadStar(true);
       const result: any = await deleteWatchlistById(collectionId, userRef);
 
       if (result?.error) {
         console.error(result.error);
-        alert("Error in deleting collection from watchlist");
+        helperToast.error("Error in deleting collection from watchlist");
         return;
       }
 
@@ -313,13 +307,13 @@ export default function CollectionTable({
       await deleteAlertEntryByCollection(userRef, collectionId);
 
       setWatchlist(updatedWatchlistData);
-      setLoadStar(false);
       setReloadTable(!reloadTable);
 
       return;
     } catch (error) {
       // Handle the error
       console.error(error);
+    } finally {
     }
   };
 
@@ -339,7 +333,7 @@ export default function CollectionTable({
 
         if (result?.error) {
           console.error(result.error);
-          alert("Error in deleting alert");
+          helperToast.error("Error in deleting alert");
           return;
         }
 
@@ -361,7 +355,7 @@ export default function CollectionTable({
 
         if (result?.error) {
           console.error(result.error);
-          alert("Error in adding alert");
+          helperToast.error("Error in adding alert");
           return;
         }
 
@@ -510,7 +504,7 @@ export default function CollectionTable({
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "20px",
+                        gap: "10px",
                       }}
                     >
                       {row.image === "" ? (
@@ -520,10 +514,7 @@ export default function CollectionTable({
                       )}
 
                       {row.name}
-                      <motion.div
-                        whileHover="hover"
-                        whileTap="tap"
-                        variants={starVariants}
+                      <IconButton
                         onClick={() => markAsWatchlist(row.collection_id)}
                       >
                         {row.image !== "" &&
@@ -541,11 +532,8 @@ export default function CollectionTable({
                               />
                             </>
                           ))}
-                      </motion.div>
-                      <motion.div
-                        whileHover="hover"
-                        whileTap="tap"
-                        variants={starVariants}
+                      </IconButton>
+                      <IconButton
                         onClick={() => setAlertsHandler(row.collection_id)}
                       >
                         {row.image !== "" &&
@@ -557,7 +545,7 @@ export default function CollectionTable({
                         ) : (
                           <NotificationsNoneIcon />
                         )}
-                      </motion.div>
+                      </IconButton>
                     </Box>
                   </TableCell>
                   <TableCell align="center">

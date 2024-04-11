@@ -16,6 +16,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import { useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { resetPassword } from "@/actions/passwordReset";
+import { helperToast } from "@/lib/helperToast";
 
 export default function ResetPage() {
   const searchParams = useSearchParams();
@@ -41,7 +42,7 @@ export default function ResetPage() {
       const token = searchParams.get("token");
 
       if (!token) {
-        alert("Wrong Url!");
+        helperToast.error("Wrong Url!");
         setFormData({ newPassword: "", confirmPassword: "" });
         setIsLoading(false);
         return;
@@ -49,7 +50,7 @@ export default function ResetPage() {
 
       //check if both passwords are same
       if (formData.newPassword !== formData.confirmPassword) {
-        alert("Passwords do not match");
+        helperToast.error("Passwords do not match");
         setFormData({ newPassword: "", confirmPassword: "" });
         setIsLoading(false);
         return;
@@ -70,7 +71,7 @@ export default function ResetPage() {
         setResetSuccess(false);
       }, 5000);
     } catch (error: any) {
-      alert("Please try again: " + error.message);
+      helperToast.error("Please try again: " + error.message);
       setIsLoading(false);
     }
   };

@@ -24,6 +24,7 @@ import {
   Switch,
 } from "@mui/material";
 import { useReloadState } from "@/hooks/sharedReload";
+import { helperToast } from "@/lib/helperToast";
 
 function FloorTxns() {
   const user = useCurrentUser();
@@ -40,7 +41,7 @@ function FloorTxns() {
       const data: any = await getWatchlists(userRef);
       setIsLoading(false);
       if (data.error) {
-        alert(data.error);
+        helperToast.error(data.error);
         if (data.error === "Please login to view your watchlist") {
           router.push("/auth/signin");
         }
@@ -74,12 +75,14 @@ function FloorTxns() {
       ).aId;
       const deleteResult = await deleteAlertEntry(userRef, alertId);
       if (deleteResult.success) {
-  
-        setAlertEntries(alertEntries.filter(item => item.aId !== alertId));
+        setAlertEntries(alertEntries.filter((item) => item.aId !== alertId));
         setReload(!reload);
       }
     } else {
-      const createResult = await createAlertEntry(userRef, watchlist[index].collection_id);
+      const createResult = await createAlertEntry(
+        userRef,
+        watchlist[index].collection_id
+      );
       if (createResult.success) {
         // Add the new alert to the local state
         setAlertEntries([...alertEntries, createResult.data]);

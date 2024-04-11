@@ -7,6 +7,7 @@ import { Container } from "@mui/material";
 import { validate, Network } from "bitcoin-address-validation";
 import { useCurrentUser } from "@/hooks/current-user";
 import { deleteWallet } from "@/actions/deleteWallet";
+import { helperToast } from "@/lib/helperToast";
 export interface ChipData {
   key: number;
   label: string;
@@ -49,7 +50,7 @@ function Wallets({
           );
           return;
         }
-        alert(result.error);
+        helperToast.error(result.error);
         return;
       }
       setWallets((chips) =>
@@ -121,13 +122,13 @@ function Wallets({
           margin: "0px",
           minWidth: "100%",
           height: "100%",
-          boxShadow: "0px 0px 2px 0px #c5c2f1",
+          // boxShadow: "0px 0px 2px 0px #c5c2f1",
         }}
       >
         <TextField
           id="filled-basic"
           label="Add Wallet"
-          variant="standard"
+          variant="outlined"
           onKeyDown={HandleAddWallet}
           style={{
             borderRadius: "50px",
