@@ -5,15 +5,16 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/system";
-import { Box, Typography } from "@mui/material";
+import { Alert, Typography } from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import addTelegramId from "@/actions/addTelegramId";
 import { useCurrentUser } from "@/hooks/current-user";
 import logout from "@/actions/signout";
 import { useRouter } from "next/navigation";
+import checkTeleId from "@/actions/checkTeleId";
+import TelegramIcon from "@mui/icons-material/Telegram";
+import getUserId from "@/actions/getUserId";
 
 interface ProfileProps {}
 
@@ -26,46 +27,35 @@ const Profile: React.FC<ProfileProps> = () => {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [telegramId, setTelegramId] = useState("");
+  const [telegramConnect, setTelegramConnect] = useState<boolean>(false);
 
   const currentUser = useCurrentUser();
   const userRef = React.useRef(currentUser);
   const init = userRef.current === undefined ? false : true;
   const [isLoggedIn, setIsLoggedIn] = useState(init);
 
-  const handleTelegramIdChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTelegramId(event.target.value);
-  };
+  React.useEffect(() => {
+    // I am checking if we already have the users tele id in which case connect telegram button should not be shown
 
-  const handleTelegramIdEnter = async (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      if (userRef.current === undefined) {
-        (event.target as HTMLInputElement).value = "";
-        alert("Log in to use this feature!");
-        setTelegramId("");
-        (event.target as HTMLInputElement).value = "";
-        return;
+    async function teleStatus() {
+      if (userRef.current) {
+        const result = await checkTeleId(userRef.current.email);
+        if (result) {
+          setTelegramConnect(true);
+        } else {
+          setTelegramConnect(false);
+        }
       }
-      //call addTelegramId server action
-      const result: any = await addTelegramId(userRef, telegramId);
+    }
+    teleStatus();
+  }, []);
 
-      if (result.success) {
-        console.log("Telegram ID added successfully");
-        (event.target as HTMLInputElement).value = "Added successfully!";
-        setTimeout(() => {
-          setTelegramId("");
-        }, 500);
-      } else {
-        console.log("Error adding Telegram ID", result.error);
-        alert("Error adding Telegram ID");
-        setTelegramId("");
-        (event.target as HTMLInputElement).value = "";
-      }
-      console.log(telegramId);
-
-      return;
+  const handleTelegramConnect = async () => {
+    if (userRef.current) {
+      const userId = await getUserId(userRef.current.email);
+      console.log("userId", userId);
+      // Here I have attached the userId to bot link and the redirect the user
+      router.push(`https://t.me/Ordify_bot?start=${userId}`);
     }
   };
 
@@ -154,14 +144,28 @@ const Profile: React.FC<ProfileProps> = () => {
           Profile
         </Typography>
         <MenuItem>
-          <TextField
-            label="Telegram chat ID"
-            value={telegramId}
-            onChange={handleTelegramIdChange}
-            onKeyDown={handleTelegramIdEnter}
-          />
+          {telegramConnect ? (
+            <Alert severity="success">Telegram connected</Alert>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleTelegramConnect}
+              sx={{
+                width: "100%",
+                padding: 1,
+                "&:hover": {
+                  backgroundColor: "rgb(90 125 250)",
+                  color: "#ffffff",
+                },
+              }}
+              className="flex justify-evenly border-x-blue-600 bg-blue-400"
+            >
+              <p className=" p-0 m-0">Connect Telegram</p>
+              <TelegramIcon />
+            </Button>
+          )}
         </MenuItem>
-        <MenuItem>
+        {/* <MenuItem>
           <StyledLink href="https://www.alphr.com/find-chat-id-telegram/">
             <p
               style={{
@@ -172,7 +176,7 @@ const Profile: React.FC<ProfileProps> = () => {
               Whats chat ID?
             </p>
           </StyledLink>
-        </MenuItem>
+        </MenuItem> */}
         {isLoggedIn && (
           <MenuItem>
             <Button
