@@ -1,16 +1,4 @@
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* .MuiDataGrid-cell--withRenderer.MuiDataGrid-cell.MuiDataGrid-cell--textLeft.MuiDataGrid-withBorderColor {
-  outline: none;
-}
-
-svg.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-i4bv87-MuiSvgIcon-root {
-  fill: green;
-  stroke: green;
-}
-
-.css-4wjvfs-MuiButtonBase-root-MuiButton-root {
-  color: green;
-} */
+  @tailwind components;
+  @tailwind utilities;
+  
