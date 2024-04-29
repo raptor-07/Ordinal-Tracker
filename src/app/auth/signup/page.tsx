@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { signupSchema } from "@/lib/types";
 import type { TSignUpSchema } from "@/lib/types";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import { addNewUser } from "@/actions/addNewUser";
 
 const Page = () => {
   const form = useForm<TSignUpSchema>({
@@ -27,35 +28,23 @@ const Page = () => {
   });
 
   const onSubmit = async (data: TSignUpSchema) => {
-    return new Promise<void>(async (resolve) => {
-      if (data.password !== data.confirmPassword) {
-        form.setError("confirmPassword", {
-          type: "manual",
-          message: "Passwords do not match",
-        });
-
-        console.error("Passwords do not match");
-
-        resolve();
-
-        return;
-      }
-
-      console.log(data);
-
-      const result = await fetch("http://localhost:3000/auth/signup", {
-        method: "POST",
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+    if (data.password !== data.confirmPassword) {
+      form.setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match",
       });
 
+      console.error("Passwords do not match");
+
+      return;
+    }
+
+    const result = await addNewUser(data);
+
+    if (result.success) {
+      console.log("User added successfully");
       form.reset();
-    });
+    }
   };
 
   return (
