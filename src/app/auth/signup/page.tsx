@@ -26,22 +26,35 @@ const Page = () => {
     },
   });
 
-  const onSubmit = (data: TSignUpSchema) => {
-    return new Promise<void>((resolve) => {
+  const onSubmit = async (data: TSignUpSchema) => {
+    return new Promise<void>(async (resolve) => {
       if (data.password !== data.confirmPassword) {
         form.setError("confirmPassword", {
           type: "manual",
           message: "Passwords do not match",
         });
+
         console.error("Passwords do not match");
+
         resolve();
+
         return;
       }
-      setTimeout(() => {
-        form.reset();
-        console.log(data);
-        resolve();
-      }, 3000);
+
+      console.log(data);
+
+      const result = await fetch("http://localhost:3000/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      form.reset();
     });
   };
 
@@ -108,6 +121,7 @@ const Page = () => {
             type="button"
             className="w-full mt-4"
             onClick={() => form.reset()}
+            disabled={form.formState.isSubmitting}
           >
             <IconBrandGoogleFilled />
           </Button>
