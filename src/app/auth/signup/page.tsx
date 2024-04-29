@@ -16,7 +16,6 @@ import { signupSchema } from "@/lib/types";
 import type { TSignUpSchema } from "@/lib/types";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
 import { addNewUser } from "@/actions/addNewUser";
-import { addGoogleUser } from "@/actions/addGoogleUser";
 
 const Page = () => {
   const form = useForm<TSignUpSchema>({
@@ -52,11 +51,9 @@ const Page = () => {
     form.reset();
 
     try {
-      const response = await addGoogleUser();
-      if (response.data && response.data.jwt) {
-        // Store the JWT token
-        localStorage.setItem("jwt-token", response.data.jwt);
-      }
+      const onGoogleSubmit = async () => {
+        window.location.href = "http://192.168.0.121:3000/auth/google-signin";
+      };
     } catch (error) {
       console.error("Error:", error);
     }
