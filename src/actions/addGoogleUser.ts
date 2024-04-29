@@ -16,7 +16,7 @@ export async function addGoogleUser() {
 
   const cookie = response.headers.get("Set-Cookie");
 
-  const data = await response.text();
+  const data = await response.json();
 
   return {
     data,

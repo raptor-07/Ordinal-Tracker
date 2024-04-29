@@ -52,7 +52,11 @@ const Page = () => {
     form.reset();
 
     try {
-      addGoogleUser();
+      const response = await addGoogleUser();
+      if (response.data && response.data.jwt) {
+        // Store the JWT token
+        localStorage.setItem("jwt-token", response.data.jwt);
+      }
     } catch (error) {
       console.error("Error:", error);
     }
