@@ -16,6 +16,7 @@ import { signupSchema } from "@/lib/types";
 import type { TSignUpSchema } from "@/lib/types";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
 import { addNewUser } from "@/actions/addNewUser";
+import { addGoogleUser } from "@/actions/addGoogleUser";
 
 const Page = () => {
   const form = useForm<TSignUpSchema>({
@@ -44,6 +45,16 @@ const Page = () => {
     if (result.success) {
       console.log("User added successfully");
       form.reset();
+    }
+  };
+
+  const onGoogleSubmit = async () => {
+    form.reset();
+
+    try {
+      addGoogleUser();
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
@@ -109,7 +120,7 @@ const Page = () => {
           <Button
             type="button"
             className="w-full mt-4"
-            onClick={() => form.reset()}
+            onClick={onGoogleSubmit}
             disabled={form.formState.isSubmitting}
           >
             <IconBrandGoogleFilled />
