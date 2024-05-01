@@ -4,10 +4,10 @@ import { TSignInSchema } from "@/lib/types";
 import "@/envConfig";
 
 export const signinUser = async (data: TSignInSchema) => {
-  console.log(data);
+  // console.log(data);
 
   const url = process.env.BACKEND_URL;
-  console.log(url);
+  // console.log(url);
 
   try {
     let response = await fetch(`${url}/auth/signin`, {
@@ -26,7 +26,8 @@ export const signinUser = async (data: TSignInSchema) => {
 
     if (response.ok) {
       const jwt = result.jwt;
-      console.log("jwt has arrived: ", jwt);
+      // console.log("jwt has arrived: ", jwt);
+
       return {
         success: true,
         jwt,
@@ -38,6 +39,7 @@ export const signinUser = async (data: TSignInSchema) => {
     }
   } catch (error) {
     console.error("Error occurred:", error);
+
     return {
       success: false,
     };
