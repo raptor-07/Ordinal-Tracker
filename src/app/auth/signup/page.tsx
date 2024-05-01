@@ -50,10 +50,10 @@ const Page = () => {
   const onGoogleSubmit = async () => {
     form.reset();
 
+    // form.formState.isSubmitting = true;
+
     try {
-      const onGoogleSubmit = async () => {
-        window.location.href = "http://192.168.0.121:3000/auth/google-signin";
-      };
+      window.location.href = "http://192.168.0.121:3000/auth/google-signin";
     } catch (error) {
       console.error("Error:", error);
     }
