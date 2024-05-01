@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { signupSchema } from "@/lib/types";
 import type { TSignUpSchema } from "@/lib/types";
-import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import {
+  IconBrandGoogleFilled,
+  IconEye,
+  IconEyeOff,
+} from "@tabler/icons-react";
 import { addNewUser } from "@/actions/addNewUser";
 
 const Page = () => {
@@ -26,6 +31,12 @@ const Page = () => {
       confirmPassword: "",
     },
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const onSubmit = async (data: TSignUpSchema) => {
     if (data.password !== data.confirmPassword) {
@@ -85,9 +96,26 @@ const Page = () => {
             name="password"
             render={({ field }) => (
               <FormItem className="my-2">
-                <FormLabel>password</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="********" {...field} />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleShowPassword}
+                      className="absolute inset-y-0 right-0 pr-2 flex items-center"
+                    >
+                      {showPassword ? (
+                        <IconEyeOff size={20} />
+                      ) : (
+                        <IconEye size={20} />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,9 +127,26 @@ const Page = () => {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem className="my-2">
-                <FormLabel>confirm password</FormLabel>
+                <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="********" {...field} />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleShowPassword}
+                      className="absolute inset-y-0 right-0 pr-2 flex items-center"
+                    >
+                      {showPassword ? (
+                        <IconEyeOff size={20} />
+                      ) : (
+                        <IconEye size={20} />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
