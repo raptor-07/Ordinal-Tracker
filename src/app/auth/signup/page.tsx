@@ -61,8 +61,6 @@ const Page = () => {
   const onGoogleSubmit = async () => {
     form.reset();
 
-    // form.formState.isSubmitting = true;
-
     try {
       window.location.href = "http://192.168.0.121:3000/auth/google-signin";
     } catch (error) {
@@ -158,7 +156,7 @@ const Page = () => {
             className="w-full mt-4"
             disabled={form.formState.isSubmitting}
           >
-            Submit
+            Sign up
           </Button>
 
           <hr className="mt-4 opacity-50 rounded-3xl" />
