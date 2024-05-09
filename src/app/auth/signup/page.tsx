@@ -21,8 +21,10 @@ import {
   IconEyeOff,
 } from "@tabler/icons-react";
 import { addNewUser } from "@/actions/addNewUser";
+import { useCookies } from "react-cookie";
 
 const Page = () => {
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt-token"]);
   const form = useForm<TSignUpSchema>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -62,13 +64,8 @@ const Page = () => {
     form.reset();
 
     try {
-      // window.location.href = "http://localhost:3000/auth/google-signin";
-      window.location.href =
-        "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
-      // fetch("http://localhost:3000/auth/google-signin", {
-      //   method: "GET",
-      //   credentials: "include",
-      // });
+      // const result = await fetch("/auth/api");
+      window.location.href = "http://localhost:3000/auth/google-signin";
     } catch (error) {
       console.error("Error:", error);
     }
