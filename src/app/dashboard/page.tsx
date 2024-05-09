@@ -12,6 +12,27 @@ export default function Home() {
   const tabs = ["Portfolio", "Watchlist", "Alerts"];
   const [activeTab, setActiveTab] = useState("Portfolio");
 
+  React.useEffect(() => {
+    console.log("Hello from the client");
+    const url = window.location.href;
+    console.log(url);
+    const jwtRegex = /jwt=([^&]+)/;
+
+    // Use the regex pattern to extract the JWT token from the URL
+    const jwtMatch = url.match(jwtRegex);
+
+    if (jwtMatch && jwtMatch.length > 1) {
+      const jwtToken = jwtMatch[1];
+      console.log("JWT Token:", jwtToken);
+      setCookie("jwt-token", jwtToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+      window.location.href = "/dashboard";
+    } else {
+      console.log("JWT token not found in the URL.");
+    }
+  }, []);
+
   const handleSignout = () => {
     removeCookie("jwt-token");
 
