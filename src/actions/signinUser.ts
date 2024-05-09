@@ -6,7 +6,7 @@ import "@/envConfig";
 export const signinUser = async (data: TSignInSchema) => {
   // console.log(data);
 
-  const url = process.env.BACKEND_URL;
+  const url = process.env.BACKEND_BASE_URL;
   // console.log(url);
 
   try {
