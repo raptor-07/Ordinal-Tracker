@@ -1,41 +1,19 @@
-"use client";
+import { Button } from "@/components/ui/button";
+import { link } from "fs";
+import Link from "next/link";
 
-import React, { useState } from "react";
-import { IconUserCircle } from "@tabler/icons-react";
-import { useCookies } from "react-cookie";
-
-export default function Home() {
-  const [cookies, setCookie, removeCookie] = useCookies(["jwt-token"]);
-
-  const tabs = ["Portfolio", "Watchlist", "Alerts"];
-  const [activeTab, setActiveTab] = useState("Portfolio");
-
-  const handleSignout = () => {
-    removeCookie("jwt-token");
-    return;
-  };
-
+export default function Page() {
   return (
-    <div className="container  mt-3 flex justify-between items-center">
-      <p className="text-2xl">OrdiTrack</p>
-      <div className="">
-        {tabs.map((tab) => {
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`${
-                activeTab === tab ? " text-white" : " text-zinc-400"
-              } py-2 px-4 rounded`}
-            >
-              {tab}
-            </button>
-          );
-        })}
-      </div>
-      <div className="hover:cursor-pointer" onClick={handleSignout}>
-        <IconUserCircle size={32} />
-      </div>
+    <div className="container mt-3 flex flex-col justify-center items-center">
+      <p className="text-center text-3xl">
+        Landing Page for Ordinal Tracker - TODO ⏳
+      </p>
+      <Button variant="link">
+        <Link href="/dashboard"> Go to Dashboard - Unprotected ↗️</Link>
+      </Button>
+      <Button variant="link">
+        <Link href="/auth/signup"> Go to Signup ↗️</Link>
+      </Button>
     </div>
   );
 }
