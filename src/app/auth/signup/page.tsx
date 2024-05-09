@@ -66,7 +66,7 @@ const Page = () => {
     try {
       // const result = await fetch("/auth/api");
       window.location.href =
-        "https://ordinal-tracker.onrender.com/auth/google-signin";
+        "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
     } catch (error) {
       console.error("Error:", error);
     }
