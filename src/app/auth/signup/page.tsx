@@ -65,7 +65,8 @@ const Page = () => {
 
     try {
       // const result = await fetch("/auth/api");
-      window.location.href = "http://localhost:3000/auth/google-signin";
+      window.location.href =
+        "https://ordinal-tracker.onrender.com/auth/google-signin";
     } catch (error) {
       console.error("Error:", error);
     }
