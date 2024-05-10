@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -22,9 +22,12 @@ import {
 } from "@tabler/icons-react";
 import { signinUser } from "@/actions/signinUser";
 import { useCookies } from "react-cookie";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-  const [cookies, setCookie] = useCookies(["jwt-token"]);
+  const router = useRouter();
+
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt-token"]);
 
   const form = useForm<TSignInSchema>({
     resolver: zodResolver(signinSchema),
@@ -36,6 +39,24 @@ const Page = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (window.location.search.includes("user=invalid-credentials")) {
+      form.setError("email", {
+        type: "manual",
+        message: "email or passoword is incorrect or does not exist",
+      });
+    }
+    if (window.location.search.includes("user=account-exists")) {
+      form.setError("email", {
+        type: "manual",
+        message: "account already exists with this email address",
+      });
+    }
+
+    window.history.pushState({}, "", "/auth/signin");
+    removeCookie("jwt-token");
+  }, []);
+
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -44,15 +65,19 @@ const Page = () => {
     // console.log("calling signinUser with data: ", data);
     const response = await signinUser(data);
 
+    console.log("response: ", response);
+
     if (response.success) {
       console.log("Sign in successful");
       setCookie("jwt-token", response.jwt, { path: "/" });
 
       form.reset();
+
+      router.push("/dashboard");
     } else {
-      form.setError("password", {
+      form.setError("email", {
         type: "manual",
-        message: "Password is incorrect",
+        message: response.error,
       });
 
       console.error("password is incorrect");
@@ -71,9 +96,9 @@ const Page = () => {
       // window.location.href =
       //   "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
 
-      // window.location.href = "http://localhost:3000/auth/google-signin"
+      window.location.href = "http://localhost:3000/auth/google-signin";
 
-      window.location.href = "http://192.168.0.102:3000/auth/google-signin"
+      // window.location.href = "http://192.168.0.102:3000/auth/google-signin"
     } catch (error) {
       console.error("Error:", error);
     }

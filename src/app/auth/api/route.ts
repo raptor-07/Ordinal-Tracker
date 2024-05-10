@@ -1,24 +1,27 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import "@/envConfig";
-import { type NextRequest } from 'next/server'
-
 
 export async function GET(request: Request, response: Response) {
-    const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
 
-    const jwt = searchParams.get("jwt");
+  const jwt = searchParams.get("jwt");
+  console.log("this is the search params", jwt);
 
-    console.log("this is the search params", jwt);
+  if (jwt?.includes("error")) {
+    let url = process.env.FRONTEND_BASE_URL + "/auth/signin";
 
-    // console.log(request.headers);
-    // console.log(request.headers.get("jwt-token"));
-    // const data = JSON.parse(request.headers.get("jwt-token") || "");
+    if (jwt.includes("invalid-credentials")) {
+      url =
+        process.env.FRONTEND_BASE_URL + "/auth/signup?user=invalid-credentials";
+    }
+    if (jwt.includes("account-exists")) {
+      url = process.env.FRONTEND_BASE_URL + "/auth/signup?user=account-exists";
+    }
+    console.log("redirecting to", url);
 
-    // console.log("this is the body", data);
+    redirect(url);
+  }
 
-    // console.log(process.env.GOOGLE_AUTH_ROUTE);
-    // console.log("hello from next route")
-
-    redirect(process.env.GOOGLE_AUTH_ROUTE + `?jwt=${jwt}` || "");
+  console.log("redirecting to ", process.env.GOOGLE_AUTH_ROUTE + `?jwt=${jwt}`);
+  redirect(process.env.GOOGLE_AUTH_ROUTE + `?jwt=${jwt}` || "");
 }

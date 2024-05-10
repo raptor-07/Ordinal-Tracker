@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -22,8 +22,11 @@ import {
 } from "@tabler/icons-react";
 import { addNewUser } from "@/actions/addNewUser";
 import { useCookies } from "react-cookie";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+  const router = useRouter();
+
   const [cookies, setCookie, removeCookie] = useCookies(["jwt-token"]);
   const form = useForm<TSignUpSchema>({
     resolver: zodResolver(signupSchema),
@@ -39,6 +42,24 @@ const Page = () => {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+  useEffect(() => {
+    if (window.location.search.includes("user=invalid-credentials")) {
+      form.setError("email", {
+        type: "manual",
+        message: "email or passoword is incorrect or does not exist",
+      });
+    }
+    if (window.location.search.includes("user=account-exists")) {
+      form.setError("email", {
+        type: "manual",
+        message: "account already exists with this email address",
+      });
+    }
+
+    window.history.pushState({}, "", "/auth/signup");
+    removeCookie("jwt-token");
+  }, []);
 
   const onSubmit = async (data: TSignUpSchema) => {
     if (data.password !== data.confirmPassword) {
@@ -56,7 +77,16 @@ const Page = () => {
 
     if (result.success) {
       console.log("User added successfully");
+
       form.reset();
+
+      router.push("/auth/signin");
+    } else {
+      console.error("Error occurred while adding user");
+      form.setError("email", {
+        type: "manual",
+        message: "User already exists with this email address",
+      });
     }
   };
 
@@ -68,9 +98,9 @@ const Page = () => {
       // window.location.href =
       //   "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
 
-      // window.location.href = "http://localhost:3000/auth/google-signin"
+      window.location.href = "http://localhost:3000/auth/google-signin";
 
-      window.location.href = "http://192.168.0.102:3000/auth/google-signin"
+      // window.location.href = "http://192.168.0.102:3000/auth/google-signin"
     } catch (error) {
       console.error("Error:", error);
     }
