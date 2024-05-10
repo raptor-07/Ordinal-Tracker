@@ -93,10 +93,10 @@ const Page = () => {
 
     try {
       //link-dependency
-      // window.location.href =
-      //   "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
+      window.location.href =
+        "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
 
-      window.location.href = "http://localhost:3000/auth/google-signin";
+      // window.location.href = "http://localhost:3000/auth/google-signin";
 
       // window.location.href = "http://192.168.0.102:3000/auth/google-signin"
     } catch (error) {
