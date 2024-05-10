@@ -3,7 +3,7 @@
 import "@/envConfig";
 
 export async function addGoogleUser() {
-  const url = process.env.BACKEND_URL + "/auth/google-signin";
+  const url = process.env.BACKEND_BASE_URL + "/auth/google-signin";
 
   console.log(url);
 
