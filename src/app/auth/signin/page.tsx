@@ -80,7 +80,7 @@ const Page = () => {
         message: response.error,
       });
 
-      console.error("password is incorrect");
+      // console.error("password is incorrect");
 
       return;
     }
@@ -94,7 +94,7 @@ const Page = () => {
     try {
       //link-dependency
       window.location.href =
-        "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
+      "https://ordinal-tracker-nest-be-7be2.onrender.com/auth/google-signin";
 
       // window.location.href = "http://localhost:3000/auth/google-signin";
 
@@ -155,6 +155,17 @@ const Page = () => {
               </FormItem>
             )}
           />
+
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => {
+              router.push("/auth/forgot-password");
+            }}
+          >
+            <div className="w-full text-right">forgot password?</div>
+          </Button>
 
           <Button
             type="submit"
